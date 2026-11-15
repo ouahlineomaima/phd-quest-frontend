@@ -1,13 +1,93 @@
-# PhD Quest frontend
+﻿# PhD Quest frontend
 
-Clone this repository beside `phd-quest-backend`. Shared Compose configuration and setup instructions live in [backend infra](https://github.com/ouahlineomaima/phd-quest-backend/tree/main/infra). From the parent workspace run `cd phd-quest-backend/infra` then `docker compose up -d --build`; stop with `docker compose down`. Main branch: https://github.com/ouahlineomaima/phd-quest-frontend.
+Angular 22 standalone frontend foundation: a responsive research workspace with a dark-first visual identity, local theme preferences, reusable UI primitives and six lazy-loaded page previews. No research records or gamification rules are implemented.
 
-Phase 1 foundation: standalone Angular, SCSS, routing, HttpClient and zoneless change detection. The empty router outlet intentionally renders a blank page. No design system or business features are installed.
+## Start
 
-Use Node 24.15+ (24.x) and npm. Run `npm ci`, `npm run build`, or `npm start`. The development server listens on port 4200 and polls for file changes for Windows Docker bind mounts.
+Keep `phd-quest-frontend` and `phd-quest-backend` as sibling repositories. From the parent workspace:
 
-`proxy.conf.json` forwards `/api` to `http://backend:3000` inside Compose. For host-only development, use a separate local proxy configuration targeting `http://localhost:3000`, and pass it to `npx ng serve --proxy-config <file>`.
+```powershell
+cd phd-quest-backend/infra
+docker compose up -d --build
+# Stop without removing database data:
+docker compose down
+```
 
-`src/app/core` is reserved for application-wide services, `shared` for reusable presentation code, and `features` for future routed features. Empty directories are tracked with `.gitkeep`.
+Open http://localhost:4200. The canonical Compose file remains in backend/infra. Source bind mounts and the Angular server's polling preserve hot reload. No backend code or database configuration was changed in Phase 3.
 
-This repository builds independently with `npm run build`. Its Dockerfile is a development image; run it on the Compose network to resolve the backend proxy hostname.
+For an independent build with Node 24.15+ (24.x):
+
+```powershell
+npm ci
+npm run build
+npm start
+```
+
+The development proxy forwards `/api` to `http://backend:3000` inside Compose. Host-only development needs a separate proxy file targeting localhost:3000, supplied to `npx ng serve --proxy-config <file>`. Static production hosting must serve `dist/phd-quest/browser` with index.html fallback for client routes, and route /api separately; the development proxy is not embedded in the production bundle.
+
+## Structure
+
+```text
+public/
+  icon.svg                          full/compact graduation-cap identity and favicon
+  fonts/                            self-hosted Inter and Space Grotesk + OFL licenses
+src/
+  index.html                        early saved-theme initialization
+  styles.scss                       semantic colors, typography, buttons and layout helpers
+  app/
+    app.ts, app.config.ts, app.routes.ts
+    core/
+      demo/preview-data.ts          isolated, immutable visual fixtures
+      layout/                       branding, responsive shell, styled 404
+      navigation/navigation.ts      shared sidebar labels and icons
+      services/
+        theme.service.ts            dark/light signals and localStorage preference
+        health.service.ts           existing /api/health only; no business API
+    shared/
+      models/preview.models.ts      lightweight presentation interfaces
+      components/
+        icon/icon.ts                original stroke-based SVG icon set
+        ui.ts                       card, page/section headings, stat, badge,
+                                    progress bar/ring, empty state, loading indicator
+        task-preview.ts             display-only sample task row
+    features/
+      dashboard/                    metrics, focus list, weekly chart, roadmap, goals
+      weekly-plan/                  sample week/day selection, objectives, deliverables
+      roadmap/                      three-year map with twelve illustrative levels
+      goals/                        sample goal cards and genuine empty-state messaging
+      achievements/                 locked/unlocked sample badges and XP presentation
+      settings/                     appearance + future settings sections
+      # Page folders use .ts, .html and .scss files.
+docs/PHASE3.md                       validation and scope report
+.artifacts/                         ignored local QA script/screenshots, not application source
+```
+
+Routes are /dashboard, /weekly-plan, /roadmap, /goals, /achievements and /settings. The root redirects to /dashboard; unknown paths show a styled 404. All six features and the shell are lazy-loaded.
+
+## Design system
+
+Default semantic palette: background #0B1020, surface #151C31, primary #8B5CF6, accent #22D3EE, XP gold #FBBF24, success #34D399, text #F8FAFC, muted #94A3B8, border #27334D, warning #F97316 and locked #64748B. CSS custom properties are the single source of truth. Dark tinted surfaces use a lighter `--primary-text` for small text, while light mode uses darker foreground variants. Primary button fill and text are separate semantic tokens.
+
+Space Grotesk headings and Inter body fonts are self-hosted with system fallbacks and font-display: swap. Their OFL licenses are in public/fonts; the app makes no runtime font-CDN requests. Small SVG icons use a consistent stroke style, without another runtime package. The cap mark is vector-based and reused for the expanded brand, collapsed sidebar and favicon.
+
+Reusable standalone components are exported from shared/components/ui.ts. Progress inputs are clamped to 0-100 and expose accessible names and values. Status badges use text as well as color. Button/link styles are global .button, .button.primary, .icon-button and .text-link classes; use native disabled attributes for unavailable actions.
+
+The desktop sidebar persists and can collapse. At 760px and below it becomes a drawer with backdrop, Escape handling, focus return and a keyboard focus loop. Closed mobile navigation is inert. Content stacks as space narrows, with fluid grids and visible keyboard focus. The global reduced-motion preference disables decorative animation and transitions. A skip link moves directly to main content.
+
+ThemeService defaults to dark and stores only the theme string in localStorage under phd-quest-theme. The inline initializer in index.html restores the preference before Angular renders to avoid a theme flash. Blocked storage does not prevent in-memory theme switching. Header and settings controls share the same state.
+
+## Preview boundary
+
+The global banner clearly labels sample progress. All mock research data lives in core/demo/preview-data.ts and is never posted to the API or persisted. Week/day selection only chooses visual fixtures. Import, task completion, goal creation, roadmap unlocks, workload changes, XP/streak rules, backup and restore remain disabled or absent. The week is explicitly a fixed sample week, not a live calendar.
+
+The only live API interaction is the settings infrastructure-status check against the existing GET /api/health. It times out after five seconds and shows a non-blocking unavailable state on failure. Settings shows the browser timezone as read-only reference. There is no user account system or stored profile.
+
+For real features, replace the corresponding preview view models with typed API data and explicit loading/empty/error states. Keep business rules and authoritative progress on the backend. No state-management library or generic API layer is added prematurely.
+
+## Validation and development workflow
+
+Run a production build after meaningful UI changes. Confirm startup, direct route navigation, the styled fallback, theme persistence, responsive layouts and /api/health proxy behavior. Existing safeguards are retained; comprehensive unit/E2E suites and coverage targets are deferred for this phase.
+
+A temporary playwright-core installation outside the repository drove the existing Chrome browser for a lightweight smoke pass. No test framework or production dependency was added. Generated screenshots and the local smoke script are in ignored .artifacts/. See docs/PHASE3.md for results, screenshots and limitations.
+
+After each completed semantic unit, review, validate and create a short human-friendly Conventional Commit locally. Push only when authentication is already working; unavailable authentication must not block implementation. Do not force-push or commit secrets, dependency directories, build outputs or QA artifacts. Stop at the requested phase.
