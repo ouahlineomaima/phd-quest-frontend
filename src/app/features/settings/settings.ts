@@ -3,10 +3,9 @@ import { Badge, Card, Loading, PageHeader, SectionHeading } from '../../shared/c
 import { Icon } from '../../shared/components/icon/icon';
 import { ThemeService } from '../../core/services/theme.service';
 import { HealthService } from '../../core/services/health.service';
-import { PREVIEW_SUMMARY } from '../../core/demo/preview-data';
+import { GamificationState } from '../../core/services/gamification.service';
 @Component({ selector: 'pq-settings', standalone: true, imports: [Badge, Card, Loading, PageHeader, SectionHeading, Icon], templateUrl: './settings.html', styleUrl: './settings.scss' })
 export class Settings {
   readonly theme = inject(ThemeService); readonly health = inject(HealthService);
-  readonly preview = PREVIEW_SUMMARY;
-  readonly timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  readonly gamification = inject(GamificationState);
 }

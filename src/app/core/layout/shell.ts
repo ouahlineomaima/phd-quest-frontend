@@ -6,11 +6,10 @@ import { Icon } from '../../shared/components/icon/icon';
 import { ThemeService } from '../services/theme.service';
 import { NAVIGATION } from '../navigation/navigation';
 import { Brand } from './brand';
-import { Badge } from '../../shared/components/ui';
 import { GamificationState } from '../services/gamification.service';
 
 @Component({
-  selector: 'pq-shell', standalone: true, imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon, Brand, Badge],
+  selector: 'pq-shell', standalone: true, imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon, Brand],
   templateUrl: './shell.html', styleUrl: './shell.scss',
   host: { '[class.collapsed]': 'collapsed() && !mobile()', '(document:keydown.escape)': 'closeDrawer()' },
 })
@@ -36,7 +35,7 @@ export class Shell {
       if (event instanceof NavigationEnd) {
         const path = event.urlAfterRedirects.split('?')[0];
         const name = this.links.find(link => link.path === path)?.title ?? 'Page not found';
-        this.page.set(name); title.setTitle(`${name} · PhD Quest`); this.closeDrawer();
+        this.page.set(name); title.setTitle(`${name} Â· PhD Quest`); this.closeDrawer();
       }
     });
   }
