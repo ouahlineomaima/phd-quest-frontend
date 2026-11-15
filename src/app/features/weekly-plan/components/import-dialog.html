@@ -1,0 +1,18 @@
+<dialog #dialog aria-labelledby="import-title" aria-describedby="import-description" (cancel)="cancel($event)">
+<header class="dialog-header"><div><span class="eyebrow">Bring your week into focus</span><h2 id="import-title">Import Weekly Plan</h2></div><button class="icon-button" aria-label="Close import" [disabled]="stage() === 'saving'" (click)="close()"><pq-icon name="close" /></button></header>
+<div class="dialog-body"><p id="import-description" class="muted small">Choose a version 1 JSON plan. Review it first — nothing is saved until you confirm. Existing weeks are never replaced.</p>
+<label class="file-label" for="plan-file"><pq-icon name="upload" /><span><strong>Choose a JSON file</strong><small>.json · max 500 KiB · Sunday–Saturday</small></span></label><input id="plan-file" type="file" accept=".json,application/json" autofocus [disabled]="busy()" (change)="choose($event)" />
+@if (filename()) { <p class="filename">Selected: {{ filename() }}</p> }
+@if (busy()) { <div class="busy-state"><pq-loading [label]="stage() === 'saving' ? 'Saving your plan. Please wait…' : stage() === 'reading' ? 'Reading JSON file…' : 'Validating with the backend…'" /></div> }
+@if (error(); as failure) { <section class="import-error" role="alert"><h3>{{ failure.message }}</h3>@if (failure.details.length) { <ul>@for (detail of failure.details; track $index) { <li><code>{{ detail.field }}</code><span>{{ detail.message }}</span></li> }</ul> }<p>Check the version 1 format, then choose a corrected file or validate this file again.</p><button class="button" (click)="validate()" [disabled]="!canValidate() || busy()">Validate again</button></section> }
+@if (preview(); as result) {
+@if (!result.canImport) { <div class="import-error" role="alert"><h3>This week already exists.</h3>@for (conflict of result.conflicts; track conflict.code) { <p>{{ conflict.message }}</p> }<p>Close this dialog to browse the saved plan. Editing or replacing a week comes later.</p></div> }
+<div class="preview-heading"><pq-badge [tone]="result.canImport ? 'success' : 'muted'">{{ result.canImport ? 'Valid plan · not saved yet' : 'Import blocked' }}</pq-badge><h3>{{ result.plan.title }}</h3><p>{{ result.plan.startDate }} – {{ result.plan.endDate }} · Sunday–Saturday</p></div>
+<div class="preview-totals"><div><strong>{{ result.totals.taskCount }}</strong><span>Tasks</span></div><div><strong>{{ result.totals.estimatedMinutes }} min</strong><span>Estimated workload</span></div><div><strong class="gold">{{ result.totals.potentialXp }}</strong><span>Potential XP · not awarded</span></div></div>
+<section class="objectives-preview"><h3>Weekly objectives</h3><ul>@for (objective of result.plan.objectives; track $index) { <li>{{ objective }}</li> }</ul></section>
+<section class="days-preview"><h3>Tasks by day</h3>@for (day of result.days; track day.date) { <details [open]="$index === 0"><summary><span>{{ days[$index] }} · {{ day.date }}</span><span>{{ day.taskCount }} tasks · {{ day.estimatedMinutes }} min</span></summary><div class="day-tasks">@for (task of tasksFor(day.date); track task.id) { <pq-plan-task [task]="task" /> } @empty { <p class="muted small">No tasks planned for this day.</p> }</div></details> }</section>
+@if (result.plan.notes) { <section><h3>Notes</h3><p class="preview-notes">{{ result.plan.notes }}</p></section> }
+}
+</div>
+<footer class="dialog-footer"><span class="muted small">Only a new week can be imported.</span><div class="row"><button class="button" [disabled]="stage() === 'saving'" (click)="close()">Cancel</button><button class="button primary" [disabled]="stage() !== 'preview' || !preview()?.canImport" (click)="confirm()">{{ stage() === 'saving' ? 'Saving…' : 'Confirm import' }}</button></div></footer>
+</dialog>

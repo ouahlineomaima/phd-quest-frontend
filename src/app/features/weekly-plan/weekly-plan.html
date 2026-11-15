@@ -1,5 +1,7 @@
-﻿<pq-page-header eyebrow="A little structure, a little clarity" title="Make space for good work." subtitle="Import a plan, choose a week, and take it one focused day at a time." />
+<pq-page-header eyebrow="A little structure, a little clarity" title="Make space for good work." subtitle="Import a plan, choose a week, and take it one focused day at a time."><button class="button primary" (click)="importOpen.set(true)"><pq-icon name="upload" />Import Weekly Plan</button></pq-page-header>
+@if (importOpen()) { <pq-import-dialog (closed)="importOpen.set(false)" (saved)="onImported($event)" /> }
 <div class="stack">
+@if (imported()) { <p class="import-success" role="status">Weekly plan saved. Potential rewards are metadata only; no XP was awarded.</p> }
 @if (error(); as failure) { <div class="plan-error" role="alert"><strong>{{ failure.message }}</strong><button class="button" (click)="loadWeeks()">Try again</button></div> }
 @if (loading() || detailLoading()) { <pq-card><pq-loading label="Loading saved weekly plans" /></pq-card> }
 @if (weeks().length) { <div class="week-selector"><label for="saved-week">Saved week</label><select id="saved-week" [value]="selectedId()" (change)="changeWeek($event)" [disabled]="loading()">@for (week of weeks(); track week.id) { <option [value]="week.id">{{ week.startDate }} — {{ week.title }}</option> }</select><span class="muted small">Sunday–Saturday · newest first</span></div> }
@@ -11,5 +13,5 @@
 <div class="stack"><pq-card><pq-section-heading title="Weekly objectives" /><div class="objectives">@for (objective of week.objectives; track $index) { <div><span>{{ $index + 1 }}</span><p>{{ objective }}</p></div> }</div></pq-card>
 <pq-card class="workload"><span class="eyebrow">Protect your focus</span><h2>Room to do good work.</h2><div class="summary-row"><span>Estimated workload</span><strong>{{ totalMinutes() }} min</strong></div><div class="summary-row"><span>Potential XP</span><strong class="gold">{{ potentialXp() }}</strong></div><p>6 hours per week is a reference, not a limit. Potential XP is imported metadata; no XP has been awarded.</p></pq-card>
 @if (week.notes) { <pq-card><pq-section-heading title="Notes" /><p class="plan-notes">{{ week.notes }}</p></pq-card> }</div></div>
-} @else if (!loading() && !detailLoading() && !error()) { <pq-card><pq-empty-state title="Your first week starts here." message="No weekly plans are saved yet. JSON import will let you bring a structured plan into this workspace." icon="calendar" /></pq-card> }
+} @else if (!loading() && !detailLoading() && !error()) { <pq-card><pq-empty-state title="Your first week starts here." message="No weekly plans are saved yet. Import a version 1 JSON plan to get started. Your existing records will never be overwritten." icon="calendar"><button class="button" (click)="importOpen.set(true)">Import Weekly Plan</button></pq-empty-state></pq-card> }
 </div>
