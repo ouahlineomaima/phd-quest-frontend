@@ -4,7 +4,7 @@
 :root {
   color-scheme: dark;
   --background: #0B1020; --surface: #151C31; --surface-raised: #1b2540;
-  --primary: #8B5CF6; --accent: #22D3EE; --xp-gold: #FBBF24; --success: #34D399;
+  --primary: #8B5CF6; --primary-text: #B69AFC; --accent: #22D3EE; --xp-gold: #FBBF24; --success: #34D399;
   --text: #F8FAFC; --muted: #94A3B8; --border: #27334D; --warning: #F97316; --locked: #64748B;
   --button-primary: #7040cc; --on-primary: #fff; --primary-soft: rgb(139 92 246 / .12);
   --accent-soft: rgb(34 211 238 / .09); --success-soft: rgb(52 211 153 / .1); --gold-soft: rgb(251 191 36 / .1);
@@ -14,7 +14,7 @@
 :root[data-theme='light'] {
   color-scheme: light;
   --background: #F4F6FB; --surface: #FFFFFF; --surface-raised: #EDF1F8;
-  --primary: #6D28D9; --accent: #087E91; --xp-gold: #946200; --success: #087E58;
+  --primary: #6D28D9; --primary-text: #6D28D9; --accent: #087184; --xp-gold: #946200; --success: #087E58;
   --text: #17213A; --muted: #52617A; --border: #D7DEEB; --warning: #B8460A; --locked: #5E6B82;
   --primary-soft: rgb(109 40 217 / .07); --accent-soft: rgb(8 126 145 / .07);
   --success-soft: rgb(8 126 88 / .07); --gold-soft: rgb(148 98 0 / .07);
@@ -46,7 +46,7 @@ p { margin: 0; } svg { display: block; } ::selection { background: var(--primary
 .icon-button:hover { background: var(--surface-raised); color: var(--text); }
 .preview-note { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; }
 .section-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
-.text-link { color: var(--primary); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
+.text-link { color: var(--primary-text); font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; }
 .text-link:hover { text-decoration: underline; }
 .divider { height: 1px; background: var(--border); margin: 20px 0; }
 .icon-tile { width: 40px; height: 40px; border-radius: 11px; display: grid; place-items: center; flex-shrink: 0; color: var(--primary); background: var(--primary-soft); }
