@@ -1,6 +1,6 @@
-﻿# PhD Quest frontend
+# PhD Quest frontend
 
-Angular 22 standalone frontend foundation: a responsive research workspace with a dark-first visual identity, local theme preferences, reusable UI primitives and six lazy-loaded page previews. No research records or gamification rules are implemented.
+Angular 22 standalone frontend with a responsive dark-first workspace and local theme preferences. Phase 4 connects Weekly Plan to real backend records, with JSON preview/confirmation and daily browsing. Dashboard, Roadmap, Goals and Achievements remain clearly labeled previews; no task completion or gamification rules are implemented. See the [Phase 4 workflow](docs/PHASE4.md).
 
 ## Start
 
@@ -13,7 +13,7 @@ docker compose up -d --build
 docker compose down
 ```
 
-Open http://localhost:4200. The canonical Compose file remains in backend/infra. Source bind mounts and the Angular server's polling preserve hot reload. No backend code or database configuration was changed in Phase 3.
+Open http://localhost:4200. The canonical Compose file remains in backend/infra. Source bind mounts and the Angular server's polling preserve hot reload. Phase 4 preserves the Docker setup and database configuration while integrating the weekly-plan API.
 
 For an independent build with Node 24.15+ (24.x):
 
@@ -52,7 +52,8 @@ src/
         task-preview.ts             display-only sample task row
     features/
       dashboard/                    metrics, focus list, weekly chart, roadmap, goals
-      weekly-plan/                  sample week/day selection, objectives, deliverables
+      weekly-plan/                  typed API service/models, real week/day browsing,
+                                    task cards and accessible import dialog
       roadmap/                      three-year map with twelve illustrative levels
       goals/                        sample goal cards and genuine empty-state messaging
       achievements/                 locked/unlocked sample badges and XP presentation
@@ -78,9 +79,9 @@ ThemeService defaults to dark and stores only the theme string in localStorage u
 
 ## Preview boundary
 
-The global banner clearly labels sample progress. All mock research data lives in core/demo/preview-data.ts and is never posted to the API or persisted. Week/day selection only chooses visual fixtures. Import, task completion, goal creation, roadmap unlocks, workload changes, XP/streak rules, backup and restore remain disabled or absent. The week is explicitly a fixed sample week, not a live calendar.
+The global banner distinguishes the real Weekly Plan view from preview pages. Mock research data remains isolated in core/demo/preview-data.ts and is never posted to the API or persisted. Weekly Plan does not import those fixtures: it reads saved weeks and imports user-selected JSON only after server validation and explicit confirmation. Task completion, goal creation, roadmap unlocks, workload settings, XP/streak rules, backup and restore remain disabled or absent.
 
-The only live API interaction is the settings infrastructure-status check against the existing GET /api/health. It times out after five seconds and shows a non-blocking unavailable state on failure. Settings shows the browser timezone as read-only reference. There is no user account system or stored profile.
+The focused WeeklyPlansApi service reads list/detail and submits preview/confirmation using /api/weekly-plans, with explicit loading/error/empty states and request timeouts. Settings also checks GET /api/health. Theme remains the only locally stored preference. Settings shows browser timezone as read-only reference; there is no account system or stored profile.
 
 For real features, replace the corresponding preview view models with typed API data and explicit loading/empty/error states. Keep business rules and authoritative progress on the backend. No state-management library or generic API layer is added prematurely.
 
