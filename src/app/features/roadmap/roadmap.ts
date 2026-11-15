@@ -4,10 +4,12 @@ import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Badge, Card, EmptyState, Loading, PageHeader, Progress, SectionHeading } from '../../shared/components/ui';
 import { Icon } from '../../shared/components/icon/icon';
-import { Checkpoint, ResearchApi, ResearchLevel, researchError } from '../../core/services/research-api';
+import { Checkpoint, Goal, ResearchApi, ResearchLevel, researchError } from '../../core/services/research-api';
 @Component({ selector: 'pq-roadmap', standalone: true, imports: [RouterLink, RoadmapImportDialog, Badge, Card, EmptyState, Loading, PageHeader, Progress, SectionHeading, Icon], templateUrl: './roadmap.html', styleUrl: './roadmap.scss' })
 export class Roadmap {
   private readonly api = inject(ResearchApi); private readonly destroy = inject(DestroyRef);
+  readonly goalOptions = signal<Goal[]>([]); readonly goalLoading = signal(false); readonly goalError = signal('');
+  goalIds: Record<string,string[]> = {};
   readonly importOpen = signal(false); readonly notice = signal('');
   readonly levels = signal<ResearchLevel[]>([]); readonly selected = signal<number | null>(null);
   readonly loading = signal(true); readonly busy = signal(false); readonly error = signal('');
@@ -26,8 +28,16 @@ export class Roadmap {
   }
   closeImport() { this.importOpen.set(false); this.load(); }
   open(level: ResearchLevel, dialog: HTMLDialogElement) {
-    this.selected.set(level.levelNumber); this.description = level.description; this.evidence = Object.fromEntries(level.checkpoints.map(c => [c.id, c.evidence])); this.confirm = false; this.error.set(''); dialog.showModal();
+    this.selected.set(level.levelNumber); this.description = level.description; this.evidence = Object.fromEntries(level.checkpoints.map(c => [c.id, c.evidence])); this.confirm = false; this.goalIds = Object.fromEntries(level.checkpoints.map(checkpoint=>[checkpoint.id,[...(checkpoint.goalIds??[])]])); this.error.set(''); dialog.showModal(); if(level.status==='current')this.loadGoals();
   }
+  loadGoals() {
+    this.goalLoading.set(true);this.goalError.set('');
+    this.api.get<Goal[]>('goals').pipe(takeUntilDestroyed(this.destroy)).subscribe({next:goals=>{this.goalOptions.set(goals);this.goalLoading.set(false);},error:error=>{this.goalError.set(researchError(error));this.goalLoading.set(false);}});
+  }
+  toggleGoal(checkpointId:string,id:string,checked:boolean) {
+    const ids=new Set(this.goalIds[checkpointId]??[]);if(checked)ids.add(id);else ids.delete(id);this.goalIds[checkpointId]=[...ids];
+  }
+  saveGoalLinks(level:ResearchLevel,checkpoint:Checkpoint) { this.save('PATCH',`roadmap/${level.levelNumber}/checkpoints/${checkpoint.id}/goals`,{goalIds:this.goalIds[checkpoint.id]??[]}); }
   ready(level: ResearchLevel) { return level.checkpoints.filter(c => c.mandatory).every(c => c.completed); }
   validated(level: ResearchLevel) { return level.checkpoints.filter(c => c.completed).length; }
   checkpoint(level: ResearchLevel, checkpoint: Checkpoint) {
@@ -36,6 +46,7 @@ export class Roadmap {
   saveDescription(level: ResearchLevel) { this.save('PATCH', `roadmap/${level.levelNumber}`, {description: this.description}); }
   complete(level: ResearchLevel) { if (this.confirm) this.save('POST', `roadmap/${level.levelNumber}/complete`, {confirm: true}); }
   private save(method: 'POST' | 'PATCH', path: string, body: unknown) {
+    if(this.busy() || this.loading())return;
     this.busy.set(true); this.error.set('');
     this.api.change(method, path, body).pipe(takeUntilDestroyed(this.destroy)).subscribe({next: () => { this.busy.set(false); this.confirm = false; this.load(); }, error: e => { this.busy.set(false); this.error.set(researchError(e)); }});
   }
