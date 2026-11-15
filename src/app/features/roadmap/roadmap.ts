@@ -17,7 +17,8 @@ export class Roadmap {
   readonly completed = computed(() => this.levels().filter(l => l.status === 'completed').length);
   readonly detail = computed(() => this.levels().find(l => l.levelNumber === this.selected()));
   readonly preparation = computed(() => this.levels().find(level => level.levelNumber === 0));
-  readonly years = computed(() => ['Lay the foundations', 'Follow the evidence', 'Make your contribution'].map((title, i) => ({ number: i + 1, title, levels: this.levels().filter(l => l.year === i + 1) })));
+  readonly years = computed(() => ['Lay the foundations', 'Follow the evidence', 'Make your contribution'].map((title, i) => ({ number: i + 1, title: this.levels().find(level => level.levelNumber === i * 4 + 1)?.yearTitle ?? title, levels: this.levels().filter(l => l.year === i + 1) })));
+  readonly yearError = signal(''); editingYear = 1; yearTitle = '';
   levelTitle = ''; description = ''; evidence: Record<string, string> = {}; confirm = false;
   constructor() { this.load(); }
   load() {
@@ -28,6 +29,18 @@ export class Roadmap {
     this.levels.set(result.levels); this.selected.set(null); this.notice.set('Imported ' + result.metadata.title + '. Preparation Camp is current. Complete it to unlock research chapter 1. Historical achievements are preserved.');
   }
   closeImport() { this.importOpen.set(false); this.load(); }
+  openYear(number: number, title: string, dialog: HTMLDialogElement) {
+    this.editingYear = number; this.yearTitle = title; this.yearError.set(''); dialog.showModal();
+  }
+  saveYear(event: Event, dialog: HTMLDialogElement) {
+    event.preventDefault();
+    if (this.busy() || this.loading() || !this.yearTitle.trim()) return;
+    this.busy.set(true); this.yearError.set('');
+    this.api.change<ResearchLevel[]>('PATCH', `roadmap/years/${this.editingYear}`, {title: this.yearTitle.trim()}).pipe(takeUntilDestroyed(this.destroy)).subscribe({
+      next: levels => { this.levels.set(levels); this.busy.set(false); dialog.close(); },
+      error: error => { this.busy.set(false); this.yearError.set(researchError(error)); },
+    });
+  }
   open(level: ResearchLevel, dialog: HTMLDialogElement) {
     this.selected.set(level.levelNumber); this.levelTitle = level.title; this.description = level.description; this.evidence = Object.fromEntries(level.checkpoints.map(c => [c.id, c.evidence])); this.confirm = false; this.goalIds = Object.fromEntries(level.checkpoints.map(checkpoint=>[checkpoint.id,[...(checkpoint.goalIds??[])]])); this.error.set(''); dialog.showModal(); if(level.status==='current')this.loadGoals();
   }
