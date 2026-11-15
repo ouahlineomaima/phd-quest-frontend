@@ -1,0 +1,32 @@
+<a class="skip-link" href="#main-content">Skip to content</a>
+@if (drawer() && mobile()) { <button class="backdrop" aria-label="Close navigation" (click)="closeDrawer()"></button> }
+<aside #sidebar class="sidebar" id="app-navigation" [class.is-open]="drawer()" [attr.inert]="mobile() && !drawer() ? '' : null" [attr.aria-label]="'Main navigation'" (keydown)="trapFocus($event)">
+  <a routerLink="/dashboard" class="brand-link" aria-label="PhD Quest home" (click)="closeDrawer()"><pq-brand [compact]="collapsed() && !mobile()" /></a>
+  <p class="nav-label eyebrow">Workspace</p>
+  <nav aria-label="Main">
+    @for (link of links; track link.path) {
+      <a [routerLink]="link.path" routerLinkActive="active" ariaCurrentWhenActive="page" [title]="link.title" (click)="closeDrawer()">
+        <pq-icon [name]="link.icon" /><span class="nav-text">{{ link.title }}</span><span class="active-dot"></span>
+      </a>
+    }
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="journey-preview">
+      <div class="row spread"><span class="eyebrow">Preview progress</span><pq-icon name="sparkles" /></div>
+      <div class="row spread level-line"><strong>Level 04</strong><span class="small gold">680 <span class="muted">/ 1,000 XP</span></span></div>
+      <div class="mini-track"><span></span></div><p>Small steps. Meaningful discoveries.</p>
+    </div>
+    <div class="sidebar-footer"><span class="footer-dot"></span><span class="nav-text">Local workspace</span><span class="small nav-text">v0.3</span></div>
+    <button class="collapse-button" (click)="mobile() ? closeDrawer() : collapsed.set(!collapsed())" [attr.aria-label]="mobile() ? 'Close navigation' : collapsed() ? 'Expand sidebar' : 'Collapse sidebar'" [attr.aria-expanded]="!collapsed()"><pq-icon [name]="mobile() ? 'close' : 'collapse'" /><span class="nav-text">{{ mobile() ? 'Close navigation' : 'Collapse sidebar' }}</span></button>
+  </div>
+</aside>
+<div class="workspace">
+  <header class="topbar">
+    <div class="row"><button #menu class="icon-button mobile-menu" aria-label="Open navigation" aria-controls="app-navigation" [attr.aria-expanded]="drawer()" (click)="openDrawer()"><pq-icon name="menu" /></button><span class="breadcrumb">Workspace <span>/</span> <strong>{{ page() }}</strong></span></div>
+    <div class="row header-actions"><span class="local-label"><span></span>Local preview</span><button class="icon-button" (click)="theme.toggle()" [attr.aria-label]="theme.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"><pq-icon [name]="theme.theme() === 'dark' ? 'sun' : 'moon'" /></button><div class="profile-mark" title="Local workspace placeholder, no account"><pq-icon name="book" /></div></div>
+  </header>
+  <main id="main-content" tabindex="-1">
+    <div class="content"><div class="preview-banner"><pq-icon name="info" /><span><strong>Design preview</strong> <span class="banner-detail">· Sample data, not your research progress.</span></span><span class="preview-label">PHASE 03</span></div><router-outlet /></div>
+    <footer class="main-footer"><span>PhD Quest <span>·</span> Research. Progress. Achieve.</span><span>One thoughtful step at a time.</span></footer>
+  </main>
+</div>
