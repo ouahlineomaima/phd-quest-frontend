@@ -1,0 +1,14 @@
+<pq-page-header eyebrow="A little more, every day" title="Your research, in motion." subtitle="A clearer view of where you are — and the next small step forward."><a class="button" routerLink="/weekly-plan"><pq-icon name="calendar" />View weekly plan<pq-icon name="arrow" /></a></pq-page-header>
+<div class="stack">
+  <div class="metrics">@for (metric of metrics; track metric.label) { <pq-stat [metric]="metric" /> }</div>
+  <div class="dashboard-grid">
+    <pq-card class="focus-card"><pq-section-heading title="Today's focus" subtitle="Three small steps for a sample research day"><pq-badge tone="primary">Sample day</pq-badge></pq-section-heading>
+      @for (task of tasks; track task.title) { <pq-task-preview [task]="task" /> }
+      <div class="focus-footer"><span class="preview-note"><pq-icon name="info" />Visual preview · no task completion yet</span><a class="text-link" routerLink="/weekly-plan">See the plan<pq-icon name="arrow" /></a></div>
+    </pq-card>
+    <pq-card class="journey-card"><pq-section-heading title="The bigger picture" subtitle="Your three-year research journey" /><div class="journey-content"><pq-ring [value]="33" label="Demo roadmap progress" /><div><pq-badge tone="accent">Chapter in progress</pq-badge><h3>Shape the approach</h3><p class="muted small">Sample level 4 of 12</p></div></div><p class="journey-quote">Good research isn't a straight line.<br>Keep moving with curiosity.</p><a class="text-link" routerLink="/roadmap">Explore your roadmap<pq-icon name="arrow" /></a></pq-card>
+    <pq-card><pq-section-heading title="A rhythm that works" subtitle="Sample focus distribution · Sunday–Saturday"><pq-badge tone="muted">Weekly workload</pq-badge></pq-section-heading><div class="chart" role="img" aria-label="Illustrative focus time distribution across the seven days, not recorded activity">@for (bar of focus; track $index) { <div class="chart-day"><div class="bar-track"><span [style.height.%]="bar" [class.highlight]="$index === 3"></span></div><small>{{ days[$index] }}</small></div> }</div><div class="chart-caption"><span><span class="legend-dot"></span>Sample planned focus</span><span>16 of 24 hours</span></div></pq-card>
+    <pq-card><pq-section-heading title="What you're working toward" subtitle="A preview of your goals"><a class="text-link" routerLink="/goals">View all<pq-icon name="arrow" /></a></pq-section-heading><div class="goal-list">@for (goal of goals; track goal.title) { <div><div class="row spread"><h3>{{ goal.title }}</h3><span class="small muted">{{ goal.percent }}%</span></div><pq-progress [value]="goal.percent" [label]="'Demo goal: ' + goal.title" [tone]="goal.tone" /><p class="small muted">{{ goal.category }} · Sample goal</p></div> }</div></pq-card>
+  </div>
+  <div class="encouragement"><pq-icon name="sparkles" /><p>Progress is built in small, thoughtful steps. <strong>You've got space to grow.</strong></p><span class="eyebrow">Research. Progress. Achieve.</span></div>
+</div>
