@@ -1,19 +1,25 @@
 # PhD Quest frontend
 
-Angular 22 standalone frontend with a responsive dark-first workspace and local theme preferences. All main screens use persisted backend data: weekly plans and task progress, XP/streaks, the twelve-chapter roadmap, goals, achievements and the dashboard. Settings provides JSON backup download, server-validated restore preview and explicit replace-all confirmation. See the sibling backend [backup/recovery guide](../phd-quest-backend/docs/BACKUP.md).
+Angular 22 standalone frontend for a local-first PhD research workspace: personalized twelve-chapter roadmaps, Sunday-Saturday weekly plans, task progress/time recording, immutable XP and streaks, goals connected to tasks and checkpoints, achievements, a live dashboard and guarded backup/recovery. Dark/light themes and responsive navigation are included.
+
+The frontend requires the [NestJS/MongoDB backend](https://github.com/ouahlineomaima/phd-quest-backend). [Help & Guide](http://localhost:4200/help) contains onboarding, workflow explanations, four complete copyable ChatGPT prompts and validated generic roadmap/weekly-plan downloads. There is no AI API integration or API-key requirement in PhD Quest.
 
 ## Start
 
-Keep `phd-quest-frontend` and `phd-quest-backend` as sibling repositories. From the parent workspace:
+For a fresh installation, install Git and Docker Desktop with its Linux container engine running (Compose v2). Node.js is not needed for this Docker workflow. From the directory where you want the new workspace:
 
 ```powershell
-cd phd-quest-backend/infra
-docker compose up -d --build
-# Stop without removing database data:
-docker compose down
+mkdir phd-quest
+cd phd-quest
+git clone https://github.com/ouahlineomaima/phd-quest-backend.git
+git clone https://github.com/ouahlineomaima/phd-quest-frontend.git
+docker volume create phd-quest_mongo_data
+docker compose -f phd-quest-backend/infra/docker-compose.yml up -d --build --wait
 ```
 
-Open http://localhost:4200. The canonical Compose file remains in backend/infra. Source bind mounts and the Angular server's polling preserve hot reload. The existing external MongoDB volume and rs0 replica set are preserved.
+The external volume must exist before first startup. The volume-create command leaves an existing volume intact; never delete it to restart or recover the application. From an existing workspace root, restart with `docker compose -f phd-quest-backend/infra/docker-compose.yml up -d --wait`. Ordinary `docker compose -f phd-quest-backend/infra/docker-compose.yml down` stops services without deleting data.
+
+Open http://localhost:4200; the guide is at http://localhost:4200/help. The Compose file in the backend repository starts all three services. Source bind mounts and polling preserve hot reload. Import a personalized JSON roadmap on Roadmap, review its replacement warning, then explicitly confirm. Import a new Sunday-Saturday JSON plan on Weekly plan and review the preview before saving. The guide explains valid contracts and optional connections; no example is imported automatically.
 
 For an independent build with Node 24.15+ (24.x):
 
@@ -29,6 +35,7 @@ The development proxy forwards `/api` to `http://backend:3000` inside Compose. H
 
 ```text
 public/
+  help/examples/                    validated generic JSON downloads
   icon.svg                          full/compact graduation-cap identity and favicon
   fonts/                            self-hosted Inter and Space Grotesk + OFL licenses
 src/
@@ -57,12 +64,13 @@ src/
       goals/                        goal creation, editing, completion, reopening and archive
       achievements/                 persisted locked/unlocked milestone cards
       settings/                     appearance, calendar information and backup/recovery
+      help/                         guide, onboarding and complete planning prompts
       # Page folders use .ts, .html and .scss files.
 docs/PHASE3.md                       validation and scope report
 .artifacts/                         ignored local QA script/screenshots, not application source
 ```
 
-Routes are /dashboard, /weekly-plan, /roadmap, /goals, /achievements and /settings. The root redirects to /dashboard; unknown paths show a styled 404. All six features and the shell are lazy-loaded.
+Routes are /dashboard, /weekly-plan, /roadmap, /goals, /achievements, /settings and /help. The root redirects to /dashboard; unknown paths show a styled 404. Feature pages and the shell are lazy-loaded.
 
 ## Design system
 
