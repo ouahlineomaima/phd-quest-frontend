@@ -6,9 +6,10 @@ import { Icon } from '../../shared/components/icon/icon';
 import { ThemeService } from '../services/theme.service';
 import { NAVIGATION } from '../navigation/navigation';
 import { Brand } from './brand';
+import { Badge } from '../../shared/components/ui';
 
 @Component({
-  selector: 'pq-shell', standalone: true, imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon, Brand],
+  selector: 'pq-shell', standalone: true, imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon, Brand, Badge],
   templateUrl: './shell.html', styleUrl: './shell.scss',
   host: { '[class.collapsed]': 'collapsed() && !mobile()', '(document:keydown.escape)': 'closeDrawer()' },
 })

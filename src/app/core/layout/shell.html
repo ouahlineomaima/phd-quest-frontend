@@ -26,7 +26,7 @@
     <div class="row header-actions"><span class="local-label"><span></span>Local preview</span><button class="icon-button" (click)="theme.toggle()" [attr.aria-label]="theme.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"><pq-icon [name]="theme.theme() === 'dark' ? 'sun' : 'moon'" /></button><div class="profile-mark" title="Local workspace placeholder, no account"><pq-icon name="book" /></div></div>
   </header>
   <main id="main-content" tabindex="-1">
-    <div class="content"><div class="preview-banner"><pq-icon name="info" /><span><strong>Design preview</strong> <span class="banner-detail">· Sample data, not your research progress.</span></span><span class="preview-label">PHASE 03</span></div><router-outlet /></div>
+    <div class="content"><div class="preview-banner"><pq-icon name="info" /><span><strong>Design preview</strong> <span class="banner-detail">· Sample data, not your research progress.</span></span><pq-badge class="preview-label" tone="accent">PHASE 03</pq-badge></div><router-outlet /></div>
     <footer class="main-footer"><span>PhD Quest <span>·</span> Research. Progress. Achieve.</span><span>One thoughtful step at a time.</span></footer>
   </main>
 </div>
