@@ -43,6 +43,6 @@ export class WeeklyPlan {
   changeWeek(event: Event) { this.selectWeek((event.target as HTMLSelectElement).value); }
   onImported(plan: SavedWeeklyPlan) {
     this.detailRequest?.unsubscribe(); this.detailLoading.set(false); this.plan.set(plan); this.selectedId.set(plan.id); this.selected.set(0); this.imported.set(true);
-    this.loadWeeks(plan.id);
   }
+  closeImport() { this.importOpen.set(false); this.loadWeeks(this.plan()?.id); }
 }

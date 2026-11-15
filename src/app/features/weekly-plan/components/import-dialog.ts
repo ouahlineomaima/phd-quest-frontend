@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, DestroyRef, ElementRef, inject, output, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Badge, Loading } from '../../../shared/components/ui';
 import { Icon } from '../../../shared/components/icon/icon';
 import { ImportPreview, MAX_PLAN_FILE_BYTES, PlanError, SavedWeeklyPlan } from '../models/weekly-plan.models';
@@ -48,7 +49,13 @@ export class ImportDialog implements AfterViewInit {
     this.stage.set('saving'); this.error.set(null);
     this.api.confirm(preview.plan).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: plan => { this.dialog().nativeElement.close(); this.saved.emit(plan); this.closed.emit(); },
-      error: error => { this.error.set(planError(error)); this.stage.set('error'); },
+      error: error => {
+        const failure = planError(error);
+        if (error instanceof HttpErrorResponse && error.status === 409) {
+          this.preview.update(current => current ? { ...current, canImport: false, conflicts: [{ code: 'WEEK_EXISTS', field: 'weekId', message: failure.message }] } : null);
+          this.stage.set('conflict');
+        } else { this.error.set(failure); this.stage.set('error'); }
+      },
     });
   }
   tasksFor(date: string) { return this.preview()?.plan.tasks.filter(task => task.date === date) ?? []; }
