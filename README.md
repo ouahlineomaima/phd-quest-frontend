@@ -1,6 +1,6 @@
 # PhD Quest frontend
 
-Angular 22 standalone frontend with a responsive dark-first workspace and local theme preferences. Phase 4 connects Weekly Plan to real backend records, with JSON preview/confirmation and daily browsing. Dashboard, Roadmap, Goals and Achievements remain clearly labeled previews; no task completion or gamification rules are implemented. See the [Phase 4 workflow](docs/PHASE4.md).
+Angular 22 standalone frontend with a responsive dark-first workspace and local theme preferences. Phase 4 connects Weekly Plan to real backend records, with JSON preview/confirmation and daily browsing. Weekly Plan now supports completion/reopening and recorded minutes, with server-confirmed XP, player levels, streaks and completion progress. Sidebar XP and Dashboard player/streak cards are live; other dashboard panels, Roadmap, Goals and Achievements remain labeled previews. See the [Phase 4 workflow](docs/PHASE4.md).
 
 ## Start
 
@@ -79,9 +79,9 @@ ThemeService defaults to dark and stores only the theme string in localStorage u
 
 ## Preview boundary
 
-The global banner distinguishes the real Weekly Plan view from preview pages. Mock research data remains isolated in core/demo/preview-data.ts and is never posted to the API or persisted. Weekly Plan does not import those fixtures: it reads saved weeks and imports user-selected JSON only after server validation and explicit confirmation. Task completion, goal creation, roadmap unlocks, workload settings, XP/streak rules, backup and restore remain disabled or absent.
+The global banner distinguishes the real Weekly Plan view from preview pages. Mock research data remains isolated in core/demo/preview-data.ts and is never posted to the API or persisted. Weekly Plan does not import those fixtures: it reads saved weeks and imports user-selected JSON only after server validation and explicit confirmation. Task actions never grant optimistic XP: successful responses replace the plan/progress and shared gamification snapshot; errors retain confirmed state. Reopening preserves rewards and history. Goal creation, roadmap unlocks, workload settings, backup and restore remain disabled or absent.
 
-The focused WeeklyPlansApi service reads list/detail and submits preview/confirmation using /api/weekly-plans, with explicit loading/error/empty states and request timeouts. Settings also checks GET /api/health. Theme remains the only locally stored preference. Settings shows browser timezone as read-only reference; there is no account system or stored profile.
+The focused WeeklyPlansApi service reads saved plan/progress snapshots, submits preview/confirmation and patches scoped task transitions using /api/weekly-plans, with explicit loading/error/empty states and request timeouts. GamificationState reads /api/gamification/summary and accepts authoritative mutation snapshots. See the sibling backend docs/TASK_PROGRESS.md for API contracts and timezone/XP rules. Settings also checks GET /api/health. Theme remains the only locally stored preference. Settings shows browser timezone as read-only reference; there is no account system or stored profile.
 
 For real features, replace the corresponding preview view models with typed API data and explicit loading/empty/error states. Keep business rules and authoritative progress on the backend. No state-management library or generic API layer is added prematurely.
 
