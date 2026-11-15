@@ -1,6 +1,6 @@
 # PhD Quest frontend
 
-Angular 22 standalone frontend with a responsive dark-first workspace and local theme preferences. Phase 4 connects Weekly Plan to real backend records, with JSON preview/confirmation and daily browsing. Weekly Plan now supports completion/reopening and recorded minutes, with server-confirmed XP, player levels, streaks and completion progress. Sidebar XP and Dashboard player/streak cards are live; other dashboard panels, Roadmap, Goals and Achievements remain labeled previews. See the [Phase 4 workflow](docs/PHASE4.md).
+Angular 22 standalone frontend with a responsive dark-first workspace and local theme preferences. All main screens use persisted backend data: weekly plans and task progress, XP/streaks, the twelve-chapter roadmap, goals, achievements and the dashboard. Settings provides JSON backup download, server-validated restore preview and explicit replace-all confirmation. See the sibling backend [backup/recovery guide](../phd-quest-backend/docs/BACKUP.md).
 
 ## Start
 
@@ -13,7 +13,7 @@ docker compose up -d --build
 docker compose down
 ```
 
-Open http://localhost:4200. The canonical Compose file remains in backend/infra. Source bind mounts and the Angular server's polling preserve hot reload. Phase 4 preserves the Docker setup and database configuration while integrating the weekly-plan API.
+Open http://localhost:4200. The canonical Compose file remains in backend/infra. Source bind mounts and the Angular server's polling preserve hot reload. The existing external MongoDB volume and rs0 replica set are preserved.
 
 For an independent build with Node 24.15+ (24.x):
 
@@ -37,7 +37,6 @@ src/
   app/
     app.ts, app.config.ts, app.routes.ts
     core/
-      demo/preview-data.ts          isolated, immutable visual fixtures
       layout/                       branding, responsive shell, styled 404
       navigation/navigation.ts      shared sidebar labels and icons
       services/
@@ -54,10 +53,10 @@ src/
       dashboard/                    metrics, focus list, weekly chart, roadmap, goals
       weekly-plan/                  typed API service/models, real week/day browsing,
                                     task cards and accessible import dialog
-      roadmap/                      three-year map with twelve illustrative levels
-      goals/                        sample goal cards and genuine empty-state messaging
-      achievements/                 locked/unlocked sample badges and XP presentation
-      settings/                     appearance + future settings sections
+      roadmap/                      three-year map, checkpoint validation and explicit completion
+      goals/                        goal creation, editing, completion, reopening and archive
+      achievements/                 persisted locked/unlocked milestone cards
+      settings/                     appearance, calendar information and backup/recovery
       # Page folders use .ts, .html and .scss files.
 docs/PHASE3.md                       validation and scope report
 .artifacts/                         ignored local QA script/screenshots, not application source
@@ -77,17 +76,15 @@ The desktop sidebar persists and can collapse. At 760px and below it becomes a d
 
 ThemeService defaults to dark and stores only the theme string in localStorage under phd-quest-theme. The inline initializer in index.html restores the preference before Angular renders to avoid a theme flash. Blocked storage does not prevent in-memory theme switching. Header and settings controls share the same state.
 
-## Preview boundary
+## Data and recovery
 
-The global banner distinguishes the real Weekly Plan view from preview pages. Mock research data remains isolated in core/demo/preview-data.ts and is never posted to the API or persisted. Weekly Plan does not import those fixtures: it reads saved weeks and imports user-selected JSON only after server validation and explicit confirmation. Task actions never grant optimistic XP: successful responses replace the plan/progress and shared gamification snapshot; errors retain confirmed state. Reopening preserves rewards and history. Goal creation, roadmap unlocks, workload settings, backup and restore remain disabled or absent.
+Business rules and authoritative progress remain on the backend. Task actions replace confirmed plan/progress and shared gamification state; failures retain the last confirmed state. The dashboard uses Sunday-start weeks in the configured application timezone. No sample research records are displayed or persisted.
 
-The focused WeeklyPlansApi service reads saved plan/progress snapshots, submits preview/confirmation and patches scoped task transitions using /api/weekly-plans, with explicit loading/error/empty states and request timeouts. GamificationState reads /api/gamification/summary and accepts authoritative mutation snapshots. See the sibling backend docs/TASK_PROGRESS.md for API contracts and timezone/XP rules. Settings also checks GET /api/health. Theme remains the only locally stored preference. Settings shows browser timezone as read-only reference; there is no account system or stored profile.
-
-For real features, replace the corresponding preview view models with typed API data and explicit loading/empty/error states. Keep business rules and authoritative progress on the backend. No state-management library or generic API layer is added prematurely.
+In Settings, **Export backup** downloads a complete JSON file. **Restore backup** validates a selected file, previews its date/version/counts, and requires typing `REPLACE ALL DATA`. Replacement is atomic; stale previews must be validated again. After success the shared progress summary refreshes, and **Open restored dashboard** reloads the workspace. Export the current state first if it must be retained. Maximum backup size is 20 MiB; the destination calendar timezone must match. Theme remains a device preference. There is no account system or timezone editor.
 
 ## Validation and development workflow
 
-Run a production build after meaningful UI changes. Confirm startup, direct route navigation, the styled fallback, theme persistence, responsive layouts and /api/health proxy behavior. Existing safeguards are retained; comprehensive unit/E2E suites and coverage targets are deferred for this phase.
+Run a production build after meaningful UI changes. Confirm startup, direct route navigation, the styled fallback, theme persistence, responsive layouts and /api/health proxy behavior. Existing safeguards are retained; comprehensive unit/E2E suites and coverage targets are outside this MVP scope.
 
 A temporary playwright-core installation outside the repository drove the existing Chrome browser for a lightweight smoke pass. No test framework or production dependency was added. Generated screenshots and the local smoke script are in ignored .artifacts/. See docs/PHASE3.md for results, screenshots and limitations.
 

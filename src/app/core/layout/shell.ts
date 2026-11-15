@@ -35,7 +35,7 @@ export class Shell {
       if (event instanceof NavigationEnd) {
         const path = event.urlAfterRedirects.split('?')[0];
         const name = this.links.find(link => link.path === path)?.title ?? 'Page not found';
-        this.page.set(name); title.setTitle(`${name} Â· PhD Quest`); this.closeDrawer();
+        this.page.set(name); title.setTitle(`${name} - PhD Quest`); this.closeDrawer();
       }
     });
   }

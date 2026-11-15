@@ -20,7 +20,7 @@ export class Dashboard {
  readonly data=signal<DashboardData|null>(null);readonly loading=signal(true);readonly error=signal('');
  readonly metrics=computed<MetricPreview[]>(()=>{const d=this.data();if(!d)return [];return [
   {label:'Player level',value:String(d.gamification.playerLevel),note:d.gamification.totalXp+' XP / '+d.gamification.xpRemainingToNextLevel+' XP to next level',icon:'sparkles',tone:'primary'},
-  {label:'Daily streak',value:d.gamification.currentStreak+' days',note:'Longest streak: '+d.gamification.longestStreak+' days',icon:'flame',tone:'gold'},
+  {label:'Daily streak',value:d.gamification.currentStreak+(d.gamification.currentStreak===1?' day':' days'),note:'Longest streak: '+d.gamification.longestStreak+(d.gamification.longestStreak===1?' day':' days'),icon:'flame',tone:'gold'},
   {label:'Weekly progress',value:d.week.progress?d.week.progress.completionPercent+'%':'No plan',note:d.week.progress?d.week.progress.completedTasks+' of '+d.week.progress.totalTasks+' tasks complete':'No plan for this week',icon:'target',tone:'success'},
   {label:'Recorded workload',value:this.hours(d.week.progress?.actualRecordedMinutes??0)+' h',note:this.hours(d.week.plannedMinutes)+' h planned / 6 h weekly baseline',icon:'clock',tone:'accent'},
  ];});
