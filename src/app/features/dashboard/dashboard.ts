@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Badge, Card, EmptyState, Loading, PageHeader, Progress, Ring, SectionHeading, Stat } from '../../shared/components/ui';
 import { Icon } from '../../shared/components/icon/icon';
-import { GamificationState, GamificationSummary } from '../../core/services/gamification.service';
+import { GamificationState, GamificationSummary, streakStatus } from '../../core/services/gamification.service';
 import { Achievement, Goal, ResearchApi, ResearchLevel, researchError } from '../../core/services/research-api';
 import { MetricPreview } from '../../shared/models/preview.models';
 import { SavedTask, WeeklyProgress } from '../weekly-plan/models/weekly-plan.models';
@@ -20,7 +20,7 @@ export class Dashboard {
  readonly data=signal<DashboardData|null>(null);readonly loading=signal(true);readonly error=signal('');
  readonly metrics=computed<MetricPreview[]>(()=>{const d=this.data();if(!d)return [];return [
   {label:'Player level',value:String(d.gamification.playerLevel),note:d.gamification.totalXp+' XP / '+d.gamification.xpRemainingToNextLevel+' XP to next level',icon:'sparkles',tone:'primary'},
-  {label:'Daily streak',value:d.gamification.currentStreak+(d.gamification.currentStreak===1?' day':' days'),note:'Longest streak: '+d.gamification.longestStreak+(d.gamification.longestStreak===1?' day':' days'),icon:'flame',tone:'gold'},
+  {label:'Daily streak',value:d.gamification.currentStreak+(d.gamification.currentStreak===1?' day':' days'),note:streakStatus(d.gamification)+' / Best: '+d.gamification.longestStreak+(d.gamification.longestStreak===1?' day':' days'),icon:'flame',tone:'gold'},
   {label:'Weekly progress',value:d.week.progress?d.week.progress.completionPercent+'%':'No plan',note:d.week.progress?d.week.progress.completedTasks+' of '+d.week.progress.totalTasks+' tasks complete':'No plan for this week',icon:'target',tone:'success'},
   {label:'Recorded workload',value:this.hours(d.week.progress?.actualRecordedMinutes??0)+' h',note:this.hours(d.week.plannedMinutes)+' h planned / 6 h weekly baseline',icon:'clock',tone:'accent'},
  ];});
