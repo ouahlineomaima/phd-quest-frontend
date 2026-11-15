@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "weekId": "2026-11-15",
+  "startDate": "2026-11-15",
+  "endDate": "2026-11-21",
+  "title": "Generic sample research week - customize before import",
+  "objectives": [
+    "Clarify one manageable research objective",
+    "Record a short synthesis of one relevant source"
+  ],
+  "tasks": [
+    {
+      "id": "define-week-focus",
+      "date": "2026-11-15",
+      "title": "Define this week's research focus",
+      "description": "Choose one realistic outcome for your current research interests.",
+      "estimatedMinutes": 30,
+      "xpReward": 10,
+      "priority": "high",
+      "isOptional": false,
+      "deliverable": "A short statement of the week's focus"
+    },
+    {
+      "id": "review-one-source",
+      "date": "2026-11-17",
+      "title": "Read and summarize one relevant source",
+      "description": "Select a source appropriate to your discipline and provisional topic.",
+      "estimatedMinutes": 60,
+      "xpReward": 15,
+      "priority": "medium",
+      "isOptional": false,
+      "deliverable": "A concise summary and two questions for further investigation"
+    },
+    {
+      "id": "reflect-on-week",
+      "date": "2026-11-21",
+      "title": "Reflect on the week and propose next steps",
+      "estimatedMinutes": 30,
+      "xpReward": 10,
+      "priority": "low",
+      "isOptional": true,
+      "deliverable": "A brief review of progress, blockers and next steps"
+    }
+  ],
+  "notes": "Generic sample data only. Customize tasks, workload and all dates before importing. Goal and checkpoint links are created inside PhD Quest after import."
+}

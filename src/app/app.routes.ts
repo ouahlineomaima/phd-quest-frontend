@@ -10,6 +10,7 @@ export const routes: Routes = [{
     { path: 'goals', loadComponent: () => import('./features/goals/goals').then(m => m.Goals) },
     { path: 'achievements', loadComponent: () => import('./features/achievements/achievements').then(m => m.Achievements) },
     { path: 'settings', loadComponent: () => import('./features/settings/settings').then(m => m.Settings) },
+    { path: 'help', loadComponent: () => import('./features/help/help').then(m => m.Help) },
     { path: '**', loadComponent: () => import('./core/layout/not-found').then(m => m.NotFound) },
   ],
 }];

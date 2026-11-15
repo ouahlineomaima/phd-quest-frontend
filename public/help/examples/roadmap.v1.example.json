@@ -1,0 +1,200 @@
+{
+  "schemaVersion": 1,
+  "roadmapId": "generic-sample-phd-journey",
+  "title": "Generic sample PhD journey - customize before import",
+  "durationYears": 3,
+  "levels": [
+    {
+      "levelNumber": 1,
+      "title": "Find your direction",
+      "description": "Generic sample content. Adapt this chapter to your agreed research direction.",
+      "objectives": [
+        "Review chapter outcomes and agree the next research steps."
+      ],
+      "checkpoints": [
+        {
+          "id": "chapter-1-review",
+          "title": "Review agreed outcomes for chapter 1",
+          "description": "Generic sample checkpoint. Replace this guidance with your own academic requirements.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "levelNumber": 2,
+      "title": "Explore the literature",
+      "description": "Generic sample content. Adapt this chapter to your agreed research direction.",
+      "objectives": [
+        "Review chapter outcomes and agree the next research steps."
+      ],
+      "checkpoints": [
+        {
+          "id": "chapter-2-review",
+          "title": "Review agreed outcomes for chapter 2",
+          "description": "Generic sample checkpoint. Replace this guidance with your own academic requirements.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "levelNumber": 3,
+      "title": "Ask better questions",
+      "description": "Generic sample content. Adapt this chapter to your agreed research direction.",
+      "objectives": [
+        "Review chapter outcomes and agree the next research steps."
+      ],
+      "checkpoints": [
+        {
+          "id": "chapter-3-review",
+          "title": "Review agreed outcomes for chapter 3",
+          "description": "Generic sample checkpoint. Replace this guidance with your own academic requirements.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "levelNumber": 4,
+      "title": "Shape the approach",
+      "description": "Generic sample content. Adapt this chapter to your agreed research direction.",
+      "objectives": [
+        "Review chapter outcomes and agree the next research steps."
+      ],
+      "checkpoints": [
+        {
+          "id": "chapter-4-review",
+          "title": "Review agreed outcomes for chapter 4",
+          "description": "Generic sample checkpoint. Replace this guidance with your own academic requirements.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "levelNumber": 5,
+      "title": "Test the waters",
+      "description": "Generic sample content. Adapt this chapter to your agreed research direction.",
+      "objectives": [
+        "Review chapter outcomes and agree the next research steps."
+      ],
+      "checkpoints": [
+        {
+          "id": "chapter-5-review",
+          "title": "Review agreed outcomes for chapter 5",
+          "description": "Generic sample checkpoint. Replace this guidance with your own academic requirements.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "levelNumber": 6,
+      "title": "Gather the evidence",
+      "description": "Generic sample content. Adapt this chapter to your agreed research direction.",
+      "objectives": [
+        "Review chapter outcomes and agree the next research steps."
+      ],
+      "checkpoints": [
+        {
+          "id": "chapter-6-review",
+          "title": "Review agreed outcomes for chapter 6",
+          "description": "Generic sample checkpoint. Replace this guidance with your own academic requirements.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "levelNumber": 7,
+      "title": "Make sense of it",
+      "description": "Generic sample content. Adapt this chapter to your agreed research direction.",
+      "objectives": [
+        "Review chapter outcomes and agree the next research steps."
+      ],
+      "checkpoints": [
+        {
+          "id": "chapter-7-review",
+          "title": "Review agreed outcomes for chapter 7",
+          "description": "Generic sample checkpoint. Replace this guidance with your own academic requirements.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "levelNumber": 8,
+      "title": "Connect the findings",
+      "description": "Generic sample content. Adapt this chapter to your agreed research direction.",
+      "objectives": [
+        "Review chapter outcomes and agree the next research steps."
+      ],
+      "checkpoints": [
+        {
+          "id": "chapter-8-review",
+          "title": "Review agreed outcomes for chapter 8",
+          "description": "Generic sample checkpoint. Replace this guidance with your own academic requirements.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "levelNumber": 9,
+      "title": "Tell the story",
+      "description": "Generic sample content. Adapt this chapter to your agreed research direction.",
+      "objectives": [
+        "Review chapter outcomes and agree the next research steps."
+      ],
+      "checkpoints": [
+        {
+          "id": "chapter-9-review",
+          "title": "Review agreed outcomes for chapter 9",
+          "description": "Generic sample checkpoint. Replace this guidance with your own academic requirements.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "levelNumber": 10,
+      "title": "Refine the argument",
+      "description": "Generic sample content. Adapt this chapter to your agreed research direction.",
+      "objectives": [
+        "Review chapter outcomes and agree the next research steps."
+      ],
+      "checkpoints": [
+        {
+          "id": "chapter-10-review",
+          "title": "Review agreed outcomes for chapter 10",
+          "description": "Generic sample checkpoint. Replace this guidance with your own academic requirements.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "levelNumber": 11,
+      "title": "Share your contribution",
+      "description": "Generic sample content. Adapt this chapter to your agreed research direction.",
+      "objectives": [
+        "Review chapter outcomes and agree the next research steps."
+      ],
+      "checkpoints": [
+        {
+          "id": "chapter-11-review",
+          "title": "Review agreed outcomes for chapter 11",
+          "description": "Generic sample checkpoint. Replace this guidance with your own academic requirements.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "levelNumber": 12,
+      "title": "Defend your discovery",
+      "description": "Generic sample content. Adapt this chapter to your agreed research direction.",
+      "objectives": [
+        "Review chapter outcomes and agree the next research steps."
+      ],
+      "checkpoints": [
+        {
+          "id": "chapter-12-review",
+          "title": "Review agreed outcomes for chapter 12",
+          "description": "Generic sample checkpoint. Replace this guidance with your own academic requirements.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

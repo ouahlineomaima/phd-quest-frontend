@@ -33,7 +33,7 @@ export class Shell {
     inject(DestroyRef).onDestroy(() => media.removeEventListener('change', update));
     router.events.pipe(takeUntilDestroyed()).subscribe(event => {
       if (event instanceof NavigationEnd) {
-        const path = event.urlAfterRedirects.split('?')[0];
+        const path = event.urlAfterRedirects.split(/[?#]/)[0];
         const name = this.links.find(link => link.path === path)?.title ?? 'Page not found';
         this.page.set(name); title.setTitle(`${name} - PhD Quest`); this.closeDrawer();
       }

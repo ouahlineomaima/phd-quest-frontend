@@ -5,4 +5,5 @@ export const NAVIGATION = [
   { path: '/goals', title: 'Goals', icon: 'target' },
   { path: '/achievements', title: 'Achievements', icon: 'trophy' },
   { path: '/settings', title: 'Settings', icon: 'settings' },
+  { path: '/help', title: 'Help & Guide', icon: 'book' },
 ] as const;
