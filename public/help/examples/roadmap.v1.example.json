@@ -5,6 +5,25 @@
   "durationYears": 3,
   "levels": [
     {
+      "levelNumber": 0,
+      "title": "Preparation Camp — November–December 2026",
+      "description": "Mission: Prepare your research environment before beginning Level 1.",
+      "objectives": [
+        "Set up Notion, Zotero and Google Drive.",
+        "Understand the scientific research workflow.",
+        "Establish your documentation and progress-tracking habits.",
+        "Confirm your PhD research subject.",
+        "Approve the roadmap and working system."
+      ],
+      "checkpoints": [
+        {
+          "id": "research-environment-ready",
+          "title": "Research environment ready and research direction confirmed.",
+          "required": true
+        }
+      ]
+    },
+    {
       "levelNumber": 1,
       "title": "Find your direction",
       "description": "Generic sample content. Adapt this chapter to your agreed research direction.",

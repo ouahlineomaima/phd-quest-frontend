@@ -1,6 +1,6 @@
 # PhD Quest frontend
 
-Angular 22 standalone frontend for a local-first PhD research workspace: personalized twelve-chapter roadmaps, Sunday-Saturday weekly plans, task progress/time recording, immutable XP and streaks, goals connected to tasks and checkpoints, achievements, a live dashboard and guarded backup/recovery. Dark/light themes and responsive navigation are included.
+Angular 22 standalone frontend for a local-first PhD research workspace: independent Level 0 Preparation Camp and personalized twelve-chapter research roadmaps, Sunday-Saturday weekly plans, task progress/time recording, immutable XP and streaks, goals connected to tasks and checkpoints, achievements, a live dashboard and guarded backup/recovery. Dark/light themes and responsive navigation are included.
 
 The frontend requires the [NestJS/MongoDB backend](https://github.com/ouahlineomaima/phd-quest-backend). [Help & Guide](http://localhost:4200/help) contains onboarding, workflow explanations, four complete copyable ChatGPT prompts and validated generic roadmap/weekly-plan downloads. There is no AI API integration or API-key requirement in PhD Quest.
 

@@ -9,7 +9,7 @@ import { HealthService } from '../../core/services/health.service';
 const MAX_BACKUP_BYTES = 20 * 1024 * 1024;
 interface BackupPreview {
   exportedAt: string; schemaVersion: number; settings: { timezone: string };
-  counts: Record<string, number>; digest: string; revision: number;
+  preparationCampAdded?: boolean; counts: Record<string, number>; digest: string; revision: number;
 }
 @Component({ selector: 'pq-backup-panel', standalone: true, imports: [Loading, Icon], templateUrl: './backup-panel.html', styleUrl: './backup-panel.scss' })
 export class BackupPanel {
@@ -22,7 +22,7 @@ export class BackupPanel {
   readonly exporting = signal(false); readonly exportMessage = signal(''); readonly exportFailed = signal(false);
   readonly preview = signal<BackupPreview | null>(null); readonly error = signal(''); readonly filename = signal('');
   confirmation = '';
-  readonly sections = [ ['weeklyPlans', 'Weekly plans'], ['xpTransactions', 'XP transactions'], ['dailyActivity', 'Activity days'], ['roadmapLevels', 'Research chapters'], ['goals', 'Goals'], ['achievements', 'Achievements'] ];
+  readonly sections = [ ['weeklyPlans', 'Weekly plans'], ['xpTransactions', 'XP transactions'], ['dailyActivity', 'Activity days'], ['roadmapLevels', 'Roadmap levels (including preparation)'], ['goals', 'Goals'], ['achievements', 'Achievements'] ];
   export() {
     if (this.exporting() || this.busy()) return;
     this.exporting.set(true); this.exportMessage.set(''); this.exportFailed.set(false);

@@ -10,7 +10,7 @@ import { SavedTask, WeeklyProgress } from '../weekly-plan/models/weekly-plan.mod
 export interface DashboardData {
  asOf:string;timezone:string;today:string;gamification:GamificationSummary;
  week:{weekId:string;startDate:string;endDate:string;baselineMinutes:number;planId:string|null;title:string|null;progress:WeeklyProgress|null;plannedMinutes:number;todayTasks:SavedTask[];days:{date:string;totalTasks:number;completedTasks:number;plannedMinutes:number;actualMinutes:number}[]};
- research:{current:ResearchLevel|null;completedLevels:number;totalLevels:number;checkpointCompleted:number;checkpointTotal:number};
+ research:{preparation:ResearchLevel|null;current:ResearchLevel|null;completedLevels:number;totalLevels:number;checkpointCompleted:number;checkpointTotal:number};
  goals:{activeCount:number;items:Goal[]};achievements:{total:number;unlocked:number;recent:Achievement[]};
  recentActivity:{eventId:string;date:string;occurredAt:string;planId:string;taskId:string}[];
 }

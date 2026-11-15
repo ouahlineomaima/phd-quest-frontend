@@ -13,9 +13,10 @@ export class Roadmap {
   readonly importOpen = signal(false); readonly notice = signal('');
   readonly levels = signal<ResearchLevel[]>([]); readonly selected = signal<number | null>(null);
   readonly loading = signal(true); readonly busy = signal(false); readonly error = signal('');
-  readonly current = computed(() => this.levels().find(l => l.status === 'current'));
-  readonly completed = computed(() => this.levels().filter(l => l.status === 'completed').length);
+  readonly current = computed(() => this.levels().find(l => l.levelNumber > 0 && l.status === 'current'));
+  readonly completed = computed(() => this.levels().filter(l => l.levelNumber > 0 && l.status === 'completed').length);
   readonly detail = computed(() => this.levels().find(l => l.levelNumber === this.selected()));
+  readonly preparation = computed(() => this.levels().find(level => level.levelNumber === 0));
   readonly years = computed(() => ['Lay the foundations', 'Follow the evidence', 'Make your contribution'].map((title, i) => ({ number: i + 1, title, levels: this.levels().filter(l => l.year === i + 1) })));
   description = ''; evidence: Record<string, string> = {}; confirm = false;
   constructor() { this.load(); }
@@ -24,7 +25,7 @@ export class Roadmap {
     this.api.get<ResearchLevel[]>('roadmap').pipe(takeUntilDestroyed(this.destroy)).subscribe({next: levels => { this.levels.set(levels); this.loading.set(false); }, error: e => { this.error.set(researchError(e)); this.loading.set(false); }});
   }
   onImported(result: ImportedRoadmap) {
-    this.levels.set(result.levels); this.selected.set(null); this.notice.set('Imported ' + result.metadata.title + '. Research progress starts at chapter 1. Historical achievements are preserved.');
+    this.levels.set(result.levels); this.selected.set(null); this.notice.set('Imported ' + result.metadata.title + '. Preparation Camp and research chapter 1 are available independently. Historical achievements are preserved.');
   }
   closeImport() { this.importOpen.set(false); this.load(); }
   open(level: ResearchLevel, dialog: HTMLDialogElement) {
