@@ -1,4 +1,5 @@
 // Wire format: backend docs/contracts/weekly-plan.v1.schema.json. No progress fields in imports.
+import type { GamificationSummary } from '../../../core/services/gamification.service';
 export interface PlanTaskInput {
   id: string; date: string; title: string; description?: string; estimatedMinutes: number;
   xpReward: number; priority: 'low' | 'medium' | 'high'; isOptional: boolean; deliverable: string;
@@ -7,7 +8,14 @@ export interface WeeklyPlanInput {
   schemaVersion: 1; weekId: string; startDate: string; endDate: string;
   title: string; objectives: string[]; tasks: PlanTaskInput[]; notes?: string;
 }
-export interface SavedTask extends PlanTaskInput { status: 'pending' | 'completed'; actualMinutes: number; completedAt: string | null; }
+export interface SavedTask extends PlanTaskInput { status: 'pending' | 'completed'; actualMinutes: number; completedAt: string | null; firstCompletedAt?: string | null; }
+export interface WeeklyProgress {
+  totalTasks: number; completedTasks: number; completionPercent: number; completedEstimatedMinutes: number;
+  actualRecordedMinutes: number; potentialXp: number; earnedXp: number;
+}
+export interface ProgressSnapshot { plan: SavedWeeklyPlan; weeklyProgress: WeeklyProgress; gamification: GamificationSummary; }
+export interface TaskMutation extends ProgressSnapshot { changed: boolean; xpAwarded: number; }
+export interface TaskAction { taskId: string; action: 'complete' | 'reopen'; actualMinutes?: number; }
 export interface SavedWeeklyPlan extends Omit<WeeklyPlanInput, 'tasks'> { id: string; tasks: SavedTask[]; createdAt: string; updatedAt: string; }
 export interface Workload { taskCount: number; estimatedMinutes: number; potentialXp: number; }
 export interface WeekSummary extends Workload { id: string; weekId: string; startDate: string; endDate: string; title: string; createdAt: string; updatedAt: string; }

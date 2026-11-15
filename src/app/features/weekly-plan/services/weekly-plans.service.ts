@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { timeout } from 'rxjs';
-import { ImportPreview, PlanError, SavedWeeklyPlan, WeekSummary, WeeklyPlanInput } from '../models/weekly-plan.models';
+import { ImportPreview, PlanError, ProgressSnapshot, SavedWeeklyPlan, TaskAction, TaskMutation, WeekSummary, WeeklyPlanInput } from '../models/weekly-plan.models';
 
 @Injectable({ providedIn: 'root' })
 export class WeeklyPlansApi {
@@ -11,6 +11,11 @@ export class WeeklyPlansApi {
   detail(id: string) { return this.http.get<SavedWeeklyPlan>(`${this.base}/${encodeURIComponent(id)}`).pipe(timeout(15000)); }
   preview(input: unknown) { return this.http.post<ImportPreview>(`${this.base}/import/preview`, input).pipe(timeout(15000)); }
   confirm(input: WeeklyPlanInput) { return this.http.post<SavedWeeklyPlan>(`${this.base}/import/confirm`, input).pipe(timeout(15000)); }
+  progress(id: string) { return this.http.get<ProgressSnapshot>(`${this.base}/${encodeURIComponent(id)}/progress`).pipe(timeout(15000)); }
+  change(id: string, event: TaskAction) {
+    return this.http.patch<TaskMutation>(`${this.base}/${encodeURIComponent(id)}/tasks/${encodeURIComponent(event.taskId)}/${event.action}`,
+      event.action === 'complete' && event.actualMinutes !== undefined ? { actualMinutes: event.actualMinutes } : {}).pipe(timeout(30000));
+  }
 }
 
 export function planError(error: unknown): PlanError {
