@@ -1,3 +1,6 @@
 import { Component } from '@angular/core';
-@Component({ selector: 'pq-achievements', standalone: true, template: '<h1>Achievements</h1><p class="muted">Celebrate the steps along the way.</p>' })
-export class Achievements {}
+import { Badge, Card, PageHeader } from '../../shared/components/ui';
+import { Icon } from '../../shared/components/icon/icon';
+import { PREVIEW_ACHIEVEMENTS } from '../../core/demo/preview-data';
+@Component({ selector: 'pq-achievements', standalone: true, imports: [Badge, Card, PageHeader, Icon], templateUrl: './achievements.html', styleUrl: './achievements.scss' })
+export class Achievements { readonly achievements = PREVIEW_ACHIEVEMENTS; }
