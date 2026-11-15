@@ -12,9 +12,9 @@
   </nav>
   <div class="sidebar-bottom">
     <div class="journey-preview">
-      <div class="row spread"><span class="eyebrow">Preview progress</span><pq-icon name="sparkles" /></div>
-      <div class="row spread level-line"><strong>Level {{ preview.level }}</strong><span class="small gold">{{ preview.xp }} <span class="muted">/ {{ preview.nextLevelXp }} XP</span></span></div>
-      <div class="mini-track"><span [style.width.%]="preview.xpPercent"></span></div><p>Small steps. Meaningful discoveries.</p>
+      <div class="row spread"><span class="eyebrow">Player progress · live</span><pq-icon name="sparkles" /></div>
+      @if (gamification.summary(); as player) { <div class="row spread level-line"><strong>Level {{ player.playerLevel }}</strong><span class="small gold">{{ player.totalXp }} XP earned</span></div><div class="mini-track" role="progressbar" aria-label="Player XP toward next level" aria-valuemin="0" aria-valuemax="100" [attr.aria-valuenow]="player.levelProgressPercent"><span [style.width.%]="player.levelProgressPercent"></span></div><p>{{ player.xpIntoLevel }} / {{ player.xpForNextLevel }} XP toward next level</p><p>{{ player.currentStreak }} day streak · best {{ player.longestStreak }}</p> } @else { <p>{{ gamification.loading() ? 'Loading player progress…' : 'Player progress unavailable' }}</p> }
+      @if (gamification.error()) { <p>Unable to refresh. Values shown are last confirmed.</p><button class="text-link retry-player" (click)="gamification.refresh()">Retry progress</button> }
     </div>
     <div class="sidebar-footer"><span class="footer-dot"></span><span class="nav-text">Local workspace</span><span class="small nav-text">v0.3</span></div>
     <button class="collapse-button" (click)="mobile() ? closeDrawer() : collapsed.set(!collapsed())" [attr.aria-label]="mobile() ? 'Close navigation' : collapsed() ? 'Expand sidebar' : 'Collapse sidebar'" [attr.aria-expanded]="!collapsed()"><pq-icon [name]="mobile() ? 'close' : 'collapse'" /><span class="nav-text">{{ mobile() ? 'Close navigation' : 'Collapse sidebar' }}</span></button>
@@ -26,7 +26,7 @@
     <div class="row header-actions"><span class="local-label"><span></span>Local workspace</span><button class="icon-button" (click)="theme.toggle()" [attr.aria-label]="theme.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"><pq-icon [name]="theme.theme() === 'dark' ? 'sun' : 'moon'" /></button><div class="profile-mark" title="Local workspace placeholder, no account"><pq-icon name="book" /></div></div>
   </header>
   <main id="main-content" tabindex="-1">
-    <div class="content"><div class="preview-banner"><pq-icon name="info" />@if (page() === 'Weekly plan') { <span><strong>Saved weekly plans</strong> <span class="banner-detail">· Your imported records. Other pages remain previews.</span></span><pq-badge class="preview-label" tone="success">PHASE 04</pq-badge> } @else { <span><strong>Design preview</strong> <span class="banner-detail">· Sample data, not your research progress.</span></span><pq-badge class="preview-label" tone="accent">PREVIEW</pq-badge> }</div><router-outlet /></div>
+    <div class="content"><div class="preview-banner"><pq-icon name="info" />@if (page() === 'Weekly plan') { <span><strong>Saved weekly plans</strong> <span class="banner-detail">· Live task progress, player XP and activity streaks.</span></span><pq-badge class="preview-label" tone="success">PHASE 05</pq-badge> } @else if (page() === 'Dashboard') { <span><strong>Dashboard preview</strong> <span class="banner-detail">· Player XP and streaks are live; other panels are samples.</span></span><pq-badge class="preview-label" tone="accent">MIXED VIEW</pq-badge> } @else { <span><strong>Design preview</strong> <span class="banner-detail">· Page content is sample data. Sidebar player progress is live.</span></span><pq-badge class="preview-label" tone="accent">PREVIEW</pq-badge> }</div><router-outlet /></div>
     <footer class="main-footer"><span>PhD Quest <span>·</span> Research. Progress. Achieve.</span><span>One thoughtful step at a time.</span></footer>
   </main>
 </div>

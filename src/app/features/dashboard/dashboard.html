@@ -1,6 +1,6 @@
 <pq-page-header eyebrow="A little more, every day" title="Your research, in motion." subtitle="A clearer view of where you are — and the next small step forward."><a class="button" routerLink="/weekly-plan"><pq-icon name="calendar" />View weekly plan<pq-icon name="arrow" /></a></pq-page-header>
 <div class="stack">
-  <div class="metrics">@for (metric of metrics; track metric.label) { <pq-stat [metric]="metric" /> }</div>
+  <div class="metrics">@for (metric of metrics(); track metric.label) { <pq-stat [metric]="metric" /> }</div>
   <div class="dashboard-grid">
     <pq-card class="focus-card"><pq-section-heading title="Today's focus" subtitle="Three small steps for a sample research day"><pq-badge tone="primary">Sample day</pq-badge></pq-section-heading>
       @for (task of tasks; track task.title) { <pq-task-preview [task]="task" /> }

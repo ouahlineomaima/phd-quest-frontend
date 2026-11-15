@@ -7,7 +7,7 @@ import { ThemeService } from '../services/theme.service';
 import { NAVIGATION } from '../navigation/navigation';
 import { Brand } from './brand';
 import { Badge } from '../../shared/components/ui';
-import { PREVIEW_SUMMARY } from '../demo/preview-data';
+import { GamificationState } from '../services/gamification.service';
 
 @Component({
   selector: 'pq-shell', standalone: true, imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon, Brand, Badge],
@@ -17,7 +17,7 @@ import { PREVIEW_SUMMARY } from '../demo/preview-data';
 export class Shell {
   readonly theme = inject(ThemeService);
   readonly links = NAVIGATION;
-  readonly preview = PREVIEW_SUMMARY;
+  readonly gamification = inject(GamificationState);
   readonly collapsed = signal(false);
   readonly drawer = signal(false);
   readonly mobile = signal(window.matchMedia('(max-width: 760px)').matches);
