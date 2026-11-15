@@ -1,11 +1,14 @@
+import { RouterLink } from '@angular/router';
+import { ImportedRoadmap, RoadmapImportDialog } from './roadmap-import-dialog';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Badge, Card, EmptyState, Loading, PageHeader, Progress, SectionHeading } from '../../shared/components/ui';
 import { Icon } from '../../shared/components/icon/icon';
 import { Checkpoint, ResearchApi, ResearchLevel, researchError } from '../../core/services/research-api';
-@Component({ selector: 'pq-roadmap', standalone: true, imports: [ Badge, Card, EmptyState, Loading, PageHeader, Progress, SectionHeading, Icon], templateUrl: './roadmap.html', styleUrl: './roadmap.scss' })
+@Component({ selector: 'pq-roadmap', standalone: true, imports: [RouterLink, RoadmapImportDialog, Badge, Card, EmptyState, Loading, PageHeader, Progress, SectionHeading, Icon], templateUrl: './roadmap.html', styleUrl: './roadmap.scss' })
 export class Roadmap {
   private readonly api = inject(ResearchApi); private readonly destroy = inject(DestroyRef);
+  readonly importOpen = signal(false); readonly notice = signal('');
   readonly levels = signal<ResearchLevel[]>([]); readonly selected = signal<number | null>(null);
   readonly loading = signal(true); readonly busy = signal(false); readonly error = signal('');
   readonly current = computed(() => this.levels().find(l => l.status === 'current'));
@@ -18,6 +21,10 @@ export class Roadmap {
     this.loading.set(true); this.error.set('');
     this.api.get<ResearchLevel[]>('roadmap').pipe(takeUntilDestroyed(this.destroy)).subscribe({next: levels => { this.levels.set(levels); this.loading.set(false); }, error: e => { this.error.set(researchError(e)); this.loading.set(false); }});
   }
+  onImported(result: ImportedRoadmap) {
+    this.levels.set(result.levels); this.selected.set(null); this.notice.set('Imported ' + result.metadata.title + '. Research progress starts at chapter 1. Historical achievements are preserved.');
+  }
+  closeImport() { this.importOpen.set(false); this.load(); }
   open(level: ResearchLevel, dialog: HTMLDialogElement) {
     this.selected.set(level.levelNumber); this.description = level.description; this.evidence = Object.fromEntries(level.checkpoints.map(c => [c.id, c.evidence])); this.confirm = false; this.error.set(''); dialog.showModal();
   }
