@@ -1,6 +1,12 @@
 import { MetricPreview, RoadmapLevel, TaskPreview } from '../../shared/models/preview.models';
 
 // Visual fixtures only. Never persisted, submitted to the API or used as research records.
+export const PREVIEW_SUMMARY = {
+  level: '04', xp: '680', nextLevelXp: '1,000', xpPercent: 68,
+  roadmapPercent: 33, roadmapLevel: 4, totalLevels: 12,
+  weeklyPercent: 62, workloadHours: 16, workloadTarget: 24, workloadPercent: 67,
+  weekLabel: 'November 15–21, 2026', unlockedBadges: '02', totalBadges: '06',
+} as const;
 export const PREVIEW_METRICS: readonly MetricPreview[] = [
   { label: 'Research level', value: '04', note: '680 / 1,000 XP · sample progress', icon: 'sparkles', tone: 'primary' },
   { label: 'Daily streak', value: '7 days', note: 'A little consistency goes a long way', icon: 'flame', tone: 'gold' },

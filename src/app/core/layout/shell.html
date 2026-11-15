@@ -13,8 +13,8 @@
   <div class="sidebar-bottom">
     <div class="journey-preview">
       <div class="row spread"><span class="eyebrow">Preview progress</span><pq-icon name="sparkles" /></div>
-      <div class="row spread level-line"><strong>Level 04</strong><span class="small gold">680 <span class="muted">/ 1,000 XP</span></span></div>
-      <div class="mini-track"><span></span></div><p>Small steps. Meaningful discoveries.</p>
+      <div class="row spread level-line"><strong>Level {{ preview.level }}</strong><span class="small gold">{{ preview.xp }} <span class="muted">/ {{ preview.nextLevelXp }} XP</span></span></div>
+      <div class="mini-track"><span [style.width.%]="preview.xpPercent"></span></div><p>Small steps. Meaningful discoveries.</p>
     </div>
     <div class="sidebar-footer"><span class="footer-dot"></span><span class="nav-text">Local workspace</span><span class="small nav-text">v0.3</span></div>
     <button class="collapse-button" (click)="mobile() ? closeDrawer() : collapsed.set(!collapsed())" [attr.aria-label]="mobile() ? 'Close navigation' : collapsed() ? 'Expand sidebar' : 'Collapse sidebar'" [attr.aria-expanded]="!collapsed()"><pq-icon [name]="mobile() ? 'close' : 'collapse'" /><span class="nav-text">{{ mobile() ? 'Close navigation' : 'Collapse sidebar' }}</span></button>

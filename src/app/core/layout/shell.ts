@@ -7,6 +7,7 @@ import { ThemeService } from '../services/theme.service';
 import { NAVIGATION } from '../navigation/navigation';
 import { Brand } from './brand';
 import { Badge } from '../../shared/components/ui';
+import { PREVIEW_SUMMARY } from '../demo/preview-data';
 
 @Component({
   selector: 'pq-shell', standalone: true, imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon, Brand, Badge],
@@ -16,6 +17,7 @@ import { Badge } from '../../shared/components/ui';
 export class Shell {
   readonly theme = inject(ThemeService);
   readonly links = NAVIGATION;
+  readonly preview = PREVIEW_SUMMARY;
   readonly collapsed = signal(false);
   readonly drawer = signal(false);
   readonly mobile = signal(window.matchMedia('(max-width: 760px)').matches);
