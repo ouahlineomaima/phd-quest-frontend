@@ -1,4 +1,4 @@
-﻿import { Component, computed, effect, input, output, signal } from '@angular/core';
+import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { Badge } from '../../../shared/components/ui';
 import { Icon } from '../../../shared/components/icon/icon';
 import { PlanTaskInput, SavedTask, TaskAction } from '../models/weekly-plan.models';
@@ -6,13 +6,14 @@ import { PlanTaskInput, SavedTask, TaskAction } from '../models/weekly-plan.mode
 @Component({ selector: 'pq-plan-task', standalone: true, imports: [Badge, Icon], templateUrl: './plan-task.html', styleUrl: './plan-task.scss' })
 export class PlanTask {
   readonly task = input.required<PlanTaskInput | SavedTask>();
-  readonly interactive = input(false); readonly busy = input(false); readonly timezone = input('Africa/Casablanca');
+  readonly interactive = input(false); readonly busy = input(false); readonly saving = input(false); readonly timezone = input('Africa/Casablanca');
   readonly requested = output<TaskAction>(); readonly draft = signal(''); readonly inputError = signal('');
   readonly saved = computed(() => { const task = this.task(); return 'status' in task ? task : null; });
   readonly completed = computed(() => this.saved()?.status === 'completed');
   readonly status = computed(() => this.saved() ? this.completed() ? 'Completed' : 'Pending' : 'Pending on import');
-  constructor() { effect(() => { this.task(); this.draft.set(''); this.inputError.set(''); }); }
-  edit(event: Event) { this.draft.set((event.target as HTMLInputElement).value); }
+  private readonly taskState = computed(() => this.task().id + ':' + this.status());
+  constructor() { effect(() => { this.taskState(); this.draft.set(''); this.inputError.set(''); }); }
+  edit(event: Event) { this.draft.set((event.target as HTMLInputElement).value); this.inputError.set(''); }
   complete(event: Event) {
     event.preventDefault(); if (!this.interactive() || this.busy() || this.completed()) return;
     const text = this.draft(); const minutes = text === '' ? undefined : Number(text);

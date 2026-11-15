@@ -20,6 +20,11 @@ export class WeeklyPlan {
   readonly importOpen = signal(false); readonly imported = signal(false);
   readonly dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   readonly dates = computed(() => this.plan() ? weekDates(this.plan()!.startDate) : []);
+  readonly today = computed(() => this.gamification.summary()?.todayActivity.date ?? null);
+  readonly todayIndex = computed(() => this.dates().indexOf(this.today() ?? ''));
+  readonly currentWeek = computed(() => { const today = this.today(); return today ? this.weeks().find(week => week.startDate <= today && today <= week.endDate) : undefined; });
+  readonly todayTasks = computed(() => this.todayIndex() < 0 ? [] : this.plan()?.tasks.filter(task => task.date === this.today()) ?? []);
+  readonly todayCompleted = computed(() => this.todayTasks().filter(task => task.status === 'completed').length);
   readonly tasks = computed(() => this.plan()?.tasks.filter(task => task.date === this.dates()[this.selected()]) ?? []);
   readonly dayMinutes = computed(() => this.tasks().reduce((sum, task) => sum + task.estimatedMinutes, 0));
   readonly dayCompleted = computed(() => this.tasks().filter(task => task.status === 'completed').length);
@@ -27,27 +32,40 @@ export class WeeklyPlan {
   readonly potentialXp = computed(() => this.plan()?.tasks.reduce((sum, task) => sum + task.xpReward, 0) ?? 0);
   constructor() { this.loadWeeks(); }
   loadWeeks(preferredId?: string) {
+    if (this.busyTask()) return;
     this.listRequest?.unsubscribe(); this.loading.set(true); this.error.set(null);
     this.listRequest = this.api.list().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: weeks => {
         this.weeks.set(weeks); this.loading.set(false);
-        const id = weeks.find(week => week.id === (preferredId ?? this.selectedId()))?.id ?? weeks[0]?.id;
+        const id = weeks.find(week => week.id === (preferredId ?? this.selectedId()))?.id ?? this.currentWeek()?.id ?? weeks[0]?.id;
         if (id) this.selectWeek(id, this.plan()?.id === id);
         else { this.detailRequest?.unsubscribe(); this.detailLoading.set(false); this.plan.set(null); this.selectedId.set(''); }
       }, error: error => { this.loading.set(false); this.error.set(planError(error)); },
     });
   }
   selectWeek(id: string, preserve = false) {
+    if (this.busyTask()) return;
+    this.message.set('');
     this.detailRequest?.unsubscribe(); this.selectedId.set(id); this.detailLoading.set(true); this.error.set(null);
     if (!preserve) { this.plan.set(null); this.progress.set(null); this.selected.set(0); }
     this.detailRequest = this.api.progress(id).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: snapshot => { this.accept(snapshot); this.detailLoading.set(false); },
+      next: snapshot => { this.accept(snapshot); if (!preserve) this.selected.set(Math.max(0, this.todayIndex())); this.detailLoading.set(false); },
       error: error => { this.detailLoading.set(false); this.error.set(planError(error)); },
     });
   }
+  selectDay(index: number) {
+    if (this.busyTask() || this.detailLoading() || index < 0 || index > 6) return;
+    this.selected.set(index); this.message.set('');
+  }
+  jumpToToday() {
+    if (this.loading() || this.detailLoading() || this.busyTask()) return;
+    const week = this.currentWeek(); if (!week) return;
+    if (this.plan()?.id !== week.id) this.selectWeek(week.id);
+    else this.selectDay(this.todayIndex());
+  }
   changeWeek(event: Event) { this.selectWeek((event.target as HTMLSelectElement).value); }
   onImported(plan: SavedWeeklyPlan) {
-    this.detailRequest?.unsubscribe(); this.detailLoading.set(false); this.plan.set(plan); this.selectedId.set(plan.id); this.selected.set(0); this.imported.set(true);
+    this.detailRequest?.unsubscribe(); this.detailLoading.set(false); this.plan.set(plan); this.selectedId.set(plan.id); this.selected.set(Math.max(0, weekDates(plan.startDate).indexOf(this.today() ?? ''))); this.imported.set(true);
   }
   closeImport() { this.importOpen.set(false); this.loadWeeks(this.plan()?.id); }
   private accept(snapshot: ProgressSnapshot) { this.plan.set(snapshot.plan); this.progress.set(snapshot.weeklyProgress); this.gamification.accept(snapshot.gamification); }
