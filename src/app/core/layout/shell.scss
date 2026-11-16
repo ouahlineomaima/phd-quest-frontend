@@ -17,3 +17,5 @@ nav a:hover { background: var(--surface-raised); color: var(--text); } nav a.act
 .retry-player{background:none;border:0;padding:6px 0;font-size:10px}
 
 .journey-preview p{font-size:10px}.journey-preview .streak-status{font-weight:600;color:var(--xp-gold)}.journey-preview .streak-status.active-today{color:var(--success)}
+
+.focus-mini{position:sticky;top:0;z-index:20;display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;padding:12px 24px;border-bottom:1px solid var(--border);background:linear-gradient(var(--primary-soft),var(--primary-soft)),var(--surface);color:var(--primary-text);font-size:12px}.focus-mini>span:nth-of-type(2){font-variant-numeric:tabular-nums;font-size:17px;font-weight:600}.focus-mini-dot{width:7px;height:7px;border-radius:50%;background:var(--success)}.focus-mini-dot.paused{background:var(--muted)}.focus-mini-action{margin-left:auto;font-size:11px}@media(max-width:550px){.focus-mini{padding:12px 20px;gap:8px 12px}.focus-mini strong{font-size:11px}}

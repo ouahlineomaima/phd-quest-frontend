@@ -25,6 +25,7 @@
     <div class="row"><button #menu class="icon-button mobile-menu" aria-label="Open navigation" aria-controls="app-navigation" [attr.aria-expanded]="drawer()" (click)="openDrawer()"><pq-icon name="menu" /></button><span class="breadcrumb">Workspace <span>/</span> <strong>{{ page() }}</strong></span></div>
     <div class="row header-actions"><span class="local-label"><span></span>Local workspace</span><button class="icon-button" (click)="theme.toggle()" [attr.aria-label]="theme.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"><pq-icon [name]="theme.theme() === 'dark' ? 'sun' : 'moon'" /></button><div class="profile-mark" title="Local workspace placeholder, no account"><pq-icon name="book" /></div></div>
   </header>
+  @if(focus.snapshot();as timer){<a class="focus-mini" routerLink="/focus" aria-label="Return to active focus timer"><span class="focus-mini-dot" [class.paused]="timer.state!=='running'"></span><strong>{{timer.kind==='break'?'Break':'Focus'}} / {{timer.mode}}</strong><span>{{focus.display()}}</span><span>{{timer.state}}</span><span class="focus-mini-action">Open timer</span></a>}
   <main id="main-content" tabindex="-1">
     <div class="content"><router-outlet /></div>
     <footer class="main-footer"><span>PhD Quest <span>/</span> Research. Progress. Achieve.</span><span>One thoughtful step at a time.</span></footer>

@@ -1,3 +1,4 @@
+import { FocusApi } from '../../core/services/focus-api';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Subscription } from 'rxjs';
@@ -11,6 +12,8 @@ import { ImportDialog } from './components/import-dialog';
 @Component({ selector: 'pq-weekly-plan', standalone: true, imports: [Badge, Card, EmptyState, Loading, PageHeader, Progress, SectionHeading, Icon, PlanTask, ImportDialog], templateUrl: './weekly-plan.html', styleUrl: './weekly-plan.scss' })
 export class WeeklyPlan {
   private readonly api = inject(WeeklyPlansApi); private readonly destroyRef = inject(DestroyRef);
+  private readonly focusApi=inject(FocusApi);private focusRequest?:Subscription;
+  readonly focusTimes=signal<Record<string,number>|null>(null);readonly focusError=signal(false);
   private listRequest?: Subscription; private detailRequest?: Subscription;
   readonly gamification = inject(GamificationState);
   readonly progress = signal<WeeklyProgress | null>(null); readonly busyTask = signal<string | null>(null); readonly message = signal(''); readonly xpAwarded = signal(0);
@@ -68,7 +71,8 @@ export class WeeklyPlan {
     this.detailRequest?.unsubscribe(); this.detailLoading.set(false); this.plan.set(plan); this.selectedId.set(plan.id); this.selected.set(Math.max(0, weekDates(plan.startDate).indexOf(this.today() ?? ''))); this.imported.set(true);
   }
   closeImport() { this.importOpen.set(false); this.loadWeeks(this.plan()?.id); }
-  private accept(snapshot: ProgressSnapshot) { this.plan.set(snapshot.plan); this.progress.set(snapshot.weeklyProgress); this.gamification.accept(snapshot.gamification); }
+  private accept(snapshot: ProgressSnapshot) { this.plan.set(snapshot.plan); this.progress.set(snapshot.weeklyProgress); this.gamification.accept(snapshot.gamification); this.readFocus(); }
+  readFocus(){const plan=this.plan();if(!plan)return;this.focusRequest?.unsubscribe();this.focusTimes.set(null);this.focusError.set(false);this.focusRequest=this.focusApi.taskTimes(plan.weekId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({next:totals=>this.focusTimes.set(totals),error:()=>this.focusError.set(true)});}
   updateTask(event: TaskAction) {
     const plan = this.plan(); if (!plan || this.busyTask() || this.detailLoading()) return;
     this.busyTask.set(event.taskId); this.error.set(null); this.message.set(''); this.xpAwarded.set(0);

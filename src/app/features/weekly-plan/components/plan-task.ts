@@ -6,6 +6,7 @@ import { PlanTaskInput, SavedTask, TaskAction } from '../models/weekly-plan.mode
 @Component({ selector: 'pq-plan-task', standalone: true, imports: [Badge, Icon], templateUrl: './plan-task.html', styleUrl: './plan-task.scss' })
 export class PlanTask {
   readonly task = input.required<PlanTaskInput | SavedTask>();
+  readonly focusedMinutes = input(0);
   readonly interactive = input(false); readonly busy = input(false); readonly saving = input(false); readonly timezone = input('Africa/Casablanca');
   readonly requested = output<TaskAction>(); readonly draft = signal(''); readonly inputError = signal('');
   readonly saved = computed(() => { const task = this.task(); return 'status' in task ? task : null; });

@@ -1,3 +1,4 @@
+import { FocusTimer } from '../services/focus-timer.service';
 import { Component, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -14,6 +15,7 @@ import { GamificationState } from '../services/gamification.service';
   host: { '[class.collapsed]': 'collapsed() && !mobile()', '(document:keydown.escape)': 'closeDrawer()' },
 })
 export class Shell {
+  readonly focus = inject(FocusTimer);
   readonly theme = inject(ThemeService);
   readonly links = NAVIGATION;
   readonly gamification = inject(GamificationState);
