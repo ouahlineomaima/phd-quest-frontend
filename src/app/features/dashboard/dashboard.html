@@ -2,6 +2,7 @@
 @if(error()){<p class="notice" role="alert">{{error()}}</p>}
 @if(loading()){<pq-loading label="Loading your saved research progress"/>} @else if(data();as d){
 <div class="stack"><div class="metrics">@for(metric of metrics();track metric.label){<pq-stat [metric]="metric"/>}</div>
+<pq-meeting-summary/>
 <pq-card><div class="row spread small"><span>Player XP / {{d.gamification.xpIntoLevel}} / {{d.gamification.xpForNextLevel}} toward the next level</span><strong class="gold">{{d.gamification.totalXp}} XP earned</strong></div><pq-progress [value]="d.gamification.levelProgressPercent" label="Player XP toward next level"/></pq-card>
 <div class="dashboard-grid"><pq-card class="focus-card"><pq-section-heading title="Today's focus" [subtitle]="d.today + ' ? ' + d.timezone"><a class="text-link" routerLink="/weekly-plan">Weekly plan <pq-icon name="arrow"/></a></pq-section-heading>
 @if(!d.week.planId){<pq-empty-state title="Give this week a direction" [message]="'No plan is saved for ' + d.week.startDate + ' through ' + d.week.endDate + '.'" icon="calendar"><a class="button primary" routerLink="/weekly-plan">Import a weekly plan</a></pq-empty-state>}

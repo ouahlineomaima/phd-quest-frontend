@@ -12,7 +12,7 @@ export interface Achievement { code: string; title: string; description: string;
 export class ResearchApi {
   private readonly http = inject(HttpClient);
   get<T>(path: string) { return this.http.get<T>('/api/' + path).pipe(timeout(15000)); }
-  change<T>(method: 'POST' | 'PATCH', path: string, body: unknown) { return this.http.request<T>(method, '/api/' + path, { body }).pipe(timeout(30000)); }
+  change<T>(method: 'POST' | 'PATCH' | 'DELETE', path: string, body: unknown) { return this.http.request<T>(method, '/api/' + path, { body }).pipe(timeout(30000)); }
 }
 export function researchError(error: unknown): string {
   if (error instanceof HttpErrorResponse && error.status >= 400 && error.status < 500) return typeof error.error?.message === 'string' ? error.error.message : 'Check the supplied fields and try again.';

@@ -2,6 +2,7 @@ export const NAVIGATION = [
   { path: '/dashboard', title: 'Dashboard', icon: 'dashboard' },
   { path: '/weekly-plan', title: 'Weekly plan', icon: 'calendar' },
   { path: '/focus', title: 'Focus', icon: 'clock' },
+  { path: '/supervisor-meetings', title: 'Supervisor meetings', icon: 'meetings' },
   { path: '/roadmap', title: 'Roadmap', icon: 'roadmap' },
   { path: '/goals', title: 'Goals', icon: 'target' },
   { path: '/achievements', title: 'Achievements', icon: 'trophy' },

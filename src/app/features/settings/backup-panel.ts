@@ -22,7 +22,7 @@ export class BackupPanel {
   readonly exporting = signal(false); readonly exportMessage = signal(''); readonly exportFailed = signal(false);
   readonly preview = signal<BackupPreview | null>(null); readonly error = signal(''); readonly filename = signal('');
   confirmation = '';
-  readonly sections = [ ['weeklyPlans', 'Weekly plans'], ['xpTransactions', 'XP transactions'], ['dailyActivity', 'Activity days'], ['roadmapLevels', 'Roadmap levels (including preparation)'], ['goals', 'Goals'], ['achievements', 'Achievements'], ['focusSessions','Saved focus sessions'] ];
+  readonly sections = [ ['weeklyPlans', 'Weekly plans'], ['xpTransactions', 'XP transactions'], ['dailyActivity', 'Activity days'], ['roadmapLevels', 'Roadmap levels (including preparation)'], ['goals', 'Goals'], ['achievements', 'Achievements'], ['focusSessions','Saved focus sessions'], ['supervisors','Supervisor profiles'], ['supervisorMeetings','Meetings (including preparation and follow-up actions)'] ];
   export() {
     if (this.exporting() || this.busy()) return;
     this.exporting.set(true); this.exportMessage.set(''); this.exportFailed.set(false);
