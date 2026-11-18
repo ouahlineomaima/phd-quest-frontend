@@ -1,8 +1,210 @@
-<pq-page-header eyebrow="Small steps, meaningful outcomes" title="Make room for what matters." subtitle="Weekly, monthly and research goals, shaped around your work."><button class="button primary" [disabled]="busy() || loading()" (click)="open(null, editor)">Add goal</button></pq-page-header>
-<div class="actions filters"><label>Status<select [value]="status" [disabled]="loading() || busy()" (change)="status=$any($event.target).value;load()"><option value="">All statuses</option><option value="active">Active</option><option value="completed">Completed</option><option value="archived">Archived</option></select></label><label>Type<select [value]="type" [disabled]="loading() || busy()" (change)="type=$any($event.target).value;load()"><option value="">All types</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="research">Research</option></select></label></div>
-@if(error()){<p role="alert" class="notice">{{error()}} <button class="button" [disabled]="busy() || loading()" (click)="load()">Reload goals</button></p>}
-@if(loading()){<pq-loading label="Loading goals"/>} @else {
-<div class="grid-two">@for(goal of goals();track goal.id){<pq-card><div class="goal-intro"><pq-badge>{{goal.type}}</pq-badge><pq-badge [tone]="goal.status==='completed'?'success':'muted'">{{goal.status}}</pq-badge></div><h2 class="goal-title">{{goal.title}}</h2><p class="goal-description">{{goal.description || 'No description added.'}}</p>@if(goal.progress?.mode==='linked'){<div class="goal-progress"><div class="row spread"><strong>Progress: {{goal.progress!.percentage}}%</strong><span>{{goal.progress!.completed}} / {{goal.progress!.total}} tasks</span></div><pq-progress [value]="goal.progress!.percentage ?? 0" label="Linked task progress"/><p class="muted small">Completion status is confirmed manually.</p></div>}@else{<p class="muted small manual-goal">Manual goal / no linked task progress</p>}<div class="stack small muted">@if(goal.targetDate){<p>Due {{goal.targetDate}}</p>}@if(goal.relatedWeekId){<p>Week {{goal.relatedWeekId}}</p>}@if(goal.relatedRoadmapLevel!==null){<p>{{goal.relatedRoadmapLevel===0 ? 'Preparation Camp (Level 0)' : 'Chapter reference: ' + goal.relatedRoadmapLevel}} (not a checkpoint link)</p>}@if(goal.completedAt){<p>Completed {{goal.completedAt}}</p>}</div>@if(goal.status!=='archived'){<div class="goal-footer actions"><button class="button" [disabled]="busy()" (click)="open(goal,editor)">Edit</button><button class="button primary" [disabled]="busy()" (click)="action(goal,goal.status==='active'?'complete':'reopen')">{{goal.status==='active'?'Complete':'Reopen'}}</button><button class="button" [disabled]="busy()" (click)="archiving.set(goal);archiveDialog.showModal()">Archive</button></div>}</pq-card>} @empty {<pq-card class="empty-goal"><pq-empty-state title="Space for your next goal" message="No goals match these filters. Add a goal or choose another status." icon="target"/></pq-card>}</div>}
-<p class="muted small">Linked progress reflects saved task states. Goal completion and checkpoint validation always require manual confirmation; links award no additional XP.</p>
-<dialog #editor aria-labelledby="goal-editor-title" (cancel)="busy() ? $event.preventDefault() : editorOpen.set(false)"><form class="stack" (submit)="save($event,editor)"><div class="row spread"><h2 id="goal-editor-title">{{editing?'Edit goal':'Add goal'}}</h2><button type="button" class="button" [disabled]="busy()" (click)="editorOpen.set(false);editor.close()">Cancel</button></div>@if(error()){<p role="alert">{{error()}}</p>}<fieldset class="stack" [disabled]="busy()"><label>Title<input required maxlength="160" [value]="title" (input)="title=$any($event.target).value"/></label><label>Description<textarea maxlength="2000" rows="3" [value]="description" (input)="description=$any($event.target).value"></textarea></label><label>Type<select [value]="goalType" (change)="goalType=$any($event.target).value"><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="research">Research</option></select></label><label>Due date (optional)<input type="date" min="1900-01-01" max="9999-12-31" [value]="targetDate" (input)="targetDate=$any($event.target).value"/></label><label>Related week (optional, existing plan starting Sunday)<input type="date" [value]="relatedWeekId" (input)="relatedWeekId=$any($event.target).value"/></label><label>Related level (optional, 0 = Preparation Camp)<input type="number" min="0" max="12" step="1" [value]="relatedRoadmapLevel" (input)="relatedRoadmapLevel=$any($event.target).value"/></label><pq-task-links-picker [active]="editorOpen()" [disabled]="busy()" [selected]="linkedTaskIds()" [existing]="editing?.linkedTasks ?? []" (changed)="linkedTaskIds.set($event)"/><button class="button primary" [disabled]="!title.trim()">Save goal</button></fieldset>@if(busy()){<pq-loading label="Saving goal"/>}</form></dialog>
-<dialog #archiveDialog aria-labelledby="archive-title" (cancel)="busy() && $event.preventDefault()"><div class="stack"><h2 id="archive-title">Archive {{archiving()?.title}}?</h2><p>Keep this goal in your history. Archived goals cannot be edited or reopened; create a new goal to resume the work.</p>@if(error()){<p role="alert">{{error()}}</p>}<div class="actions"><button class="button" [disabled]="busy()" (click)="archiveDialog.close()">Cancel</button><button class="button primary" [disabled]="busy()" (click)="archive(archiveDialog)">Confirm archive</button></div></div></dialog>
+<pq-page-header
+  eyebrow="Small steps, meaningful outcomes"
+  title="Make room for what matters."
+  subtitle="Weekly, monthly and research goals, shaped around your work."
+  ><button class="button primary" [disabled]="busy() || loading()" (click)="open(null, editor)">
+    Add goal
+  </button></pq-page-header
+>
+<div class="actions filters">
+  <label
+    >Status<select
+      [value]="status"
+      [disabled]="loading() || busy()"
+      (change)="status = $any($event.target).value; load()"
+    >
+      <option value="">All statuses</option>
+      <option value="active">Active</option>
+      <option value="completed">Completed</option>
+      <option value="archived">Archived</option>
+    </select></label
+  ><label
+    >Type<select
+      [value]="type"
+      [disabled]="loading() || busy()"
+      (change)="type = $any($event.target).value; load()"
+    >
+      <option value="">All types</option>
+      <option value="weekly">Weekly</option>
+      <option value="monthly">Monthly</option>
+      <option value="research">Research</option>
+    </select></label
+  >
+</div>
+@if (error()) {
+  <p role="alert" class="notice">
+    {{ error() }}
+    <button class="button" [disabled]="busy() || loading()" (click)="load()">Reload goals</button>
+  </p>
+}
+@if (loading()) {
+  <pq-loading label="Loading goals" />
+} @else {
+  <div class="grid-two">
+    @for (goal of goals(); track goal.id) {
+      <pq-card
+        ><div class="goal-intro">
+          <pq-badge>{{ goal.type }}</pq-badge><pq-badge
+            [tone]="goal.status === 'completed' ? 'success' : 'muted'"
+            >{{ goal.status }}</pq-badge
+          >
+        </div>
+        <h2 class="goal-title">{{ goal.title }}</h2>
+        <p class="goal-description">{{ goal.description || 'No description added.' }}</p>
+        @if (goal.progress?.mode === 'linked') {
+          <div class="goal-progress">
+            <div class="row spread">
+              <strong>Progress: {{ goal.progress!.percentage }}%</strong
+              ><span>{{ goal.progress!.completed }} / {{ goal.progress!.total }} tasks</span>
+            </div>
+            <pq-progress [value]="goal.progress!.percentage ?? 0" label="Linked task progress" />
+            <p class="muted small">Completion status is confirmed manually.</p>
+          </div>
+        } @else {
+          <p class="muted small manual-goal">Manual goal / no linked task progress</p>
+        }
+        <div class="stack small muted">
+          @if (goal.targetDate) {
+            <p>Due {{ goal.targetDate }}</p>
+          }
+          @if (goal.relatedWeekId) {
+            <p>Week {{ goal.relatedWeekId }}</p>
+          }
+          @if (goal.relatedRoadmapLevel !== null) {
+            <p>
+              {{
+                goal.relatedRoadmapLevel === 0
+                  ? 'Preparation Camp (Level 0)'
+                  : 'Chapter reference: ' + goal.relatedRoadmapLevel
+              }}
+              (not a checkpoint link)
+            </p>
+          }
+          @if (goal.completedAt) {
+            <p>Completed {{ goal.completedAt }}</p>
+          }
+        </div>
+        @if (goal.status !== 'archived') {
+          <div class="goal-footer actions">
+            <button class="button" [disabled]="busy()" (click)="open(goal, editor)">Edit</button
+            ><button
+              class="button primary"
+              [disabled]="busy()"
+              (click)="action(goal, goal.status === 'active' ? 'complete' : 'reopen')"
+            >
+              {{ goal.status === 'active' ? 'Complete' : 'Reopen' }}</button
+            ><button
+              class="button"
+              [disabled]="busy()"
+              (click)="archiving.set(goal); archiveDialog.showModal()"
+            >
+              Archive
+            </button>
+          </div>
+        }
+      </pq-card>
+    } @empty {
+      <pq-card class="empty-goal"
+        ><pq-empty-state
+          title="Space for your next goal"
+          message="No goals match these filters. Add a goal or choose another status."
+          icon="target"
+      /></pq-card>
+    }
+  </div>
+}
+<p class="muted small">
+  Linked progress reflects saved task states. Goal completion and checkpoint validation always
+  require manual confirmation; links award no additional XP.
+</p>
+<dialog
+  #editor
+  aria-labelledby="goal-editor-title"
+  (cancel)="busy() ? $event.preventDefault() : editorOpen.set(false)"
+>
+  <form class="stack" (submit)="save($event, editor)">
+    <div class="row spread">
+      <h2 id="goal-editor-title">{{ editing ? 'Edit goal' : 'Add goal' }}</h2>
+      <button
+        type="button"
+        class="button"
+        [disabled]="busy()"
+        (click)="editorOpen.set(false); editor.close()"
+      >
+        Cancel
+      </button>
+    </div>
+    @if (error()) {
+      <p role="alert">{{ error() }}</p>
+    }
+    <fieldset class="stack" [disabled]="busy()">
+      <label
+        >Title<input
+          required
+          maxlength="160"
+          [value]="title"
+          (input)="title = $any($event.target).value" /></label
+      ><label
+        >Description<textarea
+          maxlength="2000"
+          rows="3"
+          [value]="description"
+          (input)="description = $any($event.target).value"
+        ></textarea></label
+      ><label
+        >Type<select [value]="goalType" (change)="goalType = $any($event.target).value">
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="research">Research</option>
+        </select></label
+      ><label
+        >Due date (optional)<input
+          type="date"
+          min="1900-01-01"
+          max="9999-12-31"
+          [value]="targetDate"
+          (input)="targetDate = $any($event.target).value" /></label
+      ><label
+        >Related week (optional, existing plan starting Sunday)<input
+          type="date"
+          [value]="relatedWeekId"
+          (input)="relatedWeekId = $any($event.target).value" /></label
+      ><label
+        >Related level (optional, 0 = Preparation Camp)<input
+          type="number"
+          min="0"
+          max="12"
+          step="1"
+          [value]="relatedRoadmapLevel"
+          (input)="relatedRoadmapLevel = $any($event.target).value" /></label
+      ><pq-task-links-picker
+        [active]="editorOpen()"
+        [disabled]="busy()"
+        [selected]="linkedTaskIds()"
+        [existing]="editing?.linkedTasks ?? []"
+        (changed)="linkedTaskIds.set($event)"
+      /><button class="button primary" [disabled]="!title.trim()">Save goal</button>
+    </fieldset>
+    @if (busy()) {
+      <pq-loading label="Saving goal" />
+    }
+  </form>
+</dialog>
+<dialog #archiveDialog aria-labelledby="archive-title" (cancel)="busy() && $event.preventDefault()">
+  <div class="stack">
+    <h2 id="archive-title">Archive {{ archiving()?.title }}?</h2>
+    <p>
+      Keep this goal in your history. Archived goals cannot be edited or reopened; create a new goal
+      to resume the work.
+    </p>
+    @if (error()) {
+      <p role="alert">{{ error() }}</p>
+    }
+    <div class="actions">
+      <button class="button" [disabled]="busy()" (click)="archiveDialog.close()">Cancel</button
+      ><button class="button primary" [disabled]="busy()" (click)="archive(archiveDialog)">
+        Confirm archive
+      </button>
+    </div>
+  </div>
+</dialog>

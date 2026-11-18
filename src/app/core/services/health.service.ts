@@ -9,12 +9,20 @@ export class HealthService {
   private readonly destroyRef = inject(DestroyRef);
   readonly status = signal<'checking' | 'online' | 'offline'>('checking');
 
-  constructor() { this.check(); }
+  constructor() {
+    this.check();
+  }
   check() {
     this.status.set('checking');
-    this.http.get<{ status: string; database: string }>('/api/health').pipe(timeout(5000), takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: result => this.status.set(result.status === 'ok' && result.database === 'up' ? 'online' : 'offline'),
-      error: () => this.status.set('offline'),
-    });
+    this.http
+      .get<{ status: string; database: string }>('/api/health')
+      .pipe(timeout(5000), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (result) =>
+          this.status.set(
+            result.status === 'ok' && result.database === 'up' ? 'online' : 'offline',
+          ),
+        error: () => this.status.set('offline'),
+      });
   }
 }

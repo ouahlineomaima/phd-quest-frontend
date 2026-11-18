@@ -1,6 +1,253 @@
-.metrics { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 18px; }.dashboard-grid { display: grid; grid-template-columns: minmax(0,1.6fr) minmax(0,1fr); gap: 22px; }.focus-card { padding-bottom: 18px; }.focus-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding-top: 20px; }.focus-footer .preview-note { font-size: 9px; }.focus-footer pq-icon { width: 13px; height: 13px; }.journey-card { background: radial-gradient(ellipse at 90% 0%, var(--primary-soft), transparent 70%), var(--surface); }.journey-content { display: flex; align-items: center; gap: 18px; margin: 25px 0; }.journey-content h3 { margin: 10px 0 5px; }.journey-quote { font-family:'Space Grotesk',sans-serif; font-size: 15px; line-height: 1.6; color: var(--muted); margin-bottom: 22px; }.chart { display: flex; gap: 18px; align-items: end; height: 150px; margin: 12px 6px 20px; }.chart-day { display:flex;flex:1;flex-direction:column;align-items:center;gap:10px;height:100%; }.bar-track { display:flex;align-items:end;height:100%;width:100%;max-width:35px; }.bar-track span { width:100%;border-radius:5px 5px 2px 2px;background:var(--primary-soft);border:1px solid rgb(139 92 246 / .2);min-height:6px; }.bar-track span.highlight { background:var(--primary);border:0; }.chart-day small{font-size:9px;color:var(--muted)}.chart-caption{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:9px;border-top:1px solid var(--border);padding-top:15px}.legend-dot{display:inline-block;width:5px;height:5px;background:var(--primary);border-radius:50%;margin-right:6px}.goal-list{display:grid;gap:24px}.goal-list h3{font-size:12px}.goal-list pq-progress{margin:12px 0 8px}.goal-list p{font-size:9px}.encouragement{display:flex;align-items:center;gap:12px;padding:5px 4px;color:var(--muted);font-size:11px}.encouragement pq-icon{color:var(--primary);width:17px;height:17px}.encouragement strong{font-weight:500;color:var(--text)}.encouragement .eyebrow{margin-left:auto;font-size:8px}
-@media(max-width:1250px){.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.dashboard-grid{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}.journey-content{gap:10px;flex-wrap:wrap}.encouragement .eyebrow{display:none}}
-@media(max-width:1000px){.dashboard-grid{grid-template-columns:1fr}.journey-content{flex-wrap:nowrap}.journey-card{display:grid;grid-template-columns:1fr 1fr;gap:15px}.journey-card pq-section-heading{grid-column:1/-1}.journey-content{margin:0;grid-row:2/4}.journey-quote{margin-bottom:0}.journey-card>a{align-self:center}}
-@media(max-width:550px){.metrics{gap:12px}.dashboard-grid{gap:16px}.journey-card{display:block}.journey-content{margin:20px 0}.journey-quote{margin-bottom:15px}.encouragement{align-items:flex-start}.chart{gap:12px}}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 22px;
+}
+.focus-card {
+  padding-bottom: 18px;
+}
+.focus-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 20px;
+}
+.focus-footer .preview-note {
+  font-size: 9px;
+}
+.focus-footer pq-icon {
+  width: 13px;
+  height: 13px;
+}
+.journey-card {
+  background:
+    radial-gradient(ellipse at 90% 0%, var(--primary-soft), transparent 70%), var(--surface);
+}
+.journey-content {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 25px 0;
+}
+.journey-content h3 {
+  margin: 10px 0 5px;
+}
+.journey-quote {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--muted);
+  margin-bottom: 22px;
+}
+.chart {
+  display: flex;
+  gap: 18px;
+  align-items: end;
+  height: 150px;
+  margin: 12px 6px 20px;
+}
+.chart-day {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+}
+.bar-track {
+  display: flex;
+  align-items: end;
+  height: 100%;
+  width: 100%;
+  max-width: 35px;
+}
+.bar-track span {
+  width: 100%;
+  border-radius: 5px 5px 2px 2px;
+  background: var(--primary-soft);
+  border: 1px solid rgb(139 92 246 / 0.2);
+  min-height: 6px;
+}
+.bar-track span.highlight {
+  background: var(--primary);
+  border: 0;
+}
+.chart-day small {
+  font-size: 9px;
+  color: var(--muted);
+}
+.chart-caption {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 9px;
+  border-top: 1px solid var(--border);
+  padding-top: 15px;
+}
+.legend-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  background: var(--primary);
+  border-radius: 50%;
+  margin-right: 6px;
+}
+.goal-list {
+  display: grid;
+  gap: 24px;
+}
+.goal-list h3 {
+  font-size: 12px;
+}
+.goal-list pq-progress {
+  margin: 12px 0 8px;
+}
+.goal-list p {
+  font-size: 9px;
+}
+.encouragement {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.encouragement pq-icon {
+  color: var(--primary);
+  width: 17px;
+  height: 17px;
+}
+.encouragement strong {
+  font-weight: 500;
+  color: var(--text);
+}
+.encouragement .eyebrow {
+  margin-left: auto;
+  font-size: 8px;
+}
+@media (max-width: 1250px) {
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dashboard-grid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  }
+  .journey-content {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .encouragement .eyebrow {
+    display: none;
+  }
+}
+@media (max-width: 1000px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .journey-content {
+    flex-wrap: nowrap;
+  }
+  .journey-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+  }
+  .journey-card pq-section-heading {
+    grid-column: 1/-1;
+  }
+  .journey-content {
+    margin: 0;
+    grid-row: 2/4;
+  }
+  .journey-quote {
+    margin-bottom: 0;
+  }
+  .journey-card > a {
+    align-self: center;
+  }
+}
+@media (max-width: 550px) {
+  .metrics {
+    gap: 12px;
+  }
+  .dashboard-grid {
+    gap: 16px;
+  }
+  .journey-card {
+    display: block;
+  }
+  .journey-content {
+    margin: 20px 0;
+  }
+  .journey-quote {
+    margin-bottom: 15px;
+  }
+  .encouragement {
+    align-items: flex-start;
+  }
+  .chart {
+    gap: 12px;
+  }
+}
 
-.task-row{display:flex;align-items:center;gap:12px;padding:17px 0;border-bottom:1px solid var(--border)}.task-row>div{flex:1;min-width:0}.task-row h3{font-size:13px;overflow-wrap:anywhere}.task-row p{font-size:10px;margin-top:6px}.activity-list{display:grid;gap:14px;margin-top:20px}.goal-list h3{overflow-wrap:anywhere}.bar-track span{min-height:0}.journey-card>a{display:inline-flex;margin-top:20px}pq-progress{margin-top:12px}.chart{gap:10px}.chart-day>small{white-space:nowrap;font-size:9px}@media(max-width:550px){.task-row{flex-wrap:wrap}.activity-list .row{flex-wrap:wrap}}
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 17px 0;
+  border-bottom: 1px solid var(--border);
+}
+.task-row > div {
+  flex: 1;
+  min-width: 0;
+}
+.task-row h3 {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.task-row p {
+  font-size: 10px;
+  margin-top: 6px;
+}
+.activity-list {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+}
+.goal-list h3 {
+  overflow-wrap: anywhere;
+}
+.bar-track span {
+  min-height: 0;
+}
+.journey-card > a {
+  display: inline-flex;
+  margin-top: 20px;
+}
+pq-progress {
+  margin-top: 12px;
+}
+.chart {
+  gap: 10px;
+}
+.chart-day > small {
+  white-space: nowrap;
+  font-size: 9px;
+}
+@media (max-width: 550px) {
+  .task-row {
+    flex-wrap: wrap;
+  }
+  .activity-list .row {
+    flex-wrap: wrap;
+  }
+}

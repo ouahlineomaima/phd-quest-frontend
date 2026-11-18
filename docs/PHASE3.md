@@ -13,26 +13,26 @@ Date: 2026-11-15. Scope: visual foundation and navigation only. Phase 4 was not 
 
 ## Validation actually executed
 
-| Check | Result |
-| --- | --- |
-| Production build after meaningful units | Passed |
-| Final production build | Passed; initial JS/CSS 258.55 kB, estimated transfer 71.89 kB; fonts are separate assets |
-| Frontend Docker image build/startup | Passed; frontend healthy |
-| HTTP localhost:4200 | 200 |
-| Default redirect and all six routes | Passed in Chrome |
-| Styled unknown-route fallback and return link | Passed |
-| Active navigation and lazy-route loading | Passed |
-| Dark default, header toggle, settings controls, reload persistence | Passed |
-| Self-hosted fonts | Browser font checks passed, no font request errors |
-| Desktop collapse/expand | Passed |
-| Mobile drawer, Escape close/focus return, close on navigation | Passed |
-| Sample weekday selection, empty sample day and disabled JSON import | Passed |
-| Responsive overflow checks | All six routes at 375, 768 and 900 px passed; desktop also checked at 1440 px |
-| Browser runtime/console errors | None in the completed smoke pass |
-| Direct/proxied infrastructure health | Passed; status ok, database up |
-| Existing backend/MongoDB health | Healthy; backend source unchanged |
-| Database volume identity | Preserved phd-quest_mongo_data, original creation 2026-11-14T22:45:53Z |
-| New runtime dependencies or version changes | None |
+| Check                                                               | Result                                                                                   |
+| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Production build after meaningful units                             | Passed                                                                                   |
+| Final production build                                              | Passed; initial JS/CSS 258.55 kB, estimated transfer 71.89 kB; fonts are separate assets |
+| Frontend Docker image build/startup                                 | Passed; frontend healthy                                                                 |
+| HTTP localhost:4200                                                 | 200                                                                                      |
+| Default redirect and all six routes                                 | Passed in Chrome                                                                         |
+| Styled unknown-route fallback and return link                       | Passed                                                                                   |
+| Active navigation and lazy-route loading                            | Passed                                                                                   |
+| Dark default, header toggle, settings controls, reload persistence  | Passed                                                                                   |
+| Self-hosted fonts                                                   | Browser font checks passed, no font request errors                                       |
+| Desktop collapse/expand                                             | Passed                                                                                   |
+| Mobile drawer, Escape close/focus return, close on navigation       | Passed                                                                                   |
+| Sample weekday selection, empty sample day and disabled JSON import | Passed                                                                                   |
+| Responsive overflow checks                                          | All six routes at 375, 768 and 900 px passed; desktop also checked at 1440 px            |
+| Browser runtime/console errors                                      | None in the completed smoke pass                                                         |
+| Direct/proxied infrastructure health                                | Passed; status ok, database up                                                           |
+| Existing backend/MongoDB health                                     | Healthy; backend source unchanged                                                        |
+| Database volume identity                                            | Preserved phd-quest_mongo_data, original creation 2026-11-14T22:45:53Z                   |
+| New runtime dependencies or version changes                         | None                                                                                     |
 
 A short local browser smoke script used a temporary playwright-core installation outside the project and the existing Chrome executable. This is lightweight validation, not a new committed E2E suite. The first attempt reached the dev server before it finished restarting; the next exposed a smoke-script timing assumption about lazy navigation. After waiting for service readiness and active-route completion, the pass succeeded. It was repeated successfully after contrast and fixture-isolation refinements.
 

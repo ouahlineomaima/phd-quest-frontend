@@ -12,21 +12,12 @@
   ],
   "javascript": ["scripts/quality.mjs", "test/stage3/*.test.cjs", "eslint.config.mjs"],
   "format": [
-    "src/app/features/skills/{skills,skill-detail,skill-editors,skills-facade}.ts",
-    "src/app/features/supervisor-meetings/{supervisor-meetings,meeting-detail,meeting-editors,meetings-facade,meeting-clock,meeting-time-state,meeting.models}.ts",
-    "src/app/shared/state/{editor-feedback,reference-options,research-references}.ts",
-    "src/app/shared/components/reference-status.ts",
-    "src/app/core/services/research-api.ts",
-    "src/app/features/skills/{skills,skill-detail,skill-editors}.html",
-    "src/app/features/supervisor-meetings/{supervisor-meetings,meeting-detail,meeting-editors}.html",
-    "src/app/features/skills/skills.scss",
-    "src/app/features/supervisor-meetings/supervisor-meetings.scss",
-    "test/stage3/*.test.cjs",
-    "scripts/quality.mjs",
-    "eslint.config.mjs",
-    "quality-scope.json",
-    ".prettierrc.json",
-    "package.json",
-    "docs/STAGE3.md"
+    "src/**/*.{ts,html,css,scss,json}",
+    "test/**/*.{ts,js,cjs,mjs,json}",
+    "scripts/**/*.{ts,js,cjs,mjs,json}",
+    "docs/**/*.{md,json,yml,yaml}",
+    "public/**/*.{json,html,css}",
+    "*.{ts,js,cjs,mjs,json,md,yml,yaml}",
+    ".prettierrc.json"
   ]
 }

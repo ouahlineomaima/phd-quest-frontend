@@ -1,24 +1,648 @@
-<pq-page-header eyebrow="A practical companion" title="Help & Guide" subtitle="From your first research plan to a steady weekly rhythm. Learn the workflow, then make it your own."><pq-badge tone="accent">Guide + planning toolkit</pq-badge></pq-page-header>
-<div class="help-layout"><pq-card class="contents"><p class="eyebrow">In this guide</p><nav aria-label="Help sections">@for(section of sections;track section[0]){<a [href]="'/help#'+section[0]">{{section[1]}}</a>}</nav></pq-card>
-<div class="stack help-prose">
-<section tabindex="-1" id="welcome" aria-labelledby="welcome-title"><pq-card><h2 id="welcome-title">Welcome to PhD Quest</h2><p>PhD Quest is a local-first research planning workspace for doctoral students across disciplines. It connects a long-term roadmap with weekly tasks, goals and evidence of progress.</p><p>Your application data stays in MongoDB on your computer through Docker. There is no account system or automatic cloud synchronization. You choose whether to share any information with an external tool.</p><p><strong>Research progress and gamification measure different things.</strong> Academic checkpoints represent outcomes you judge and validate. XP and player levels recognize engagement. PhD Quest supports planning and reflection; academic decisions remain with you, your supervisor and your institution.</p></pq-card></section>
-<section tabindex="-1" id="getting-started" aria-labelledby="getting-started-title"><pq-card><h2 id="getting-started-title">Getting started</h2><ol><li>Install Git and Docker Desktop with its Linux container engine and Docker Compose v2. Start Docker Desktop. Node.js is not required for the Docker workflow.</li><li>Clone both repositories into sibling folders. From a directory where you want a new workspace, run the commands below.</li><li>Open <a class="text-link" href="http://localhost:4200">http://localhost:4200</a> after the services are healthy. The API is at http://localhost:3000/api.</li><li>Use the initial provisional roadmap, or plan a personalized journey with the toolkit and import its JSON on <a class="text-link" routerLink="/roadmap">Roadmap</a>.</li><li>Generate a Sunday-Saturday plan, preview it on <a class="text-link" routerLink="/weekly-plan">Weekly plan</a>, and confirm the import.</li><li>Jump to today, work through tasks and optionally record actual minutes. Add goals and connections when they are useful.</li></ol>
-<div class="code-heading"><h3>Fresh installation</h3><button class="button" (click)="copy('setup',installation)">Copy setup commands</button></div><pre tabindex="0"><code>{{installation}}</code></pre>@if(copied()==='setup'){<p role="status" class="copy-success">Setup commands copied.</p>}@if(copyError()==='setup'){<p role="alert">Clipboard access is unavailable. Select and copy the commands above.</p>}
-<p class="muted small">The named volume command ensures the external data volume exists; it does not erase an existing volume. For an installed workspace, run the final Compose command from its parent folder. Keep both repository folder names as shown. Do not delete the existing database volume.</p><p>Source repositories: <a class="text-link" href="https://github.com/ouahlineomaima/phd-quest-backend">Backend</a> / <a class="text-link" href="https://github.com/ouahlineomaima/phd-quest-frontend">Frontend</a>. The Compose configuration lives in the backend repository. Default application ports are local to your computer.</p></pq-card></section>
-<section tabindex="-1" id="roadmap-guide" aria-labelledby="roadmap-guide-title"><pq-card><h2 id="roadmap-guide-title">Your three-year research roadmap</h2><p>The journey begins with an independent Level 0: Preparation Camp, followed by twelve ordered research chapters (1-12): four per year. Level 0 has no academic year. It counts as a journey chapter (13 chapters in total) and is current until explicitly completed. Its default plan is November-December 2026: prepare Notion, Zotero and Google Drive, understand research workflows, establish documentation habits, confirm your subject and approve the working system. The planned preparation period runs through December 31, 2026. Validate the readiness checkpoint and explicitly complete Preparation Camp to unlock the next unfinished research chapter. Dates never automatically validate or complete a chapter. Titles, descriptions, objectives and checkpoint definitions can be personalized through a version-1 roadmap JSON file.</p><ol><li>Use <a class="text-link" href="/help#prompt-journey-setup">Set up my research journey</a> to discuss a feasible proposal. Approve it before generating JSON.</li><li>Use <a class="text-link" href="/help#prompt-roadmap-json">Generate my three-year roadmap JSON</a>, then save the complete .json file.</li><li>On Roadmap, choose <strong>Import roadmap</strong>. Select a file no larger than 500 KiB and review Preparation Camp and all twelve research chapters, checkpoint totals and the existing progress that will be reset.</li><li>Type <code>REPLACE ROADMAP</code> exactly and confirm when you intend to replace the current map.</li></ol>
-<p class="important"><strong>Replacement resets research-level completion, checkpoint validation, evidence and checkpoint-to-goal links.</strong> It preserves weekly plans, tasks, XP, activity, goals and their task links, and historical achievements. Export a full backup first if you may need the previous roadmap progress.</p><p>Older version-1 roadmap files with levels 1-12 still work; import adds the default Preparation Camp. New files may include all thirteen levels (0-12), with no year field in JSON. The journey title and ID are currently preview-only metadata. Level titles, descriptions, objectives and checkpoints are persisted and included in backups. Historical achievements do not imply completion of the replacement roadmap.</p><h3>Advance through evidence, not XP</h3><p>Open Preparation Camp or the current research chapter to review its checkpoints. Preparation Camp is the first chapter to complete; completing it unlocks the next unfinished research chapter. The three research years then retain their ordered progression. Validate each required checkpoint yourself when the academic evidence is sufficient. Then explicitly confirm chapter completion to unlock the next chapter. Chapter 12 completes the map; it does not create another level.</p><p>A checkpoint reaching 100% linked progress is still unvalidated until you validate it. Corrections can undo validation within the current chapter. Completed chapters cannot have checkpoints reversed, and future chapters remain locked. Open any chapter to edit its title (up to 160 characters) and description, then choose Save title & description. Use Edit year title beside Year 1, 2 or 3 to rename the year heading. Title edits preserve checkpoint identities, goal links and progression. Custom year headings are included in backups; importing a replacement roadmap resets them to defaults.</p></pq-card></section>
-<section tabindex="-1" id="weekly-guide" aria-labelledby="weekly-guide-title"><pq-card><h2 id="weekly-guide-title">Weekly planning and daily work</h2><p>Each saved plan covers a Sunday through the following Saturday. Import a version-1 weekly JSON file of at most 500 KiB, review its dates, tasks and workload, then confirm it. Importing does not award XP.</p><ul><li><strong>Find your day:</strong> use the Sunday-Saturday buttons or <strong>Jump to today</strong>. Today follows the server's configured calendar timezone, initially Africa/Casablanca. Other weeks do not falsely highlight today.</li><li><strong>Complete a task:</strong> optionally enter whole actual minutes from 0 to 1,440, then choose <strong>Complete task</strong>. The app waits for server confirmation and disables conflicting controls while saving.</li><li><strong>Reopen deliberately:</strong> reopening returns a task to pending and reduces task-linked progress. It preserves earned XP and activity history. Recompletion does not award the same task's XP again.</li><li><strong>Recorded time:</strong> actual minutes remain recorded after reopening. Leaving the duration blank on recompletion keeps the previous recorded amount.</li><li><strong>Read weekly totals:</strong> completed/total tasks, percentage, planned minutes, recorded minutes and earned XP are separate values. Optional tasks are still included in weekly completion. Scheduled dates and actual completion dates may differ.</li></ul>
-<p class="important"><strong>A saved week cannot be overwritten by importing it again.</strong> Duplicate weekId values are rejected to protect task progress and rewards. Select the saved week to continue using it. Decide explicitly how unfinished work should appear in a later week's plan.</p></pq-card></section>
-<section tabindex="-1" id="connected-guide" aria-labelledby="connected-guide-title"><pq-card><h2 id="connected-guide-title">Goals and connected research progress</h2><div class="connection-flow" aria-label="A checkpoint links goals, and goals link weekly tasks"><span>Roadmap checkpoint</span><pq-icon name="arrow"/><span>Linked goals</span><pq-icon name="arrow"/><span>Linked weekly tasks</span></div>
-<ol><li>On <a class="text-link" routerLink="/goals">Goals</a>, add or edit a goal. In <strong>Linked tasks (optional)</strong>, choose a week, search tasks and select the work that contributes. Switch weeks to select more tasks; earlier selections remain. Remove links when needed, then save.</li><li>Open a checkpoint in the current research chapter. Expand <strong>Link goals (optional)</strong>, choose existing goals and select <strong>Save goal links</strong>. Link editing is available in Preparation Camp while it is in preparation, and in the current research chapter.</li><li>Read derived progress separately from the goal's completion status and checkpoint's validation state. Goal chapter references alone are not checkpoint links.</li></ol>
-<h3>A concrete example</h3><p><strong>Checkpoint:</strong> Complete initial literature review.<br/><strong>Goal:</strong> Analyze 12 research papers.<br/><strong>First-week tasks:</strong> Read paper A; summarize paper B; compare papers C and D.</p><p>These tasks are an initial slice of the twelve-paper goal. Add the remaining work as tasks and link it explicitly. Task percentages count tasks equally, not papers or academic quality; finishing these three starter tasks alone does not establish that all twelve papers have been analyzed.</p><ul><li>A goal with four linked tasks and three completed shows 75%. The same task may contribute once to several goals; a goal may include tasks from several weeks.</li><li>A checkpoint averages its linked goals equally. Goals at 100%, 50% and 0% contribute 50% together. Whole percentages are rounded; the backend uses exact task fractions before rounding the final checkpoint mean.</li><li>Reopening a task recalculates percentages downward. It does not undo manually confirmed goal completion or checkpoint validation.</li><li>A goal without task links remains a manual goal. A standalone completed goal contributes 100% to a linked checkpoint; an active one contributes 0%. Archived standalone goals retain the completion state they had when archived. Task-linked goals continue to reflect their tasks.</li><li>A checkpoint without goal links remains manually validated. Relationships are optional and are created inside the app, not embedded in weekly-plan or roadmap JSON imports.</li></ul><p class="important"><strong>100% progress does not automatically mean completed or validated.</strong> Complete goals and validate checkpoints only when you judge their intended outcomes achieved.</p></pq-card></section>
-<section tabindex="-1" id="focus-guide" aria-labelledby="focus-guide-title"><pq-card><h2 id="focus-guide-title">Research Focus Timer</h2><p>Open <a class="text-link" routerLink="/focus">Focus</a> for a countdown (25, 50 or 1-180 custom minutes) or a stopwatch. Choose an existing weekly task, or leave the session independent. Start, pause, resume, then finish and explicitly save the focused time or discard it. Stopping early can save a partial session; zero-duration sessions cannot be saved.</p><p>The shell's mini timer follows you between pages. One timer is shared across this browser's tabs. A local recovery snapshot survives refreshes and browser reopening: an expired countdown finishes at its scheduled endpoint, while a running stopwatch keeps counting until you pause/finish or it reaches seven days. Paused time is excluded. Elapsed time cannot prove that you were working while the browser was closed. Clearing browser storage removes unsaved recovery data, so save sessions you want to keep.</p><p>Short (5-minute) and long (15-minute) breaks use the same engine, without saved history or task time. A break is optional; after four saved target-reaching countdowns, consider a longer break. No notifications or notification permissions are used.</p><p>Saved history includes seconds, mode, task reference and application state. Statistics use the session's end date in the application's timezone and Sunday-Saturday weeks, rounding the summed seconds down to minutes.</p><p><strong>Apply time to task</strong> requires confirmation. Each session contributes its own seconds rounded down to full minutes, at most once; sessions under a minute stay separate. Applied focus is a separate additive task total shown on Weekly Plan. Manual actual minutes are never overwritten, including on pending tasks. The two measurements may describe the same work; avoid counting them twice. Choose <strong>Keep separate</strong> if you do not want to apply it. You can apply an eligible saved session later from history.</p><p>Focus sessions and breaks never complete tasks, goals or checkpoints, award XP, or update streaks. Focus history and applied markers are preserved in full backups; old backups without focus history remain supported. Unsaved local timers are not part of a backup. Importing a roadmap does not remove saved focus sessions.</p></pq-card></section>
-<section tabindex="-1" id="gamification-guide" aria-labelledby="gamification-guide-title"><pq-card><h2 id="gamification-guide-title">XP, player levels and streaks</h2><p>Tasks carry planned XP rewards. Their first confirmed completion awards that XP once; a zero reward awards none. The +N XP message uses the server's awarded amount. Reopening or recompleting an already rewarded task does not remove or award that XP again.</p><p><strong>Player level</strong> is calculated from total earned XP. The sidebar and Weekly Plan show total XP, progress toward the next player level and XP remaining. <strong>Research level</strong> is your position in the twelve-chapter academic roadmap. XP never unlocks research chapters. Goals, checkpoint validation, roadmap imports and achievements grant no additional XP.</p><p>A calendar day qualifies for a streak when at least one task is completed on that actual day in the configured timezone. <strong>Active today</strong> means today's qualifying activity is recorded; <strong>Continue today</strong> means the streak is maintained through yesterday; <strong>Start a streak</strong> means no current streak is maintained. A missed day breaks the current streak, while the longest streak is retained. Reopening does not erase historical activity.</p><p><a class="text-link" routerLink="/achievements">Achievements</a> recognize saved task, planning, goal and research milestones. Unlocks remain historical even if progress is later reopened or a roadmap is replaced. Weekly completion is simply the saved week's task status summary, not a score of scientific quality.</p></pq-card></section>
-<section tabindex="-1" id="recovery-guide" aria-labelledby="recovery-guide-title"><pq-card><h2 id="recovery-guide-title">Backup and recovery</h2><ol><li>Open <a class="text-link" routerLink="/settings">Settings</a> and choose <strong>Export backup</strong>. Keep the downloaded JSON in a separate, safe location you control; retain dated copies when useful.</li><li>To recover, choose <strong>Restore backup</strong> and select a full-workspace backup, not a roadmap or weekly-plan import file. Review its date, version, timezone and record counts.</li><li>Type <code>REPLACE ALL DATA</code> exactly and confirm. This replaces the entire application dataset, including plans, XP, activity, roadmap, goals, relationships, achievements and saved focus sessions. There is no merge mode.</li><li>After success, choose <strong>Open restored dashboard</strong>. If the connection was interrupted during confirmation, reload and inspect the saved state before retrying; the server may already have committed.</li></ol><p>Version-1 backups without Level 0 still restore: a new, uncompleted Preparation Camp is added. Saved research work is preserved, and later chapter progression pauses until camp completion. New backups preserve camp progress and links. Version-1 backups are limited to 20 MiB. The destination application's calendar timezone must match the backup. Configure the matching timezone on a fresh installation before recovery; the app has no timezone editor and restore does not change configuration files. Theme preference remains on the device.</p><p class="important"><strong>Do not delete the MongoDB volume.</strong> It contains your saved research data. Normal container restarts and ordinary Compose shutdown preserve it. Never use <code>docker compose down -v</code> or manually remove the volume as a recovery step. Export your current state before restoring if it must be retained.</p></pq-card></section>
-<section tabindex="-1" id="troubleshooting" aria-labelledby="troubleshooting-title"><pq-card><h2 id="troubleshooting-title">Troubleshooting</h2><details><summary>The application does not open / services are stopped</summary><p>Start Docker Desktop with the Linux engine, run the Compose startup command from the workspace root and wait for healthy services. Check status with:</p><pre tabindex="0"><code>{{serviceCheck}}</code></pre><p>Use http://localhost:4200 by default. If you deliberately changed the port in infrastructure settings, use that configured port. A first installation needs the external volume and both sibling repositories.</p></details><details><summary>Roadmap JSON is rejected</summary><p>Use version 1, three research years and thirteen ordered levels (0-12), or a legacy file containing twelve ordered levels (1-12). Level 0 is independent of the research years. Every level needs objectives and at least one required checkpoint. IDs must be lowercase hyphenated slugs; no saved progress, XP, database IDs or relationships are allowed. Read the preview's field errors and compare the downloadable example. Keep the file within 500 KiB.</p></details><details><summary>Weekly-plan JSON is rejected / the week already exists</summary><p>Use real Sunday-Saturday dates with weekId equal to startDate, unique task IDs within the week and only supported fields. Durations and rewards are integers. A duplicate saved week cannot replace existing data; choose the existing plan to continue or prepare a new week deliberately.</p></details><details><summary>The roadmap replacement warning appears</summary><p>This is expected: roadmap import replaces all chapters and resets academic roadmap progress and checkpoint-to-goal links. Keep a backup if you may need the old state. Cancel if that is not your intention; preview alone makes no changes.</p></details><details><summary>A preview is stale or a confirmation conflicts</summary><p>Another workspace action or an earlier confirmation may have changed the destination revision. Preview the selected file again, review current counts and explicitly confirm again only if replacement is still intended. Do not bypass the confirmation.</p></details><details><summary>A backup restore fails</summary><p>Use the complete exported backup, check its timezone/version/size and read the reported record errors. Missing sections, duplicate or dangling references and invalid history are rejected. Failed transactions roll back replacement. If the connection dropped after submission, inspect the workspace before retrying.</p></details><details><summary>A task or goal connection is missing</summary><p>Save the weekly plan before selecting its tasks in a goal. Choose the correct week and search for the task. Save goal links separately inside Preparation Camp's checkpoint or the current research chapter's checkpoint; a chapter reference alone is not a checkpoint link. Roadmap replacement clears checkpoint links but preserves goals and their task links. Archived goals cannot be edited or reopened; create a new goal if work resumes.</p></details></pq-card></section>
-<section tabindex="-1" id="meetings-guide" aria-labelledby="meetings-guide-title"><pq-card><h2 id="meetings-guide-title">Supervisor meetings</h2><p>Open <a class="text-link" routerLink="/supervisor-meetings">Supervisor meetings</a>, choose Supervisors, and add your local supervisor profiles. Schedule a meeting with one or more active supervisors. Dates and times use the configured application timezone, shown beside the editor.</p><p>Use Agenda, Discussion notes, Supervisor feedback and Decisions independently. Preparation tasks capture work before the conversation; Follow-up tasks capture work resulting from feedback. Either phase can be added or edited before or after a meeting is completed.</p><p>Link an action to existing weekly tasks across multiple weeks. Progress is calculated from available tasks and changes when those tasks are completed or reopened. Unavailable historical links are shown explicitly. Action status stays manual, even at 100%; completing an action does not complete weekly tasks, award XP, or change focus time. Completing a meeting does not complete its actions.</p><p>Optionally connect meetings to goals and roadmap checkpoints or add HTTP/HTTPS document links. These associations do not complete goals or validate checkpoints. Use All actions to filter phase, status, meeting, due date and overdue work.</p><p>Archive profiles and meetings when they no longer belong in your active workspace. Historical meetings keep archived supervisor names, notes and actions. Archived records remain accessible through the history filters and are read-only. Full-workspace backups include supervisor profiles, meetings and both action phases; older backups restore with empty meeting collections.</p></pq-card></section>
-<section tabindex="-1" id="skills-guide" aria-labelledby="skills-guide-title"><pq-card><h2 id="skills-guide-title">Research Skill Tree</h2><p>Open <a class="text-link" routerLink="/skills">Research Skill Tree</a> and explicitly choose Initialize Skill Tree to create six research branches and 24 starter skills. Opening the page never initializes data. You can also create custom categories and specialized skills. Edit their sort order to rearrange branches or move a skill by changing its category.</p><p>Confirmed proficiency is a self-assessment: Level 0 Not started, 1 Beginner, 2 Developing, 3 Proficient, 4 Advanced. Confirm an increase, decrease or skipped level explicitly, with an optional justification. Every actual change is retained in proficiency history; no XP is awarded. These competency levels are independent of Research Roadmap chapters.</p><p>Prerequisite connections recommend foundations. A prerequisite at Level 2 or above is developed; recommendations never lock a skill. Cycles and self-references are rejected. Choose a skill node to inspect its recommended path, or use List view to search and filter.</p><p>Link existing tasks across weeks, research goals or roadmap checkpoints. For each association select General development or a target proficiency Level 1?4. Change an individual target using its selector later. A source can be linked to multiple skills, but only once within each skill. Links never change the source activity.</p><p>Targeted readiness groups all source types assigned to the same level. Ready to review appears only when at least one activity is available, all assigned activities are complete, and none are missing. Reopened activities remove readiness. General development follows Option B: separate weekly-task, goal and checkpoint indicators; these never block a targeted level. Missing links are shown as unverified. Completing activities does not automatically increase proficiency.</p><p>Add optional evidence notes or safe HTTP/HTTPS links to document your assessment. Evidence never changes proficiency. Archive categories or skills to retain evidence, links, prerequisites and history as read-only records. Skills under archived categories are excluded from active summaries and appear in archived views. Full backups preserve the tree and initialization state; old backups restore an empty, uninitialized tree without silently generating defaults.</p></pq-card></section>
-<section tabindex="-1" id="toolkit" aria-labelledby="toolkit-title"><pq-card><h2 id="toolkit-title">ChatGPT Planning Toolkit</h2><p>Copy a complete prompt and paste it into ChatGPT yourself. PhD Quest does not connect to an AI API, send your data automatically or require an API key. Supply the context you choose to share. File download availability depends on the ChatGPT environment; each generation prompt includes a JSON-copy alternative.</p><p>Suggested sequence: discuss and approve a journey, generate its roadmap file, plan a week, then review and adapt. The generation prompts contain the full import contract even when the repository is unavailable to ChatGPT.</p></pq-card>
-<div class="prompt-list">@for(prompt of prompts;track prompt.id){<article tabindex="-1" [id]="'prompt-'+prompt.id" class="ui-card prompt-card"><div class="prompt-top"><h3>{{prompt.title}}</h3><button class="button primary" [attr.aria-label]="'Copy '+prompt.title" (click)="copy(prompt.id,prompt.text)">{{copied()===prompt.id?'Copied':'Copy complete prompt'}}</button></div><p>{{prompt.purpose}}</p><p class="muted small"><strong>When to use:</strong> {{prompt.when}}</p><p class="muted small"><strong>Expected output:</strong> {{prompt.expected}}</p>@if(copied()===prompt.id){<p role="status" class="copy-success">Full prompt copied. Paste it into ChatGPT.</p>}@if(copyError()===prompt.id){<p role="alert">Clipboard access is unavailable. Open the full prompt below and copy it manually.</p>}<details class="prompt-text"><summary>Read full prompt</summary><pre tabindex="0"><code>{{prompt.text}}</code></pre></details></article>}</div></section>
-<section tabindex="-1" id="examples" aria-labelledby="examples-title"><pq-card><h2 id="examples-title">Download JSON examples</h2><p>These are generic sample files, not your personal research plan. Downloads do not import anything. Personalize the content and dates, then use the appropriate import preview.</p><div class="download-grid"><div><h3>Three-year roadmap</h3><p class="muted small">Complete version-1 example with independent Preparation Camp (level 0), twelve ordered research chapters and required checkpoints. The initial academic guidance is intentionally generic.</p><a class="button" href="/help/examples/roadmap.v1.example.json" download="roadmap.v1.example.json"><pq-icon name="download"/>Download roadmap example</a></div><div><h3>Weekly plan</h3><p class="muted small">Version-1 Sunday-Saturday example for November 15-21, 2026: three tasks, 120 planned minutes. Change all week/task dates together for your intended week; a saved week cannot be reimported.</p><a class="button" href="/help/examples/weekly-plan.v1.example.json" download="weekly-plan.v1.example.json"><pq-icon name="download"/>Download weekly example</a></div></div><p class="muted small">Both examples follow the implemented import validators. The app's preview remains the final check before you confirm.</p></pq-card></section>
-</div></div>
+<pq-page-header
+  eyebrow="A practical companion"
+  title="Help & Guide"
+  subtitle="From your first research plan to a steady weekly rhythm. Learn the workflow, then make it your own."
+  ><pq-badge tone="accent">Guide + planning toolkit</pq-badge></pq-page-header
+>
+<div class="help-layout">
+  <pq-card class="contents"
+    ><p class="eyebrow">In this guide</p>
+    <nav aria-label="Help sections">
+      @for (section of sections; track section[0]) {
+        <a [href]="'/help#' + section[0]">{{ section[1] }}</a>
+      }
+    </nav></pq-card
+  >
+  <div class="stack help-prose">
+    <section tabindex="-1" id="welcome" aria-labelledby="welcome-title">
+      <pq-card
+        ><h2 id="welcome-title">Welcome to PhD Quest</h2>
+        <p>
+          PhD Quest is a local-first research planning workspace for doctoral students across
+          disciplines. It connects a long-term roadmap with weekly tasks, goals and evidence of
+          progress.
+        </p>
+        <p>
+          Your application data stays in MongoDB on your computer through Docker. There is no
+          account system or automatic cloud synchronization. You choose whether to share any
+          information with an external tool.
+        </p>
+        <p>
+          <strong>Research progress and gamification measure different things.</strong> Academic
+          checkpoints represent outcomes you judge and validate. XP and player levels recognize
+          engagement. PhD Quest supports planning and reflection; academic decisions remain with
+          you, your supervisor and your institution.
+        </p></pq-card
+      >
+    </section>
+    <section tabindex="-1" id="getting-started" aria-labelledby="getting-started-title">
+      <pq-card
+        ><h2 id="getting-started-title">Getting started</h2>
+        <ol>
+          <li>
+            Install Git and Docker Desktop with its Linux container engine and Docker Compose v2.
+            Start Docker Desktop. Node.js is not required for the Docker workflow.
+          </li>
+          <li>
+            Clone both repositories into sibling folders. From a directory where you want a new
+            workspace, run the commands below.
+          </li>
+          <li>
+            Open <a class="text-link" href="http://localhost:4200">http://localhost:4200</a> after
+            the services are healthy. The API is at http://localhost:3000/api.
+          </li>
+          <li>
+            Use the initial provisional roadmap, or plan a personalized journey with the toolkit and
+            import its JSON on <a class="text-link" routerLink="/roadmap">Roadmap</a>.
+          </li>
+          <li>
+            Generate a Sunday-Saturday plan, preview it on
+            <a class="text-link" routerLink="/weekly-plan">Weekly plan</a>, and confirm the import.
+          </li>
+          <li>
+            Jump to today, work through tasks and optionally record actual minutes. Add goals and
+            connections when they are useful.
+          </li>
+        </ol>
+        <div class="code-heading">
+          <h3>Fresh installation</h3>
+          <button class="button" (click)="copy('setup', installation)">Copy setup commands</button>
+        </div>
+        <pre tabindex="0"><code>{{installation}}</code></pre>
+        @if (copied() === 'setup') {
+          <p role="status" class="copy-success">Setup commands copied.</p>
+        }
+        @if (copyError() === 'setup') {
+          <p role="alert">Clipboard access is unavailable. Select and copy the commands above.</p>
+        }
+        <p class="muted small">
+          The named volume command ensures the external data volume exists; it does not erase an
+          existing volume. For an installed workspace, run the final Compose command from its parent
+          folder. Keep both repository folder names as shown. Do not delete the existing database
+          volume.
+        </p>
+        <p>
+          Source repositories:
+          <a class="text-link" href="https://github.com/ouahlineomaima/phd-quest-backend"
+            >Backend</a
+          >
+          /
+          <a class="text-link" href="https://github.com/ouahlineomaima/phd-quest-frontend"
+            >Frontend</a
+          >. The Compose configuration lives in the backend repository. Default application ports
+          are local to your computer.
+        </p></pq-card
+      >
+    </section>
+    <section tabindex="-1" id="roadmap-guide" aria-labelledby="roadmap-guide-title">
+      <pq-card
+        ><h2 id="roadmap-guide-title">Your three-year research roadmap</h2>
+        <p>
+          The journey begins with an independent Level 0: Preparation Camp, followed by twelve
+          ordered research chapters (1-12): four per year. Level 0 has no academic year. It counts
+          as a journey chapter (13 chapters in total) and is current until explicitly completed. Its
+          default plan is November-December 2026: prepare Notion, Zotero and Google Drive,
+          understand research workflows, establish documentation habits, confirm your subject and
+          approve the working system. The planned preparation period runs through December 31, 2026.
+          Validate the readiness checkpoint and explicitly complete Preparation Camp to unlock the
+          next unfinished research chapter. Dates never automatically validate or complete a
+          chapter. Titles, descriptions, objectives and checkpoint definitions can be personalized
+          through a version-1 roadmap JSON file.
+        </p>
+        <ol>
+          <li>
+            Use
+            <a class="text-link" href="/help#prompt-journey-setup">Set up my research journey</a> to
+            discuss a feasible proposal. Approve it before generating JSON.
+          </li>
+          <li>
+            Use
+            <a class="text-link" href="/help#prompt-roadmap-json"
+              >Generate my three-year roadmap JSON</a
+            >, then save the complete .json file.
+          </li>
+          <li>
+            On Roadmap, choose <strong>Import roadmap</strong>. Select a file no larger than 500 KiB
+            and review Preparation Camp and all twelve research chapters, checkpoint totals and the
+            existing progress that will be reset.
+          </li>
+          <li>
+            Type <code>REPLACE ROADMAP</code> exactly and confirm when you intend to replace the
+            current map.
+          </li>
+        </ol>
+        <p class="important">
+          <strong
+            >Replacement resets research-level completion, checkpoint validation, evidence and
+            checkpoint-to-goal links.</strong
+          >
+          It preserves weekly plans, tasks, XP, activity, goals and their task links, and historical
+          achievements. Export a full backup first if you may need the previous roadmap progress.
+        </p>
+        <p>
+          Older version-1 roadmap files with levels 1-12 still work; import adds the default
+          Preparation Camp. New files may include all thirteen levels (0-12), with no year field in
+          JSON. The journey title and ID are currently preview-only metadata. Level titles,
+          descriptions, objectives and checkpoints are persisted and included in backups. Historical
+          achievements do not imply completion of the replacement roadmap.
+        </p>
+        <h3>Advance through evidence, not XP</h3>
+        <p>
+          Open Preparation Camp or the current research chapter to review its checkpoints.
+          Preparation Camp is the first chapter to complete; completing it unlocks the next
+          unfinished research chapter. The three research years then retain their ordered
+          progression. Validate each required checkpoint yourself when the academic evidence is
+          sufficient. Then explicitly confirm chapter completion to unlock the next chapter. Chapter
+          12 completes the map; it does not create another level.
+        </p>
+        <p>
+          A checkpoint reaching 100% linked progress is still unvalidated until you validate it.
+          Corrections can undo validation within the current chapter. Completed chapters cannot have
+          checkpoints reversed, and future chapters remain locked. Open any chapter to edit its
+          title (up to 160 characters) and description, then choose Save title & description. Use
+          Edit year title beside Year 1, 2 or 3 to rename the year heading. Title edits preserve
+          checkpoint identities, goal links and progression. Custom year headings are included in
+          backups; importing a replacement roadmap resets them to defaults.
+        </p></pq-card
+      >
+    </section>
+    <section tabindex="-1" id="weekly-guide" aria-labelledby="weekly-guide-title">
+      <pq-card
+        ><h2 id="weekly-guide-title">Weekly planning and daily work</h2>
+        <p>
+          Each saved plan covers a Sunday through the following Saturday. Import a version-1 weekly
+          JSON file of at most 500 KiB, review its dates, tasks and workload, then confirm it.
+          Importing does not award XP.
+        </p>
+        <ul>
+          <li>
+            <strong>Find your day:</strong> use the Sunday-Saturday buttons or
+            <strong>Jump to today</strong>. Today follows the server's configured calendar timezone,
+            initially Africa/Casablanca. Other weeks do not falsely highlight today.
+          </li>
+          <li>
+            <strong>Complete a task:</strong> optionally enter whole actual minutes from 0 to 1,440,
+            then choose <strong>Complete task</strong>. The app waits for server confirmation and
+            disables conflicting controls while saving.
+          </li>
+          <li>
+            <strong>Reopen deliberately:</strong> reopening returns a task to pending and reduces
+            task-linked progress. It preserves earned XP and activity history. Recompletion does not
+            award the same task's XP again.
+          </li>
+          <li>
+            <strong>Recorded time:</strong> actual minutes remain recorded after reopening. Leaving
+            the duration blank on recompletion keeps the previous recorded amount.
+          </li>
+          <li>
+            <strong>Read weekly totals:</strong> completed/total tasks, percentage, planned minutes,
+            recorded minutes and earned XP are separate values. Optional tasks are still included in
+            weekly completion. Scheduled dates and actual completion dates may differ.
+          </li>
+        </ul>
+        <p class="important">
+          <strong>A saved week cannot be overwritten by importing it again.</strong> Duplicate
+          weekId values are rejected to protect task progress and rewards. Select the saved week to
+          continue using it. Decide explicitly how unfinished work should appear in a later week's
+          plan.
+        </p></pq-card
+      >
+    </section>
+    <section tabindex="-1" id="connected-guide" aria-labelledby="connected-guide-title">
+      <pq-card
+        ><h2 id="connected-guide-title">Goals and connected research progress</h2>
+        <div
+          class="connection-flow"
+          aria-label="A checkpoint links goals, and goals link weekly tasks"
+        >
+          <span>Roadmap checkpoint</span><pq-icon name="arrow" /><span>Linked goals</span
+          ><pq-icon name="arrow" /><span>Linked weekly tasks</span>
+        </div>
+        <ol>
+          <li>
+            On <a class="text-link" routerLink="/goals">Goals</a>, add or edit a goal. In
+            <strong>Linked tasks (optional)</strong>, choose a week, search tasks and select the
+            work that contributes. Switch weeks to select more tasks; earlier selections remain.
+            Remove links when needed, then save.
+          </li>
+          <li>
+            Open a checkpoint in the current research chapter. Expand
+            <strong>Link goals (optional)</strong>, choose existing goals and select
+            <strong>Save goal links</strong>. Link editing is available in Preparation Camp while it
+            is in preparation, and in the current research chapter.
+          </li>
+          <li>
+            Read derived progress separately from the goal's completion status and checkpoint's
+            validation state. Goal chapter references alone are not checkpoint links.
+          </li>
+        </ol>
+        <h3>A concrete example</h3>
+        <p>
+          <strong>Checkpoint:</strong> Complete initial literature review.<br /><strong
+            >Goal:</strong
+          >
+          Analyze 12 research papers.<br /><strong>First-week tasks:</strong> Read paper A;
+          summarize paper B; compare papers C and D.
+        </p>
+        <p>
+          These tasks are an initial slice of the twelve-paper goal. Add the remaining work as tasks
+          and link it explicitly. Task percentages count tasks equally, not papers or academic
+          quality; finishing these three starter tasks alone does not establish that all twelve
+          papers have been analyzed.
+        </p>
+        <ul>
+          <li>
+            A goal with four linked tasks and three completed shows 75%. The same task may
+            contribute once to several goals; a goal may include tasks from several weeks.
+          </li>
+          <li>
+            A checkpoint averages its linked goals equally. Goals at 100%, 50% and 0% contribute 50%
+            together. Whole percentages are rounded; the backend uses exact task fractions before
+            rounding the final checkpoint mean.
+          </li>
+          <li>
+            Reopening a task recalculates percentages downward. It does not undo manually confirmed
+            goal completion or checkpoint validation.
+          </li>
+          <li>
+            A goal without task links remains a manual goal. A standalone completed goal contributes
+            100% to a linked checkpoint; an active one contributes 0%. Archived standalone goals
+            retain the completion state they had when archived. Task-linked goals continue to
+            reflect their tasks.
+          </li>
+          <li>
+            A checkpoint without goal links remains manually validated. Relationships are optional
+            and are created inside the app, not embedded in weekly-plan or roadmap JSON imports.
+          </li>
+        </ul>
+        <p class="important">
+          <strong>100% progress does not automatically mean completed or validated.</strong>
+          Complete goals and validate checkpoints only when you judge their intended outcomes
+          achieved.
+        </p></pq-card
+      >
+    </section>
+    <section tabindex="-1" id="focus-guide" aria-labelledby="focus-guide-title">
+      <pq-card
+        ><h2 id="focus-guide-title">Research Focus Timer</h2>
+        <p>
+          Open <a class="text-link" routerLink="/focus">Focus</a> for a countdown (25, 50 or 1-180
+          custom minutes) or a stopwatch. Choose an existing weekly task, or leave the session
+          independent. Start, pause, resume, then finish and explicitly save the focused time or
+          discard it. Stopping early can save a partial session; zero-duration sessions cannot be
+          saved.
+        </p>
+        <p>
+          The shell's mini timer follows you between pages. One timer is shared across this
+          browser's tabs. A local recovery snapshot survives refreshes and browser reopening: an
+          expired countdown finishes at its scheduled endpoint, while a running stopwatch keeps
+          counting until you pause/finish or it reaches seven days. Paused time is excluded. Elapsed
+          time cannot prove that you were working while the browser was closed. Clearing browser
+          storage removes unsaved recovery data, so save sessions you want to keep.
+        </p>
+        <p>
+          Short (5-minute) and long (15-minute) breaks use the same engine, without saved history or
+          task time. A break is optional; after four saved target-reaching countdowns, consider a
+          longer break. No notifications or notification permissions are used.
+        </p>
+        <p>
+          Saved history includes seconds, mode, task reference and application state. Statistics use
+          the session's end date in the application's timezone and Sunday-Saturday weeks, rounding
+          the summed seconds down to minutes.
+        </p>
+        <p>
+          <strong>Apply time to task</strong> requires confirmation. Each session contributes its
+          own seconds rounded down to full minutes, at most once; sessions under a minute stay
+          separate. Applied focus is a separate additive task total shown on Weekly Plan. Manual
+          actual minutes are never overwritten, including on pending tasks. The two measurements may
+          describe the same work; avoid counting them twice. Choose
+          <strong>Keep separate</strong> if you do not want to apply it. You can apply an eligible
+          saved session later from history.
+        </p>
+        <p>
+          Focus sessions and breaks never complete tasks, goals or checkpoints, award XP, or update
+          streaks. Focus history and applied markers are preserved in full backups; old backups
+          without focus history remain supported. Unsaved local timers are not part of a backup.
+          Importing a roadmap does not remove saved focus sessions.
+        </p></pq-card
+      >
+    </section>
+    <section tabindex="-1" id="gamification-guide" aria-labelledby="gamification-guide-title">
+      <pq-card
+        ><h2 id="gamification-guide-title">XP, player levels and streaks</h2>
+        <p>
+          Tasks carry planned XP rewards. Their first confirmed completion awards that XP once; a
+          zero reward awards none. The +N XP message uses the server's awarded amount. Reopening or
+          recompleting an already rewarded task does not remove or award that XP again.
+        </p>
+        <p>
+          <strong>Player level</strong> is calculated from total earned XP. The sidebar and Weekly
+          Plan show total XP, progress toward the next player level and XP remaining.
+          <strong>Research level</strong> is your position in the twelve-chapter academic roadmap.
+          XP never unlocks research chapters. Goals, checkpoint validation, roadmap imports and
+          achievements grant no additional XP.
+        </p>
+        <p>
+          A calendar day qualifies for a streak when at least one task is completed on that actual
+          day in the configured timezone. <strong>Active today</strong> means today's qualifying
+          activity is recorded; <strong>Continue today</strong> means the streak is maintained
+          through yesterday; <strong>Start a streak</strong> means no current streak is maintained.
+          A missed day breaks the current streak, while the longest streak is retained. Reopening
+          does not erase historical activity.
+        </p>
+        <p>
+          <a class="text-link" routerLink="/achievements">Achievements</a> recognize saved task,
+          planning, goal and research milestones. Unlocks remain historical even if progress is
+          later reopened or a roadmap is replaced. Weekly completion is simply the saved week's task
+          status summary, not a score of scientific quality.
+        </p></pq-card
+      >
+    </section>
+    <section tabindex="-1" id="recovery-guide" aria-labelledby="recovery-guide-title">
+      <pq-card
+        ><h2 id="recovery-guide-title">Backup and recovery</h2>
+        <ol>
+          <li>
+            Open <a class="text-link" routerLink="/settings">Settings</a> and choose
+            <strong>Export backup</strong>. Keep the downloaded JSON in a separate, safe location
+            you control; retain dated copies when useful.
+          </li>
+          <li>
+            To recover, choose <strong>Restore backup</strong> and select a full-workspace backup,
+            not a roadmap or weekly-plan import file. Review its date, version, timezone and record
+            counts.
+          </li>
+          <li>
+            Type <code>REPLACE ALL DATA</code> exactly and confirm. This replaces the entire
+            application dataset, including plans, XP, activity, roadmap, goals, relationships,
+            achievements and saved focus sessions. There is no merge mode.
+          </li>
+          <li>
+            After success, choose <strong>Open restored dashboard</strong>. If the connection was
+            interrupted during confirmation, reload and inspect the saved state before retrying; the
+            server may already have committed.
+          </li>
+        </ol>
+        <p>
+          Version-1 backups without Level 0 still restore: a new, uncompleted Preparation Camp is
+          added. Saved research work is preserved, and later chapter progression pauses until camp
+          completion. New backups preserve camp progress and links. Version-1 backups are limited to
+          20 MiB. The destination application's calendar timezone must match the backup. Configure
+          the matching timezone on a fresh installation before recovery; the app has no timezone
+          editor and restore does not change configuration files. Theme preference remains on the
+          device.
+        </p>
+        <p class="important">
+          <strong>Do not delete the MongoDB volume.</strong> It contains your saved research data.
+          Normal container restarts and ordinary Compose shutdown preserve it. Never use
+          <code>docker compose down -v</code> or manually remove the volume as a recovery step.
+          Export your current state before restoring if it must be retained.
+        </p></pq-card
+      >
+    </section>
+    <section tabindex="-1" id="troubleshooting" aria-labelledby="troubleshooting-title">
+      <pq-card
+        ><h2 id="troubleshooting-title">Troubleshooting</h2>
+        <details>
+          <summary>The application does not open / services are stopped</summary>
+          <p>
+            Start Docker Desktop with the Linux engine, run the Compose startup command from the
+            workspace root and wait for healthy services. Check status with:
+          </p>
+          <pre tabindex="0"><code>{{serviceCheck}}</code></pre>
+          <p>
+            Use http://localhost:4200 by default. If you deliberately changed the port in
+            infrastructure settings, use that configured port. A first installation needs the
+            external volume and both sibling repositories.
+          </p>
+        </details>
+        <details>
+          <summary>Roadmap JSON is rejected</summary>
+          <p>
+            Use version 1, three research years and thirteen ordered levels (0-12), or a legacy file
+            containing twelve ordered levels (1-12). Level 0 is independent of the research years.
+            Every level needs objectives and at least one required checkpoint. IDs must be lowercase
+            hyphenated slugs; no saved progress, XP, database IDs or relationships are allowed. Read
+            the preview's field errors and compare the downloadable example. Keep the file within
+            500 KiB.
+          </p>
+        </details>
+        <details>
+          <summary>Weekly-plan JSON is rejected / the week already exists</summary>
+          <p>
+            Use real Sunday-Saturday dates with weekId equal to startDate, unique task IDs within
+            the week and only supported fields. Durations and rewards are integers. A duplicate
+            saved week cannot replace existing data; choose the existing plan to continue or prepare
+            a new week deliberately.
+          </p>
+        </details>
+        <details>
+          <summary>The roadmap replacement warning appears</summary>
+          <p>
+            This is expected: roadmap import replaces all chapters and resets academic roadmap
+            progress and checkpoint-to-goal links. Keep a backup if you may need the old state.
+            Cancel if that is not your intention; preview alone makes no changes.
+          </p>
+        </details>
+        <details>
+          <summary>A preview is stale or a confirmation conflicts</summary>
+          <p>
+            Another workspace action or an earlier confirmation may have changed the destination
+            revision. Preview the selected file again, review current counts and explicitly confirm
+            again only if replacement is still intended. Do not bypass the confirmation.
+          </p>
+        </details>
+        <details>
+          <summary>A backup restore fails</summary>
+          <p>
+            Use the complete exported backup, check its timezone/version/size and read the reported
+            record errors. Missing sections, duplicate or dangling references and invalid history
+            are rejected. Failed transactions roll back replacement. If the connection dropped after
+            submission, inspect the workspace before retrying.
+          </p>
+        </details>
+        <details>
+          <summary>A task or goal connection is missing</summary>
+          <p>
+            Save the weekly plan before selecting its tasks in a goal. Choose the correct week and
+            search for the task. Save goal links separately inside Preparation Camp's checkpoint or
+            the current research chapter's checkpoint; a chapter reference alone is not a checkpoint
+            link. Roadmap replacement clears checkpoint links but preserves goals and their task
+            links. Archived goals cannot be edited or reopened; create a new goal if work resumes.
+          </p>
+        </details></pq-card
+      >
+    </section>
+    <section tabindex="-1" id="meetings-guide" aria-labelledby="meetings-guide-title">
+      <pq-card
+        ><h2 id="meetings-guide-title">Supervisor meetings</h2>
+        <p>
+          Open <a class="text-link" routerLink="/supervisor-meetings">Supervisor meetings</a>,
+          choose Supervisors, and add your local supervisor profiles. Schedule a meeting with one or
+          more active supervisors. Dates and times use the configured application timezone, shown
+          beside the editor.
+        </p>
+        <p>
+          Use Agenda, Discussion notes, Supervisor feedback and Decisions independently. Preparation
+          tasks capture work before the conversation; Follow-up tasks capture work resulting from
+          feedback. Either phase can be added or edited before or after a meeting is completed.
+        </p>
+        <p>
+          Link an action to existing weekly tasks across multiple weeks. Progress is calculated from
+          available tasks and changes when those tasks are completed or reopened. Unavailable
+          historical links are shown explicitly. Action status stays manual, even at 100%;
+          completing an action does not complete weekly tasks, award XP, or change focus time.
+          Completing a meeting does not complete its actions.
+        </p>
+        <p>
+          Optionally connect meetings to goals and roadmap checkpoints or add HTTP/HTTPS document
+          links. These associations do not complete goals or validate checkpoints. Use All actions
+          to filter phase, status, meeting, due date and overdue work.
+        </p>
+        <p>
+          Archive profiles and meetings when they no longer belong in your active workspace.
+          Historical meetings keep archived supervisor names, notes and actions. Archived records
+          remain accessible through the history filters and are read-only. Full-workspace backups
+          include supervisor profiles, meetings and both action phases; older backups restore with
+          empty meeting collections.
+        </p></pq-card
+      >
+    </section>
+    <section tabindex="-1" id="skills-guide" aria-labelledby="skills-guide-title">
+      <pq-card
+        ><h2 id="skills-guide-title">Research Skill Tree</h2>
+        <p>
+          Open <a class="text-link" routerLink="/skills">Research Skill Tree</a> and explicitly
+          choose Initialize Skill Tree to create six research branches and 24 starter skills.
+          Opening the page never initializes data. You can also create custom categories and
+          specialized skills. Edit their sort order to rearrange branches or move a skill by
+          changing its category.
+        </p>
+        <p>
+          Confirmed proficiency is a self-assessment: Level 0 Not started, 1 Beginner, 2 Developing,
+          3 Proficient, 4 Advanced. Confirm an increase, decrease or skipped level explicitly, with
+          an optional justification. Every actual change is retained in proficiency history; no XP
+          is awarded. These competency levels are independent of Research Roadmap chapters.
+        </p>
+        <p>
+          Prerequisite connections recommend foundations. A prerequisite at Level 2 or above is
+          developed; recommendations never lock a skill. Cycles and self-references are rejected.
+          Choose a skill node to inspect its recommended path, or use List view to search and
+          filter.
+        </p>
+        <p>
+          Link existing tasks across weeks, research goals or roadmap checkpoints. For each
+          association select General development or a target proficiency Level 1?4. Change an
+          individual target using its selector later. A source can be linked to multiple skills, but
+          only once within each skill. Links never change the source activity.
+        </p>
+        <p>
+          Targeted readiness groups all source types assigned to the same level. Ready to review
+          appears only when at least one activity is available, all assigned activities are
+          complete, and none are missing. Reopened activities remove readiness. General development
+          follows Option B: separate weekly-task, goal and checkpoint indicators; these never block
+          a targeted level. Missing links are shown as unverified. Completing activities does not
+          automatically increase proficiency.
+        </p>
+        <p>
+          Add optional evidence notes or safe HTTP/HTTPS links to document your assessment. Evidence
+          never changes proficiency. Archive categories or skills to retain evidence, links,
+          prerequisites and history as read-only records. Skills under archived categories are
+          excluded from active summaries and appear in archived views. Full backups preserve the
+          tree and initialization state; old backups restore an empty, uninitialized tree without
+          silently generating defaults.
+        </p></pq-card
+      >
+    </section>
+    <section tabindex="-1" id="toolkit" aria-labelledby="toolkit-title">
+      <pq-card
+        ><h2 id="toolkit-title">ChatGPT Planning Toolkit</h2>
+        <p>
+          Copy a complete prompt and paste it into ChatGPT yourself. PhD Quest does not connect to
+          an AI API, send your data automatically or require an API key. Supply the context you
+          choose to share. File download availability depends on the ChatGPT environment; each
+          generation prompt includes a JSON-copy alternative.
+        </p>
+        <p>
+          Suggested sequence: discuss and approve a journey, generate its roadmap file, plan a week,
+          then review and adapt. The generation prompts contain the full import contract even when
+          the repository is unavailable to ChatGPT.
+        </p></pq-card
+      >
+      <div class="prompt-list">
+        @for (prompt of prompts; track prompt.id) {
+          <article tabindex="-1" [id]="'prompt-' + prompt.id" class="ui-card prompt-card">
+            <div class="prompt-top">
+              <h3>{{ prompt.title }}</h3>
+              <button
+                class="button primary"
+                [attr.aria-label]="'Copy ' + prompt.title"
+                (click)="copy(prompt.id, prompt.text)"
+              >
+                {{ copied() === prompt.id ? 'Copied' : 'Copy complete prompt' }}
+              </button>
+            </div>
+            <p>{{ prompt.purpose }}</p>
+            <p class="muted small"><strong>When to use:</strong> {{ prompt.when }}</p>
+            <p class="muted small"><strong>Expected output:</strong> {{ prompt.expected }}</p>
+            @if (copied() === prompt.id) {
+              <p role="status" class="copy-success">Full prompt copied. Paste it into ChatGPT.</p>
+            }
+            @if (copyError() === prompt.id) {
+              <p role="alert">
+                Clipboard access is unavailable. Open the full prompt below and copy it manually.
+              </p>
+            }
+            <details class="prompt-text">
+              <summary>Read full prompt</summary>
+              <pre tabindex="0"><code>{{prompt.text}}</code></pre>
+            </details>
+          </article>
+        }
+      </div>
+    </section>
+    <section tabindex="-1" id="examples" aria-labelledby="examples-title">
+      <pq-card
+        ><h2 id="examples-title">Download JSON examples</h2>
+        <p>
+          These are generic sample files, not your personal research plan. Downloads do not import
+          anything. Personalize the content and dates, then use the appropriate import preview.
+        </p>
+        <div class="download-grid">
+          <div>
+            <h3>Three-year roadmap</h3>
+            <p class="muted small">
+              Complete version-1 example with independent Preparation Camp (level 0), twelve ordered
+              research chapters and required checkpoints. The initial academic guidance is
+              intentionally generic.
+            </p>
+            <a
+              class="button"
+              href="/help/examples/roadmap.v1.example.json"
+              download="roadmap.v1.example.json"
+              ><pq-icon name="download" />Download roadmap example</a
+            >
+          </div>
+          <div>
+            <h3>Weekly plan</h3>
+            <p class="muted small">
+              Version-1 Sunday-Saturday example for November 15-21, 2026: three tasks, 120 planned
+              minutes. Change all week/task dates together for your intended week; a saved week
+              cannot be reimported.
+            </p>
+            <a
+              class="button"
+              href="/help/examples/weekly-plan.v1.example.json"
+              download="weekly-plan.v1.example.json"
+              ><pq-icon name="download" />Download weekly example</a
+            >
+          </div>
+        </div>
+        <p class="muted small">
+          Both examples follow the implemented import validators. The app's preview remains the
+          final check before you confirm.
+        </p></pq-card
+      >
+    </section>
+  </div>
+</div>

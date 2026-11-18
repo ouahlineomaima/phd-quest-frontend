@@ -1,9 +1,20 @@
-export interface PlanningPrompt { id:string; title:string; purpose:string; when:string; expected:string; text:string; }
+export interface PlanningPrompt {
+  id: string;
+  title: string;
+  purpose: string;
+  when: string;
+  expected: string;
+  text: string;
+}
 export const PLANNING_PROMPTS: readonly PlanningPrompt[] = [
   {
-    id:'journey-setup',title:'Set up my research journey',purpose:'Turn your circumstances and research interests into an achievable proposal.',
-    when:'Use first, or when your research direction needs a thoughtful reset.',expected:'A human-readable three-year proposal with twelve research chapters plus a separate Preparation Camp, ready for your review. No JSON yet.',
-    text:`Act as a structured PhD planning assistant. Help me design a realistic research journey for PhD Quest, a local planning application. Support my thinking; do not replace my supervisor, institutional requirements or academic judgment. Do not assume my topic or methodology has already been finalized.
+    id: 'journey-setup',
+    title: 'Set up my research journey',
+    purpose: 'Turn your circumstances and research interests into an achievable proposal.',
+    when: 'Use first, or when your research direction needs a thoughtful reset.',
+    expected:
+      'A human-readable three-year proposal with twelve research chapters plus a separate Preparation Camp, ready for your review. No JSON yet.',
+    text: `Act as a structured PhD planning assistant. Help me design a realistic research journey for PhD Quest, a local planning application. Support my thinking; do not replace my supervisor, institutional requirements or academic judgment. Do not assume my topic or methodology has already been finalized.
 
 First use any relevant information I have already supplied. Ask only the missing questions needed to plan responsibly, in short batches rather than repeating a questionnaire. Establish:
 - My discipline and topic, or provisional research interests if the topic is undecided.
@@ -21,12 +32,16 @@ PhD Quest has an independent pre-PhD Preparation Camp at level 0, followed by a 
 
 Propose a human-readable journey. Include a separate Preparation Camp with environment setup (Notion, Zotero and Google Drive or agreed alternatives), research workflow, documentation habits, subject confirmation, and roadmap/working-system approval. Use a measurable readiness checkpoint. For each of the twelve research chapters include a meaningful title, purpose, manageable objectives, measurable checkpoints, expected outputs and key dependencies. Adapt the sequence to my discipline; do not force a particular empirical method or assume results before the research is done. For an undecided topic, include direction-finding and feasibility decisions with clearly provisional later chapters. Account for institutional milestones and available workload. Do not invent references, data, completed research or approvals.
 
-Explain the largest feasibility risks, review points and choices that need my supervisor's input. Ask me to approve or revise the proposed journey. Do NOT generate JSON at this stage. Once I explicitly approve it, provide a concise approved summary that I can reuse with the roadmap-generation prompt.`
+Explain the largest feasibility risks, review points and choices that need my supervisor's input. Ask me to approve or revise the proposed journey. Do NOT generate JSON at this stage. Once I explicitly approve it, provide a concise approved summary that I can reuse with the roadmap-generation prompt.`,
   },
   {
-    id:'roadmap-json',title:'Generate my three-year roadmap JSON',purpose:'Convert an approved research journey into a PhD Quest import file.',
-    when:'Use after approving a journey proposal. Supply that proposal in the conversation.',expected:'One complete roadmap.v1 JSON file containing Preparation Camp plus all twelve research chapters, with no saved progress.',
-    text:`Convert my approved research journey into a personalized PhD Quest version-1 roadmap JSON file. If the approved journey is not available in this conversation, STOP and ask me to paste or attach it. Do not invent an approved plan. Resolve material gaps before generating the file. Retain agreed content and stable checkpoint identifiers where available.
+    id: 'roadmap-json',
+    title: 'Generate my three-year roadmap JSON',
+    purpose: 'Convert an approved research journey into a PhD Quest import file.',
+    when: 'Use after approving a journey proposal. Supply that proposal in the conversation.',
+    expected:
+      'One complete roadmap.v1 JSON file containing Preparation Camp plus all twelve research chapters, with no saved progress.',
+    text: `Convert my approved research journey into a personalized PhD Quest version-1 roadmap JSON file. If the approved journey is not available in this conversation, STOP and ask me to paste or attach it. Do not invent an approved plan. Resolve material gaps before generating the file. Retain agreed content and stable checkpoint identifiers where available.
 
 Use only this exact file contract, even if you cannot access a repository:
 Root object:
@@ -55,12 +70,16 @@ Check the complete output: version and duration, thirteen ordered level numbers 
 
 When downloadable files are supported, attach my-phd-roadmap.json containing the complete JSON. Otherwise provide one complete JSON code block with all thirteen levels, no comments, placeholders, ellipses or trailing commas, and tell me to save it as a .json file. Keep any explanation outside the JSON.
 
-Remind me that the app's preview is authoritative. Import replaces the current roadmap and resets its checkpoint and level progress plus checkpoint-to-goal links; weekly plans, XP, activity, goals and historical achievements remain. The journey title and ID are currently preview-only metadata; all thirteen levels' content is persisted; level 0 has no year and must be completed before advancing through the research chapters. I must review the preview and explicitly confirm REPLACE ROADMAP in the app.`
+Remind me that the app's preview is authoritative. Import replaces the current roadmap and resets its checkpoint and level progress plus checkpoint-to-goal links; weekly plans, XP, activity, goals and historical achievements remain. The journey title and ID are currently preview-only metadata; all thirteen levels' content is persisted; level 0 has no year and must be completed before advancing through the research chapters. I must review the preview and explicitly confirm REPLACE ROADMAP in the app.`,
   },
   {
-    id:'weekly-json',title:'Generate my weekly plan JSON',purpose:'Break the next research steps into realistic Sunday-Saturday tasks.',
-    when:'Use before a new planning week, or to convert an already approved weekly plan.',expected:'One weekly-plan.v1 JSON file with scheduled tasks, estimates, deliverables and planned XP; no completion data.',
-    text:`Help me prepare a PhD Quest version-1 weekly plan. Use my approved research roadmap and current progress, but do not assume you can access my local application. Ask for any missing information: the intended Sunday start date, current chapter/checkpoints (or independent Preparation Camp at level 0), relevant goals, completed and unfinished work, available research hours and immovable commitments. Use information already provided instead of asking again. If an approved weekly plan already exists, preserve its tasks, dates, durations, IDs, priorities, deliverables and rewards when converting it; obtain approval before changing its content.
+    id: 'weekly-json',
+    title: 'Generate my weekly plan JSON',
+    purpose: 'Break the next research steps into realistic Sunday-Saturday tasks.',
+    when: 'Use before a new planning week, or to convert an already approved weekly plan.',
+    expected:
+      'One weekly-plan.v1 JSON file with scheduled tasks, estimates, deliverables and planned XP; no completion data.',
+    text: `Help me prepare a PhD Quest version-1 weekly plan. Use my approved research roadmap and current progress, but do not assume you can access my local application. Ask for any missing information: the intended Sunday start date, current chapter/checkpoints (or independent Preparation Camp at level 0), relevant goals, completed and unfinished work, available research hours and immovable commitments. Use information already provided instead of asking again. If an approved weekly plan already exists, preserve its tasks, dates, durations, IDs, priorities, deliverables and rewards when converting it; obtain approval before changing its content.
 
 Propose realistic tasks that support the current academic objectives and fit the weekly time budget. Six hours is the application's reference baseline, not a requirement or automatic limit. Include clear deliverables, reading/writing/review time and reasonable flexibility. Do not assume a discipline, finalized topic, data access or progress. Resolve missing inputs and obtain approval for a materially new plan before producing its JSON.
 
@@ -91,12 +110,16 @@ Do NOT include status, actualMinutes, completedAt, firstCompletedAt, database ID
 
 Before delivery, check date validity, exact Sunday-Saturday range, weekId equality, unique valid task IDs, all field/array limits, booleans, allowed priorities and integer duration/XP ranges. Confirm the sum of estimates fits my approved workload. Keep the UTF-8 file at most 500 KiB. Run structural/date checks when code execution is available; otherwise review them carefully and do not claim server validation.
 
-Attach a downloadable weekly-plan-YYYY-MM-DD.json when supported. Otherwise output one complete JSON code block without comments, ellipses or trailing commas so I can save a .json file. Keep explanations outside it. Remind me that importing an existing saved week cannot overwrite it: a duplicate week is rejected. I should review the app's preview before confirming import.`
+Attach a downloadable weekly-plan-YYYY-MM-DD.json when supported. Otherwise output one complete JSON code block without comments, ellipses or trailing commas so I can save a .json file. Keep explanations outside it. Remind me that importing an existing saved week cannot overwrite it: a duplicate week is rejected. I should review the app's preview before confirming import.`,
   },
   {
-    id:'weekly-review',title:'Weekly research review',purpose:'Review evidence, understand blockers and adjust the next week responsibly.',
-    when:'Use at the end of a week, or when workload and progress need reassessment.',expected:'An evidence-based review and a proposed next week for approval, without invented progress or automatic updates.',
-    text:`Act as my structured weekly research review partner. You do not have direct access to my local PhD Quest database, dashboard or files. Ask me to provide a concise progress summary or selected relevant data. Do not request credentials or a whole backup when a short summary will do.
+    id: 'weekly-review',
+    title: 'Weekly research review',
+    purpose: 'Review evidence, understand blockers and adjust the next week responsibly.',
+    when: 'Use at the end of a week, or when workload and progress need reassessment.',
+    expected:
+      'An evidence-based review and a proposed next week for approval, without invented progress or automatic updates.',
+    text: `Act as my structured weekly research review partner. You do not have direct access to my local PhD Quest database, dashboard or files. Ask me to provide a concise progress summary or selected relevant data. Do not request credentials or a whole backup when a short summary will do.
 
 Use information already supplied and ask only for missing facts:
 - The reviewed Sunday-Saturday week and my realistically available hours.
@@ -118,6 +141,6 @@ PhD Quest percentages and manual states are independent. A task-linked goal uses
 
 For unfinished work, discuss whether to retain it as pending in its original week, deliberately reschedule it as a new week's task, split it, or drop it from future planning. Existing imported weeks cannot be overwritten through reimport. Do not silently duplicate unfinished work or represent a carried-forward task as already completed. Ask for my decision about carryovers and planned rewards; do not promise transfer or reversal of existing XP.
 
-Offer an adjusted next-week proposal in human-readable form and ask for my approval. Do not automatically change the app, complete goals, validate checkpoints or create JSON before that approval. Once approved, suggest using the weekly-plan JSON prompt with the approved content. Keep the review constructive, specific and realistic across research disciplines.`
+Offer an adjusted next-week proposal in human-readable form and ask for my approval. Do not automatically change the app, complete goals, validate checkpoints or create JSON before that approval. Once approved, suggest using the weekly-plan JSON prompt with the approved content. Keep the review constructive, specific and realistic across research disciplines.`,
   },
 ];

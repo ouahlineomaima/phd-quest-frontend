@@ -10,9 +10,15 @@ import { Brand } from './brand';
 import { GamificationState } from '../services/gamification.service';
 
 @Component({
-  selector: 'pq-shell', standalone: true, imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon, Brand],
-  templateUrl: './shell.html', styleUrl: './shell.scss',
-  host: { '[class.collapsed]': 'collapsed() && !mobile()', '(document:keydown.escape)': 'closeDrawer()' },
+  selector: 'pq-shell',
+  standalone: true,
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon, Brand],
+  templateUrl: './shell.html',
+  styleUrl: './shell.scss',
+  host: {
+    '[class.collapsed]': 'collapsed() && !mobile()',
+    '(document:keydown.escape)': 'closeDrawer()',
+  },
 })
 export class Shell {
   readonly focus = inject(FocusTimer);
@@ -30,20 +36,33 @@ export class Shell {
     const router = inject(Router);
     const title = inject(Title);
     const media = window.matchMedia('(max-width: 760px)');
-    const update = () => { this.mobile.set(media.matches); this.drawer.set(false); };
+    const update = () => {
+      this.mobile.set(media.matches);
+      this.drawer.set(false);
+    };
     media.addEventListener('change', update);
     inject(DestroyRef).onDestroy(() => media.removeEventListener('change', update));
-    router.events.pipe(takeUntilDestroyed()).subscribe(event => {
+    router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
       if (event instanceof NavigationEnd) {
         const path = event.urlAfterRedirects.split(/[?#]/)[0];
-        const name = this.links.find(link => link.path === path || (link.path === '/supervisor-meetings' && /^\/supervisor-meetings\/[a-f0-9]{24}$/.test(path)))?.title ?? 'Page not found';
-        this.page.set(name); title.setTitle(`${name} - PhD Quest`); this.closeDrawer();
+        const name =
+          this.links.find(
+            (link) =>
+              link.path === path ||
+              (link.path === '/supervisor-meetings' &&
+                /^\/supervisor-meetings\/[a-f0-9]{24}$/.test(path)),
+          )?.title ?? 'Page not found';
+        this.page.set(name);
+        title.setTitle(`${name} - PhD Quest`);
+        this.closeDrawer();
       }
     });
   }
   openDrawer() {
     this.drawer.set(true);
-    requestAnimationFrame(() => this.sidebar()?.nativeElement.querySelector<HTMLAnchorElement>('a')?.focus());
+    requestAnimationFrame(() =>
+      this.sidebar()?.nativeElement.querySelector<HTMLAnchorElement>('a')?.focus(),
+    );
   }
   closeDrawer() {
     if (this.drawer() && this.mobile()) this.menu()?.nativeElement.focus();
@@ -53,8 +72,15 @@ export class Shell {
     if (!this.mobile() || !this.drawer() || event.key !== 'Tab') return;
     const items = this.sidebar()?.nativeElement.querySelectorAll<HTMLElement>('a, button');
     if (!items?.length) return;
-    const first = items[0], last = items[items.length - 1];
-    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
-    if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    const first = items[0],
+      last = items[items.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    }
+    if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   }
 }

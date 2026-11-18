@@ -1,8 +1,8 @@
 # Stage 3 maintainability
 
-Scoped rollout: quality-scope.json lists the adopted files. Untouched files remain a documented baseline; no global formatting or rule suppression is applied. New files in these refactoring surfaces must be added to this manifest.
+Following the requested repository-wide formatting pass, quality-scope.json covers maintained source, templates, styles, tests, configuration and documentation. Lint retains the scoped Stage 3 adoption list. Generated outputs, dependencies, lockfiles, agent instructions and files unsupported by Prettier are excluded; no lint rules are globally disabled.
 
-Use npm run lint and npm run format:check for checks; they never modify files. npm run format deliberately formats only the adopted scope. Prettier uses two-space indentation, single quotes, trailing commas and LF endings; Angular templates use the Angular parser. TypeScript ESLint checks typed code, unused imports/variables, explicit any and unnecessary assertions. Angular templates also receive supported accessibility rules.
+Use npm run lint and npm run format:check for checks; they never modify files. npm run format deliberately formats the maintained files listed in the manifest. Prettier uses two-space indentation, single quotes, trailing commas and LF endings; Angular templates use the Angular parser. TypeScript ESLint checks typed code, unused imports/variables, explicit any and unnecessary assertions. Angular templates also receive supported accessibility rules.
 
 ## Ownership and recovery
 

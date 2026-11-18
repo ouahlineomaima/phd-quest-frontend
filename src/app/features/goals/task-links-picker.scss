@@ -1,1 +1,58 @@
-:host{display:block}.task-picker{gap:14px}.task-picker h3{margin-bottom:6px}.selected-tasks{display:grid;gap:8px}.picked-task{display:flex;gap:12px;align-items:center;justify-content:space-between;padding:9px;background:var(--surface-raised);border-radius:8px}.picked-task span,.task-option span{overflow-wrap:anywhere;min-width:0;font-size:12px}small{display:block;color:var(--muted);font-size:10px}.picked-task .button{flex-shrink:0;font-size:10px;min-height:34px;padding:6px 9px}.task-option{display:flex;gap:10px;align-items:flex-start;margin:12px 0}.task-option input{flex-shrink:0;margin-top:5px}fieldset{padding:12px}legend{font-size:11px}select{max-width:100%}
+:host {
+  display: block;
+}
+.task-picker {
+  gap: 14px;
+}
+.task-picker h3 {
+  margin-bottom: 6px;
+}
+.selected-tasks {
+  display: grid;
+  gap: 8px;
+}
+.picked-task {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px;
+  background: var(--surface-raised);
+  border-radius: 8px;
+}
+.picked-task span,
+.task-option span {
+  overflow-wrap: anywhere;
+  min-width: 0;
+  font-size: 12px;
+}
+small {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+}
+.picked-task .button {
+  flex-shrink: 0;
+  font-size: 10px;
+  min-height: 34px;
+  padding: 6px 9px;
+}
+.task-option {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 12px 0;
+}
+.task-option input {
+  flex-shrink: 0;
+  margin-top: 5px;
+}
+fieldset {
+  padding: 12px;
+}
+legend {
+  font-size: 11px;
+}
+select {
+  max-width: 100%;
+}

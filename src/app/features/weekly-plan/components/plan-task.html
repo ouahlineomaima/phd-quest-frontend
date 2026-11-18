@@ -1,9 +1,73 @@
-<article [class.completed]="completed()" [attr.aria-busy]="saving()"><div class="row spread wrap"><div class="row wrap"><pq-badge [tone]="task().priority === 'high' ? 'gold' : 'primary'">{{ task().priority }} priority</pq-badge><pq-badge tone="muted">{{ task().isOptional ? 'Optional' : 'Mandatory' }}</pq-badge></div><pq-badge [tone]="completed() ? 'success' : 'muted'"><pq-icon [name]="completed() ? 'check' : 'clock'"/>{{ status() }}</pq-badge></div>
-<h3>{{ task().title }}</h3>@if (task().description) { <p class="description">{{ task().description }}</p> }
-<div class="task-meta"><span><pq-icon name="clock" />{{ task().estimatedMinutes }} min estimated</span><span class="gold"><pq-icon name="sparkles" />{{ task().xpReward }} potential XP</span>@if (saved(); as progress) { <span>{{ progress.actualMinutes }} min actually recorded</span> }</div>
-@if (saved()?.completedAt; as at) { <p class="completion-time">Completed {{ completedTime(at) }} · {{ timezone() }}</p> }
-@if(focusedMinutes()>0){<p class="small muted">{{focusedMinutes()}} min applied focus / tracked separately from manual actual time</p>}
-<div class="deliverable"><pq-icon name="book" /><div><span>Expected deliverable</span><p>{{ task().deliverable }}</p></div></div>
-<div class="task-bottom"><code>{{ task().id }}</code>@if (interactive() && saved()) { @if (completed()) { <button class="button" [disabled]="busy()" (click)="reopen()">{{ saving() ? 'Updating…' : 'Reopen task' }}</button> } @else { <form novalidate (submit)="complete($event)"><label [for]="'minutes-' + task().id">Actual minutes <span class="muted">(optional)</span><input [id]="'minutes-' + task().id" type="number" min="0" max="1440" step="1" [placeholder]="saved()?.firstCompletedAt ? 'Keep recorded time' : 'Leave blank'" [attr.aria-invalid]="inputError() ? 'true' : null" [attr.aria-describedby]="inputError() ? 'minutes-error-' + task().id : null" [value]="draft()" [disabled]="busy()" (input)="edit($event)" /></label><button class="button primary" type="submit" [disabled]="busy()"><pq-icon name="check" />{{ saving() ? 'Saving…' : 'Complete task' }}</button></form> } } @else { <span class="muted small">Import preview · no task actions</span> }</div>
-@if (inputError()) { <p class="field-error" role="alert" [id]="'minutes-error-' + task().id">{{ inputError() }}</p> }
+<article [class.completed]="completed()" [attr.aria-busy]="saving()">
+  <div class="row spread wrap">
+    <div class="row wrap">
+      <pq-badge [tone]="task().priority === 'high' ? 'gold' : 'primary'"
+        >{{ task().priority }} priority</pq-badge
+      ><pq-badge tone="muted">{{ task().isOptional ? 'Optional' : 'Mandatory' }}</pq-badge>
+    </div>
+    <pq-badge [tone]="completed() ? 'success' : 'muted'"
+      ><pq-icon [name]="completed() ? 'check' : 'clock'" />{{ status() }}</pq-badge
+    >
+  </div>
+  <h3>{{ task().title }}</h3>
+  @if (task().description) {
+    <p class="description">{{ task().description }}</p>
+  }
+  <div class="task-meta">
+    <span><pq-icon name="clock" />{{ task().estimatedMinutes }} min estimated</span
+    ><span class="gold"><pq-icon name="sparkles" />{{ task().xpReward }} potential XP</span>
+    @if (saved(); as progress) {
+      <span>{{ progress.actualMinutes }} min actually recorded</span>
+    }
+  </div>
+  @if (saved()?.completedAt; as at) {
+    <p class="completion-time">Completed {{ completedTime(at) }} · {{ timezone() }}</p>
+  }
+  @if (focusedMinutes() > 0) {
+    <p class="small muted">
+      {{ focusedMinutes() }} min applied focus / tracked separately from manual actual time
+    </p>
+  }
+  <div class="deliverable">
+    <pq-icon name="book" />
+    <div>
+      <span>Expected deliverable</span>
+      <p>{{ task().deliverable }}</p>
+    </div>
+  </div>
+  <div class="task-bottom">
+    <code>{{ task().id }}</code>
+    @if (interactive() && saved()) {
+      @if (completed()) {
+        <button class="button" [disabled]="busy()" (click)="reopen()">
+          {{ saving() ? 'Updating…' : 'Reopen task' }}
+        </button>
+      } @else {
+        <form novalidate (submit)="complete($event)">
+          <label [for]="'minutes-' + task().id"
+            >Actual minutes <span class="muted">(optional)</span
+            ><input
+              [id]="'minutes-' + task().id"
+              type="number"
+              min="0"
+              max="1440"
+              step="1"
+              [placeholder]="saved()?.firstCompletedAt ? 'Keep recorded time' : 'Leave blank'"
+              [attr.aria-invalid]="inputError() ? 'true' : null"
+              [attr.aria-describedby]="inputError() ? 'minutes-error-' + task().id : null"
+              [value]="draft()"
+              [disabled]="busy()"
+              (input)="edit($event)" /></label
+          ><button class="button primary" type="submit" [disabled]="busy()">
+            <pq-icon name="check" />{{ saving() ? 'Saving…' : 'Complete task' }}
+          </button>
+        </form>
+      }
+    } @else {
+      <span class="muted small">Import preview · no task actions</span>
+    }
+  </div>
+  @if (inputError()) {
+    <p class="field-error" role="alert" [id]="'minutes-error-' + task().id">{{ inputError() }}</p>
+  }
 </article>

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+out-tsc/
+.angular/
+.artifacts/
+coverage/
+backups/
+dump/
+package-lock.json
+**/AGENTS.md

@@ -1,73 +1,20 @@
 {
   "schemaVersion": 1,
   "enums": {
-    "SkillLevel": [
-      0,
-      1,
-      2,
-      3,
-      4
-    ],
-    "SkillSourceType": [
-      "weekly_task",
-      "research_goal",
-      "roadmap_checkpoint"
-    ],
-    "EvidenceType": [
-      "note",
-      "external_link"
-    ],
-    "SupervisorRole": [
-      "primary",
-      "co_supervisor",
-      "other"
-    ],
-    "MeetingType": [
-      "in_person",
-      "online",
-      "hybrid"
-    ],
-    "MeetingStatus": [
-      "scheduled",
-      "completed",
-      "cancelled"
-    ],
-    "MeetingActionPhase": [
-      "pre_meeting",
-      "post_meeting"
-    ],
-    "MeetingActionStatus": [
-      "pending",
-      "in_progress",
-      "completed"
-    ],
-    "GoalStatus": [
-      "active",
-      "completed",
-      "archived"
-    ],
-    "GoalType": [
-      "weekly",
-      "monthly",
-      "research"
-    ],
-    "TaskStatus": [
-      "pending",
-      "completed"
-    ],
-    "FocusMode": [
-      "countdown",
-      "stopwatch"
-    ],
-    "FocusCompletion": [
-      "target-reached",
-      "stopped-early"
-    ],
-    "RoadmapStatus": [
-      "current",
-      "locked",
-      "completed"
-    ]
+    "SkillLevel": [0, 1, 2, 3, 4],
+    "SkillSourceType": ["weekly_task", "research_goal", "roadmap_checkpoint"],
+    "EvidenceType": ["note", "external_link"],
+    "SupervisorRole": ["primary", "co_supervisor", "other"],
+    "MeetingType": ["in_person", "online", "hybrid"],
+    "MeetingStatus": ["scheduled", "completed", "cancelled"],
+    "MeetingActionPhase": ["pre_meeting", "post_meeting"],
+    "MeetingActionStatus": ["pending", "in_progress", "completed"],
+    "GoalStatus": ["active", "completed", "archived"],
+    "GoalType": ["weekly", "monthly", "research"],
+    "TaskStatus": ["pending", "completed"],
+    "FocusMode": ["countdown", "stopwatch"],
+    "FocusCompletion": ["target-reached", "stopped-early"],
+    "RoadmapStatus": ["current", "locked", "completed"]
   },
   "responses": {
     "ResearchSkill": [
@@ -96,13 +43,7 @@
       "sortOrder",
       "archivedAt"
     ],
-    "ProficiencyChange": [
-      "id",
-      "fromLevel",
-      "toLevel",
-      "changedAt",
-      "justification"
-    ],
+    "ProficiencyChange": ["id", "fromLevel", "toLevel", "changedAt", "justification"],
     "Association": [
       "sourceType",
       "sourceId",
