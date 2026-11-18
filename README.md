@@ -103,3 +103,9 @@ After each completed semantic unit, review, validate and create a short human-fr
 Skill, category, meeting, action/evidence and supervisor editors send the version originally loaded with each update. A stale save keeps the draft and offers **Inspect latest record** or **Discard draft and reload**; it never retries with a newer version automatically. After a restore, reload any open editors before saving. Refresh the frontend when upgrading the backend: older clients without the required If-Match header receive VERSION_REQUIRED.
 
 Browser writes use JSON and must come from an exact backend CORS_ORIGINS entry (normally http://localhost:4200); the Angular development proxy preserves the browser Origin. Stage 1 browser verification lives in the backend test/safety/browser.check.cjs and uses an owned disposable database, not the running application's data.
+
+### Stage 2 domain contracts
+
+Canonical enum wire values and required Skill/Meeting response fields are checked against docs/contracts/domain-values.v1.json with `node --test test/domain-contract.test.cjs`. Proficiency history uses the required changedAt field. Dashboard and achievement navigation is read-only; **Check eligible achievements** explicitly reconciles older eligible records.
+
+Checkpoint links carry optional immutable checkpointIdentity values. Replaced checkpoints stay unavailable; identity-less historical links and old backups show unverified checkpoint progress until explicitly unlinked/relinked. Confirmed proficiency and manual action status are preserved. Refresh existing frontend tabs when upgrading.

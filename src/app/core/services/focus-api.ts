@@ -1,10 +1,11 @@
+import {FocusMode,FocusCompletion,TaskStatus} from '../../shared/models/domain.enums';
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { timeout } from 'rxjs';
-export interface FocusSession {sessionId:string;mode:'countdown'|'stopwatch';targetSeconds:number|null;startedAt:string;endedAt:string;focusedSeconds:number;taskRef:string|null;taskTitle:string|null;completionType:'target-reached'|'stopped-early';appliedAt:string|null;appliedMinutes:number;}
+export interface FocusSession {sessionId:string;mode:FocusMode;targetSeconds:number|null;startedAt:string;endedAt:string;focusedSeconds:number;taskRef:string|null;taskTitle:string|null;completionType:FocusCompletion;appliedAt:string|null;appliedMinutes:number;}
 export interface FocusHistory {items:FocusSession[];total:number;page:number;limit:number;}
 export interface FocusSummary {timezone:string;today:string;weekId:string;todayMinutes:number;weekMinutes:number;overallMinutes:number;sessionCount:number;completedCountdowns:number;}
-export interface ApplicationPreview {session:FocusSession;task:{title:string;status:string;manualActualMinutes:number;appliedFocusMinutes:number}|null;proposedMinutes:number;}
+export interface ApplicationPreview {session:FocusSession;task:{title:string;status:TaskStatus;manualActualMinutes:number;appliedFocusMinutes:number}|null;proposedMinutes:number;}
 @Injectable({providedIn:'root'})
 export class FocusApi {
   private readonly http=inject(HttpClient);

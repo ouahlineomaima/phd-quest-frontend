@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "enums": {
+    "SkillLevel": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "SkillSourceType": [
+      "weekly_task",
+      "research_goal",
+      "roadmap_checkpoint"
+    ],
+    "EvidenceType": [
+      "note",
+      "external_link"
+    ],
+    "SupervisorRole": [
+      "primary",
+      "co_supervisor",
+      "other"
+    ],
+    "MeetingType": [
+      "in_person",
+      "online",
+      "hybrid"
+    ],
+    "MeetingStatus": [
+      "scheduled",
+      "completed",
+      "cancelled"
+    ],
+    "MeetingActionPhase": [
+      "pre_meeting",
+      "post_meeting"
+    ],
+    "MeetingActionStatus": [
+      "pending",
+      "in_progress",
+      "completed"
+    ],
+    "GoalStatus": [
+      "active",
+      "completed",
+      "archived"
+    ],
+    "GoalType": [
+      "weekly",
+      "monthly",
+      "research"
+    ],
+    "TaskStatus": [
+      "pending",
+      "completed"
+    ],
+    "FocusMode": [
+      "countdown",
+      "stopwatch"
+    ],
+    "FocusCompletion": [
+      "target-reached",
+      "stopped-early"
+    ],
+    "RoadmapStatus": [
+      "current",
+      "locked",
+      "completed"
+    ]
+  },
+  "responses": {
+    "ResearchSkill": [
+      "id",
+      "editVersion",
+      "name",
+      "categoryId",
+      "proficiency",
+      "prerequisiteIds",
+      "associations",
+      "evidence",
+      "proficiencyHistory",
+      "targeted",
+      "untargeted",
+      "effectiveArchived",
+      "categoryName",
+      "archivedAt"
+    ],
+    "SkillCategory": [
+      "id",
+      "editVersion",
+      "name",
+      "description",
+      "icon",
+      "color",
+      "sortOrder",
+      "archivedAt"
+    ],
+    "ProficiencyChange": [
+      "id",
+      "fromLevel",
+      "toLevel",
+      "changedAt",
+      "justification"
+    ],
+    "Association": [
+      "sourceType",
+      "sourceId",
+      "targetLevel",
+      "title",
+      "missing",
+      "completed",
+      "resolution"
+    ],
+    "Meeting": [
+      "id",
+      "editVersion",
+      "title",
+      "scheduledAt",
+      "scheduledLocal",
+      "scheduledLabel",
+      "notes",
+      "supervisorIds",
+      "supervisors",
+      "actions",
+      "goalIds",
+      "checkpointRefs",
+      "linkedGoals",
+      "linkedCheckpoints",
+      "documents",
+      "status",
+      "archivedAt"
+    ],
+    "MeetingAction": [
+      "id",
+      "meetingId",
+      "meetingVersion",
+      "phase",
+      "status",
+      "linkedTaskIds",
+      "linkedTasks",
+      "progress"
+    ],
+    "Supervisor": [
+      "id",
+      "editVersion",
+      "name",
+      "role",
+      "institution",
+      "email",
+      "notes",
+      "archivedAt"
+    ]
+  }
+}

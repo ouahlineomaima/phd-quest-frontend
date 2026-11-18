@@ -1,3 +1,4 @@
+import {TaskStatus} from '../../../shared/models/domain.enums';
 // Wire format: backend docs/contracts/weekly-plan.v1.schema.json. No progress fields in imports.
 import type { GamificationSummary } from '../../../core/services/gamification.service';
 export interface PlanTaskInput {
@@ -8,7 +9,7 @@ export interface WeeklyPlanInput {
   schemaVersion: 1; weekId: string; startDate: string; endDate: string;
   title: string; objectives: string[]; tasks: PlanTaskInput[]; notes?: string;
 }
-export interface SavedTask extends PlanTaskInput { status: 'pending' | 'completed'; actualMinutes: number; completedAt: string | null; firstCompletedAt?: string | null; }
+export interface SavedTask extends PlanTaskInput { status:TaskStatus; actualMinutes: number; completedAt: string | null; firstCompletedAt?: string | null; }
 export interface WeeklyProgress {
   totalTasks: number; completedTasks: number; completionPercent: number; completedEstimatedMinutes: number;
   actualRecordedMinutes: number; potentialXp: number; earnedXp: number;

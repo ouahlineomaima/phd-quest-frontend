@@ -11,5 +11,6 @@ export class Achievements {
  readonly gamification=inject(GamificationState);readonly achievements=signal<Achievement[]>([]);readonly loading=signal(true);readonly error=signal('');
  readonly unlocked=computed(()=>this.achievements().filter(a=>a.unlockedAt).length);
  constructor(){this.load();}
+ evaluate(){this.loading.set(true);this.error.set('');this.api.change<Achievement[]>('POST','achievements/evaluate',{}).pipe(takeUntilDestroyed(this.destroy)).subscribe({next:items=>{this.achievements.set(items);this.loading.set(false);},error:e=>{this.error.set(researchError(e));this.loading.set(false);}});}
  load(){this.loading.set(true);this.error.set('');this.api.get<Achievement[]>('achievements').pipe(takeUntilDestroyed(this.destroy)).subscribe({next:items=>{this.achievements.set(items);this.loading.set(false);},error:e=>{this.error.set(researchError(e));this.loading.set(false);}});}
 }
