@@ -1,4 +1,5 @@
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { SkillsSummaryCard } from '../skills/skills-summary';
 import { MeetingSummaryCard } from '../supervisor-meetings/meeting-summary';
 import { RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -15,7 +16,7 @@ export interface DashboardData {
  goals:{activeCount:number;items:Goal[]};achievements:{total:number;unlocked:number;recent:Achievement[]};
  recentActivity:{eventId:string;date:string;occurredAt:string;planId:string;taskId:string}[];
 }
-@Component({selector:'pq-dashboard',standalone:true,imports:[MeetingSummaryCard,RouterLink,Badge,Card,EmptyState,Loading,PageHeader,Progress,Ring,SectionHeading,Stat,Icon],templateUrl:'./dashboard.html',styleUrl:'./dashboard.scss'})
+@Component({selector:'pq-dashboard',standalone:true,imports:[SkillsSummaryCard,MeetingSummaryCard,RouterLink,Badge,Card,EmptyState,Loading,PageHeader,Progress,Ring,SectionHeading,Stat,Icon],templateUrl:'./dashboard.html',styleUrl:'./dashboard.scss'})
 export class Dashboard {
  private readonly api=inject(ResearchApi);private readonly destroy=inject(DestroyRef);private readonly gamification=inject(GamificationState);
  readonly data=signal<DashboardData|null>(null);readonly loading=signal(true);readonly error=signal('');

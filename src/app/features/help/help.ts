@@ -6,7 +6,7 @@ import { PLANNING_PROMPTS } from './planning-prompts';
 @Component({selector:'pq-help',standalone:true,imports:[RouterLink,Badge,Card,PageHeader,Icon],templateUrl:'./help.html',styleUrl:'./help.scss'})
 export class Help {
   readonly prompts=PLANNING_PROMPTS;readonly copied=signal('');readonly copyError=signal('');
-  readonly sections=[['welcome','Welcome'],['getting-started','Getting started'],['roadmap-guide','Three-year roadmap'],['weekly-guide','Weekly planning'],['connected-guide','Goals & connections'],['focus-guide','Research Focus Timer'],['meetings-guide','Supervisor meetings'],['gamification-guide','Gamification'],['recovery-guide','Backup & recovery'],['troubleshooting','Troubleshooting'],['toolkit','ChatGPT toolkit'],['examples','JSON examples']];
+  readonly sections=[['welcome','Welcome'],['getting-started','Getting started'],['roadmap-guide','Three-year roadmap'],['weekly-guide','Weekly planning'],['connected-guide','Goals & connections'],['focus-guide','Research Focus Timer'],['meetings-guide','Supervisor meetings'],['skills-guide','Research Skill Tree'],['gamification-guide','Gamification'],['recovery-guide','Backup & recovery'],['troubleshooting','Troubleshooting'],['toolkit','ChatGPT toolkit'],['examples','JSON examples']];
   readonly installation=`mkdir phd-quest
 cd phd-quest
 git clone https://github.com/ouahlineomaima/phd-quest-backend.git

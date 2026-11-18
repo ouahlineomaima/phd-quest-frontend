@@ -5,6 +5,7 @@ export const NAVIGATION = [
   { path: '/supervisor-meetings', title: 'Supervisor meetings', icon: 'meetings' },
   { path: '/roadmap', title: 'Roadmap', icon: 'roadmap' },
   { path: '/goals', title: 'Goals', icon: 'target' },
+  { path: '/skills', title: 'Research Skill Tree', icon: 'skills' },
   { path: '/achievements', title: 'Achievements', icon: 'trophy' },
   { path: '/settings', title: 'Settings', icon: 'settings' },
   { path: '/help', title: 'Help & Guide', icon: 'book' },

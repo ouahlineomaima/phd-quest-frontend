@@ -8,7 +8,7 @@ import { SavedWeeklyPlan, WeekSummary } from '../weekly-plan/models/weekly-plan.
 export class TaskLinksPicker {
  private readonly api=inject(ResearchApi);private readonly destroy=inject(DestroyRef);private listRequest?:Subscription;private detailRequest?:Subscription;
  readonly active=input(false);readonly disabled=input(false);readonly selected=input<string[]>([]);readonly existing=input<LinkedTask[]>([]);readonly changed=output<string[]>();
- readonly context=input<'goal'|'action'>('goal');
+ readonly context=input<'goal'|'action'|'skill'>('goal');
  readonly weeks=signal<WeekSummary[]>([]);readonly plan=signal<SavedWeeklyPlan|null>(null);readonly selectedWeek=signal('');readonly loaded=signal<LinkedTask[]>([]);readonly search=signal('');readonly loading=signal(false);readonly error=signal('');
  readonly picked=computed(()=>this.selected().map(source=>this.loaded().find(task=>task.sourceId===source)??this.existing().find(task=>task.sourceId===source)??{sourceId:source,title:source,weekId:source.split(':')[0],date:''}));
  readonly groups=computed(()=>{const plan=this.plan();if(!plan)return [];const query=this.search().trim().toLowerCase();const tasks=plan.tasks.filter(task=>(task.title+' '+task.date).toLowerCase().includes(query));return [...new Set(tasks.map(task=>task.date))].sort().map(date=>({date,tasks:tasks.filter(task=>task.date===date)}));});

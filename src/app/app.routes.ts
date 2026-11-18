@@ -11,6 +11,7 @@ export const routes: Routes = [{
     { path: 'supervisor-meetings/:id', loadComponent: () => import('./features/supervisor-meetings/supervisor-meetings').then(m => m.SupervisorMeetings) },
     { path: 'roadmap', loadComponent: () => import('./features/roadmap/roadmap').then(m => m.Roadmap) },
     { path: 'goals', loadComponent: () => import('./features/goals/goals').then(m => m.Goals) },
+    { path: 'skills', loadComponent: () => import('./features/skills/skills').then(m => m.Skills) },
     { path: 'achievements', loadComponent: () => import('./features/achievements/achievements').then(m => m.Achievements) },
     { path: 'settings', loadComponent: () => import('./features/settings/settings').then(m => m.Settings) },
     { path: 'help', loadComponent: () => import('./features/help/help').then(m => m.Help) },

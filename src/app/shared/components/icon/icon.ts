@@ -1,6 +1,7 @@
 import { Component, computed, input } from '@angular/core';
 
 const paths: Record<string, readonly string[]> = {
+  skills: ['M12 3v6M5 14V9h14v5M12 9v5','M3 14h4v6H3zM10 14h4v6h-4zM17 14h4v6h-4z','M10 1h4v4h-4z'],
   meetings: ['M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2','M12 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0','M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75'],
   dashboard: ['M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z'],
   calendar: ['M8 2v4M16 2v4M3 10h18', 'M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z', 'M7 14h3M14 14h3M7 18h3'],
