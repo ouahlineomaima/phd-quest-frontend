@@ -12,9 +12,11 @@ export interface Achievement { code: string; title: string; description: string;
 export class ResearchApi {
   private readonly http = inject(HttpClient);
   get<T>(path: string) { return this.http.get<T>('/api/' + path).pipe(timeout(15000)); }
-  change<T>(method: 'POST' | 'PATCH' | 'DELETE', path: string, body: unknown) { return this.http.request<T>(method, '/api/' + path, { body }).pipe(timeout(30000)); }
+  change<T>(method: 'POST' | 'PATCH' | 'DELETE', path: string, body: unknown, version?:string) { return this.http.request<T>(method, '/api/' + path, { body, ...(version?{headers:{'If-Match':JSON.stringify(version)}}:{}) }).pipe(timeout(30000)); }
 }
 export function researchError(error: unknown): string {
   if (error instanceof HttpErrorResponse && error.status >= 400 && error.status < 500) return typeof error.error?.message === 'string' ? error.error.message : 'Check the supplied fields and try again.';
   return 'The request could not be confirmed. Reload to check the saved state, then try again.';
 }
+
+export function staleRecord(error:unknown):boolean{return error instanceof HttpErrorResponse&&error.status===409&&error.error?.code==='STALE_RECORD';}

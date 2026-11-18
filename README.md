@@ -97,3 +97,9 @@ Run a production build after meaningful UI changes. Confirm startup, direct rout
 A temporary playwright-core installation outside the repository drove the existing Chrome browser for a lightweight smoke pass. No test framework or production dependency was added. Generated screenshots and the local smoke script are in ignored .artifacts/. See docs/PHASE3.md for results, screenshots and limitations.
 
 After each completed semantic unit, review, validate and create a short human-friendly Conventional Commit locally. Push only when authentication is already working; unavailable authentication must not block implementation. Do not force-push or commit secrets, dependency directories, build outputs or QA artifacts. Stop at the requested phase.
+
+### Concurrent edits (Stage 1)
+
+Skill, category, meeting, action/evidence and supervisor editors send the version originally loaded with each update. A stale save keeps the draft and offers **Inspect latest record** or **Discard draft and reload**; it never retries with a newer version automatically. After a restore, reload any open editors before saving. Refresh the frontend when upgrading the backend: older clients without the required If-Match header receive VERSION_REQUIRED.
+
+Browser writes use JSON and must come from an exact backend CORS_ORIGINS entry (normally http://localhost:4200); the Angular development proxy preserves the browser Origin. Stage 1 browser verification lives in the backend test/safety/browser.check.cjs and uses an owned disposable database, not the running application's data.
