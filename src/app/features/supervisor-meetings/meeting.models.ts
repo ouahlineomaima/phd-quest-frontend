@@ -1,7 +1,88 @@
-import {SupervisorRole,MeetingType,MeetingStatus,MeetingActionPhase,MeetingActionStatus,TaskStatus,GoalStatus} from '../../shared/models/domain.enums';
-import { LinkedTask } from '../../core/services/research-api';
-export interface Supervisor {editVersion:string;id:string;name:string;role:SupervisorRole;institution:string;email:string;notes:string;archivedAt:string|null;missing?:boolean;}
-export interface CheckpointRef {levelNumber:number;checkpointId:string;checkpointIdentity?:string;}
-export interface MeetingAction {meetingVersion:string;id:string;meetingId:string;phase:MeetingActionPhase;title:string;description:string;dueDate:string|null;status:MeetingActionStatus;linkedTaskIds:string[];linkedTasks:(Omit<LinkedTask,'status'>&{status:TaskStatus|null;missing?:boolean})[];progress:{completed:number;total:number;linked:number;missing:number;percentage:number|null};meetingTitle?:string;meetingArchived?:boolean;overdue?:boolean;}
-export interface Meeting {editVersion:string;id:string;title:string;scheduledAt:string;scheduledLabel:string;scheduledLocal:string;plannedDurationMinutes:number|null;type:MeetingType;location:string;status:MeetingStatus;supervisorIds:string[];supervisors:(Supervisor|{id:string;name:string;missing:true;archivedAt:null})[];notes:{agenda:string;discussion:string;feedback:string;decisions:string};goalIds:string[];checkpointRefs:CheckpointRef[];linkedGoals:{id:string;title:string;status:GoalStatus|null;missing:boolean}[];linkedCheckpoints:(CheckpointRef&{title:string;completed:boolean|null;missing:boolean;resolution:'resolved'|'missing'|'unverified'})[];documents:{label:string;url:string}[];actions:MeetingAction[];archivedAt:string|null;}
-export interface MeetingSummary {timezone:string;today:string;upcoming:number;completed:number;pending:number;preparation:number;followUp:number;overdue:number;nextMeeting:{id:string;title:string;scheduledAt:string;scheduledLabel:string}|null;}
+import type {
+  SupervisorRole,
+  MeetingType,
+  MeetingStatus,
+  MeetingActionPhase,
+  MeetingActionStatus,
+  TaskStatus,
+  GoalStatus,
+} from '../../shared/models/domain.enums';
+import type { LinkedTask } from '../../core/services/research-api';
+export interface Supervisor {
+  editVersion: string;
+  id: string;
+  name: string;
+  role: SupervisorRole;
+  institution: string;
+  email: string;
+  notes: string;
+  archivedAt: string | null;
+  missing?: boolean;
+}
+export interface CheckpointRef {
+  levelNumber: number;
+  checkpointId: string;
+  checkpointIdentity?: string;
+}
+export interface MeetingAction {
+  meetingVersion: string;
+  id: string;
+  meetingId: string;
+  phase: MeetingActionPhase;
+  title: string;
+  description: string;
+  dueDate: string | null;
+  status: MeetingActionStatus;
+  linkedTaskIds: string[];
+  linkedTasks: (Omit<LinkedTask, 'status'> & { status: TaskStatus | null; missing?: boolean })[];
+  progress: {
+    completed: number;
+    total: number;
+    linked: number;
+    missing: number;
+    percentage: number | null;
+  };
+  meetingTitle?: string;
+  meetingArchived?: boolean;
+  overdue?: boolean;
+}
+export interface Meeting {
+  editVersion: string;
+  id: string;
+  title: string;
+  scheduledAt: string;
+  scheduledLabel: string;
+  scheduledLocal: string;
+  plannedDurationMinutes: number | null;
+  type: MeetingType;
+  location: string;
+  status: MeetingStatus;
+  supervisorIds: string[];
+  supervisors: (Supervisor | { id: string; name: string; missing: true; archivedAt: null })[];
+  notes: { agenda: string; discussion: string; feedback: string; decisions: string };
+  goalIds: string[];
+  checkpointRefs: CheckpointRef[];
+  linkedGoals: { id: string; title: string; status: GoalStatus | null; missing: boolean }[];
+  linkedCheckpoints: (CheckpointRef & {
+    title: string;
+    completed: boolean | null;
+    missing: boolean;
+    resolution: 'resolved' | 'missing' | 'unverified';
+  })[];
+  documents: { label: string; url: string }[];
+  actions: MeetingAction[];
+  archivedAt: string | null;
+}
+export interface MeetingSummary {
+  timezone: string;
+  today: string;
+  upcoming: number;
+  completed: number;
+  pending: number;
+  preparation: number;
+  followUp: number;
+  overdue: number;
+  nextMeeting: { id: string; title: string; scheduledAt: string; scheduledLabel: string } | null;
+}
+
+export type MeetingDetail = Meeting & { timezone: string };

@@ -1,98 +1,75 @@
-import { StaleConflict } from '../../shared/components/stale-conflict';
 import { Component, DestroyRef, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { forkJoin, Subscription, Observable } from 'rxjs';
 import { Badge, Card, EmptyState, Loading, PageHeader } from '../../shared/components/ui';
-import {
-  Goal,
-  LinkedTask,
-  ResearchApi,
-  ResearchLevel,
-  researchError,
-  staleRecord,
-} from '../../core/services/research-api';
-import { TaskLinksPicker } from '../goals/task-links-picker';
+import { StaleConflict } from '../../shared/components/stale-conflict';
+import { ReferenceStatusNotice } from '../../shared/components/reference-status';
+import { EditorFeedback } from '../../shared/state/editor-feedback';
+import { ResearchReferences } from '../../shared/state/research-references';
+import { MeetingsFacade } from './meetings-facade';
+import { MeetingClock } from './meeting-clock';
+import { partitionMeetings } from './meeting-time-state';
+import { MeetingDetail } from './meeting-detail';
+import { MeetingEditors } from './meeting-editors';
 import { ActionCard } from './action-card';
-import {
-  CheckpointRef,
-  Meeting,
-  MeetingAction,
-  MeetingSummary,
-  Supervisor,
-} from './meeting.models';
-function blankMeeting() {
-  return {
-    title: '',
-    scheduledLocal: '',
-    plannedDurationMinutes: '',
-    type: 'online',
-    location: '',
-    supervisorIds: [] as string[],
-    notes: { agenda: '', discussion: '', feedback: '', decisions: '' },
-    goalIds: [] as string[],
-    checkpointRefs: [] as CheckpointRef[],
-    documents: [] as { label: string; url: string }[],
-  };
-}
 @Component({
   selector: 'pq-supervisor-meetings',
   standalone: true,
+  providers: [MeetingsFacade, EditorFeedback, ResearchReferences, MeetingClock],
   imports: [
-    StaleConflict,
     RouterLink,
     Badge,
     Card,
     EmptyState,
     Loading,
     PageHeader,
-    TaskLinksPicker,
+    StaleConflict,
+    ReferenceStatusNotice,
     ActionCard,
+    MeetingDetail,
+    MeetingEditors,
   ],
   templateUrl: './supervisor-meetings.html',
   styleUrl: './supervisor-meetings.scss',
 })
 export class SupervisorMeetings {
-  readonly conflictDraft = signal('');
-  readonly latestRecord = signal('');
-  private conflictPath = '';
-  private draftVersion?: string;
-  private actionVersions: Record<string, string> = {};
-  private readonly api = inject(ResearchApi);
-  private readonly destroy = inject(DestroyRef);
+  readonly state = inject(MeetingsFacade);
+  readonly feedback = inject(EditorFeedback);
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private request?: Subscription;
-  readonly loading = signal(true);
-  readonly busy = signal(false);
-  readonly error = signal('');
-  readonly success = signal('');
-  readonly supervisors = signal<Supervisor[]>([]);
-  readonly meetings = signal<Meeting[]>([]);
-  readonly current = signal<Meeting | null>(null);
-  readonly summary = signal<MeetingSummary | null>(null);
-  readonly actions = signal<MeetingAction[]>([]);
-  readonly goals = signal<Goal[]>([]);
-  readonly levels = signal<ResearchLevel[]>([]);
-  readonly activeSupervisors = computed(() => this.supervisors().filter((s) => !s.archivedAt));
-  readonly upcoming = computed(() =>
-    this.meetings().filter(
-      (m) => m.status === 'scheduled' && Date.parse(m.scheduledAt) >= Date.now(),
-    ),
-  );
-  readonly history = computed(() =>
-    this.meetings()
-      .filter((m) => m.status !== 'scheduled' || Date.parse(m.scheduledAt) < Date.now())
-      .slice()
-      .reverse(),
-  );
+  private readonly destroy = inject(DestroyRef);
+  private readonly clock = inject(MeetingClock);
+  readonly loading = this.state.loading;
+  readonly busy = computed(() => this.feedback.busy() || this.loading());
+  readonly error = computed(() => this.state.error() || this.feedback.error());
+  readonly success = this.feedback.success;
+  readonly conflictDraft = this.feedback.conflictDraft;
+  readonly latestRecord = this.feedback.latestRecord;
+  readonly supervisors = this.state.supervisors;
+  readonly meetings = this.state.meetings;
+  readonly current = this.state.current;
+  readonly summary = this.state.summary;
+  readonly actions = this.state.actions;
+  readonly supervisorArchive = signal('active');
   readonly shownSupervisors = computed(() =>
     this.supervisors().filter(
       (s) =>
-        this.supervisorArchive === 'all' ||
-        (this.supervisorArchive === 'archived' ? !!s.archivedAt : !s.archivedAt),
+        this.supervisorArchive() === 'all' ||
+        (this.supervisorArchive() === 'archived' ? !!s.archivedAt : !s.archivedAt),
     ),
   );
+  readonly timeline = computed(() => partitionMeetings(this.meetings(), this.clock.now()));
+  readonly upcoming = computed(() => this.timeline().upcoming);
+  readonly history = computed(() => this.timeline().history);
+  tab = 'upcoming';
+  status = '';
+  supervisorId = '';
+  archived = 'active';
+  actionPhase = '';
+  actionStatus = 'open';
+  actionDue = 'all';
+  actionDueDate = '';
+  actionMeeting = '';
+  actionArchived = 'active';
   readonly actionMeetingOptions = computed(() => [
     ...new Map(
       [
@@ -101,88 +78,6 @@ export class SupervisorMeetings {
       ].map((m) => [m.id, m]),
     ).values(),
   ]);
-  readonly actionEditorOpen = signal(false);
-  readonly taskIds = signal<string[]>([]);
-  tab = 'upcoming';
-  status = '';
-  supervisorId = '';
-  archived = 'active';
-  supervisorArchive = 'active';
-  actionPhase = '';
-  actionStatus = 'open';
-  actionDue = 'all';
-  actionDueDate = '';
-  actionMeeting = '';
-  actionArchived = 'active';
-  actionParentId = '';
-  meetingForm = blankMeeting();
-  editingMeeting: Meeting | null = null;
-  editingSupervisor: Supervisor | null = null;
-  supervisorForm = { name: '', role: 'primary', institution: '', email: '', notes: '' };
-  editingAction: MeetingAction | null = null;
-  actionForm = { title: '', description: '', phase: 'pre_meeting', dueDate: '', status: 'pending' };
-  confirmTitle = '';
-  confirmMessage = '';
-  private confirmed: (() => void) | null = null;
-  readonly noteSections = [
-    ['agenda', 'Agenda'],
-    ['discussion', 'Discussion notes'],
-    ['feedback', 'Supervisor feedback'],
-    ['decisions', 'Decisions'],
-  ] as const;
-  readonly phases = ['pre_meeting', 'post_meeting'] as const;
-  constructor() {
-    this.route.paramMap.pipe(takeUntilDestroyed(this.destroy)).subscribe(() => this.load());
-  }
-  timezone() {
-    return this.summary()?.timezone ?? 'Africa/Casablanca';
-  }
-  time(value: string) {
-    return new Intl.DateTimeFormat(undefined, {
-      timeZone: this.timezone(),
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(new Date(value));
-  }
-  load() {
-    this.request?.unsubscribe();
-    this.loading.set(true);
-    this.error.set('');
-    const id = this.route.snapshot.paramMap.get('id');
-    this.request = forkJoin({
-      supervisors: this.api.supervisors('?archived=all'),
-      meetings: this.api.meetings(
-        '?' +
-          new URLSearchParams({
-            archived: this.archived,
-            ...(this.status ? { status: this.status } : {}),
-            ...(this.supervisorId ? { supervisorId: this.supervisorId } : {}),
-          }),
-      ),
-      summary: this.api.get<MeetingSummary>('supervisor-meetings/summary'),
-      actions: this.api.meetingActions('?' + this.actionQuery()),
-      goals: this.api.get<Goal[]>('goals'),
-      levels: this.api.get<ResearchLevel[]>('roadmap'),
-      ...(id ? { detail: this.api.meeting(id) } : {}),
-    })
-      .pipe(takeUntilDestroyed(this.destroy))
-      .subscribe({
-        next: (data) => {
-          this.supervisors.set(data.supervisors);
-          this.meetings.set(data.meetings.items);
-          this.summary.set(data.summary);
-          this.actions.set(data.actions.items);
-          this.goals.set(data.goals);
-          this.levels.set(data.levels);
-          this.current.set('detail' in data ? (data.detail as Meeting) : null);
-          this.loading.set(false);
-        },
-        error: (e) => {
-          this.error.set(researchError(e));
-          this.loading.set(false);
-        },
-      });
-  }
   actionQuery() {
     return new URLSearchParams({
       archived: this.actionArchived,
@@ -193,299 +88,37 @@ export class SupervisorMeetings {
       ...(this.actionDueDate ? { dueDate: this.actionDueDate } : {}),
     });
   }
-  loadActions() {
-    this.error.set('');
-    this.loading.set(true);
-    this.api
-      .meetingActions('?' + this.actionQuery())
-      .pipe(takeUntilDestroyed(this.destroy))
-      .subscribe({
-        next: (data) => {
-          this.actions.set(data.items);
-          this.loading.set(false);
-        },
-        error: (e) => {
-          this.error.set(researchError(e));
-          this.loading.set(false);
-        },
-      });
+  constructor() {
+    this.clock.connect(this.meetings, () => this.state.loadSummary());
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroy)).subscribe(() => this.load());
   }
-  showSupervisors(value: string) {
-    this.supervisorArchive = value;
-    this.supervisors.update((items) => [...items]);
+  timezone(): string {
+    return this.state.timezone();
   }
-  count(phase: string) {
-    const actions = this.current()?.actions.filter((a) => a.phase === phase) ?? [];
-    return `${actions.filter((a) => a.status === 'completed').length} / ${actions.length} manually completed`;
-  }
-  phaseActions(phase: string) {
-    return this.current()?.actions.filter((a) => a.phase === phase) ?? [];
-  }
-  openSupervisor(profile: Supervisor | null, dialog: HTMLDialogElement) {
-    this.draftVersion = profile?.editVersion;
-    this.editingSupervisor = profile;
-    this.supervisorForm = {
-      name: profile?.name ?? '',
-      role: profile?.role ?? 'primary',
-      institution: profile?.institution ?? '',
-      email: profile?.email ?? '',
-      notes: profile?.notes ?? '',
-    };
-    this.conflictDraft.set('');
-    this.latestRecord.set('');
-    this.error.set('');
-    dialog.showModal();
-  }
-  saveSupervisor(event: Event, dialog: HTMLDialogElement) {
-    event.preventDefault();
-    this.mutate(
-      this.editingSupervisor ? 'PATCH' : 'POST',
-      'supervisors' + (this.editingSupervisor ? '/' + this.editingSupervisor.id : ''),
-      this.supervisorForm,
-      dialog,
-    );
-  }
-  openMeeting(meeting: Meeting | null, dialog: HTMLDialogElement) {
-    this.draftVersion = meeting?.editVersion;
-    this.editingMeeting = meeting;
-    this.meetingForm = meeting
-      ? {
-          title: meeting.title,
-          scheduledLocal: meeting.scheduledLocal,
-          plannedDurationMinutes: meeting.plannedDurationMinutes?.toString() ?? '',
-          type: meeting.type,
-          location: meeting.location,
-          supervisorIds: [...meeting.supervisorIds],
-          notes: { ...meeting.notes },
-          goalIds: [...meeting.goalIds],
-          checkpointRefs: meeting.checkpointRefs.map((r) => ({ ...r })),
-          documents: meeting.documents.map((d) => ({ ...d })),
-        }
-      : blankMeeting();
-    this.conflictDraft.set('');
-    this.latestRecord.set('');
-    this.error.set('');
-    dialog.showModal();
-  }
-  saveMeeting(event: Event, dialog: HTMLDialogElement) {
-    event.preventDefault();
-    try {
-      const { scheduledLocal, plannedDurationMinutes, ...fields } = this.meetingForm;
-      this.mutate(
-        this.editingMeeting ? 'PATCH' : 'POST',
-        'supervisor-meetings' + (this.editingMeeting ? '/' + this.editingMeeting.id : ''),
-        {
-          ...fields,
-          scheduledLocal,
-          plannedDurationMinutes: plannedDurationMinutes ? Number(plannedDurationMinutes) : null,
-        },
-        dialog,
-        !this.editingMeeting,
-      );
-    } catch (e) {
-      this.error.set(e instanceof Error ? e.message : 'Check the meeting date.');
-    }
-  }
-  toggle(list: string[], id: string, checked: boolean) {
-    if (checked && !list.includes(id)) list.push(id);
-    if (!checked) {
-      const i = list.indexOf(id);
-      if (i >= 0) list.splice(i, 1);
-    }
-  }
-  hasCheckpoint(levelNumber: number, checkpointId: string) {
-    return this.meetingForm.checkpointRefs.some(
-      (r) => r.levelNumber === levelNumber && r.checkpointId === checkpointId,
-    );
-  }
-  toggleCheckpoint(levelNumber: number, checkpointId: string, checked: boolean) {
-    this.meetingForm.checkpointRefs = this.meetingForm.checkpointRefs.filter(
-      (r) => r.levelNumber !== levelNumber || r.checkpointId !== checkpointId,
-    );
-    if (checked) {
-      const checkpointIdentity = this.levels()
-        .find((l) => l.levelNumber === levelNumber)
-        ?.checkpoints.find((c) => c.id === checkpointId)?.checkpointIdentity;
-      this.meetingForm.checkpointRefs.push({
-        levelNumber,
-        checkpointId,
-        ...(checkpointIdentity ? { checkpointIdentity } : {}),
-      });
-    }
-  }
-  missingGoals() {
-    return this.meetingForm.goalIds.filter((id) => !this.goals().some((g) => g.id === id));
-  }
-  missingCheckpoints() {
-    return this.meetingForm.checkpointRefs.filter(
-      (ref) =>
-        !this.levels().some(
-          (l) =>
-            l.levelNumber === ref.levelNumber &&
-            l.checkpoints.some((c) => c.id === ref.checkpointId),
-        ),
-    );
-  }
-  openAction(action: MeetingAction | null, dialog: HTMLDialogElement, phase = 'pre_meeting') {
-    this.draftVersion = action?.meetingVersion ?? this.current()?.editVersion;
-    this.actionVersions = Object.fromEntries(this.meetings().map((m) => [m.id, m.editVersion]));
-    this.editingAction = action;
-    this.actionParentId = action?.meetingId ?? this.current()?.id ?? '';
-    this.actionForm = action
-      ? {
-          title: action.title,
-          description: action.description,
-          phase: action.phase,
-          dueDate: action.dueDate ?? '',
-          status: action.status,
-        }
-      : { title: '', description: '', phase, dueDate: '', status: 'pending' };
-    this.taskIds.set([...(action?.linkedTaskIds ?? [])]);
-    this.actionEditorOpen.set(true);
-    this.conflictDraft.set('');
-    this.latestRecord.set('');
-    this.error.set('');
-    dialog.showModal();
-  }
-  existingTasks(): LinkedTask[] {
-    return (this.editingAction?.linkedTasks ?? []).filter(
-      (t): t is LinkedTask => t.status !== null,
-    );
-  }
-  saveAction(event: Event, dialog: HTMLDialogElement) {
-    event.preventDefault();
-    const meetingId = this.editingAction?.meetingId ?? this.current()?.id ?? this.actionParentId;
-    if (!meetingId) return;
-    this.mutate(
-      this.editingAction ? 'PATCH' : 'POST',
-      `supervisor-meetings/${meetingId}/actions` +
-        (this.editingAction ? '/' + this.editingAction.id : ''),
-      {
-        ...this.actionForm,
-        dueDate: this.actionForm.dueDate || null,
-        linkedTaskIds: this.taskIds(),
-      },
-      dialog,
-    );
-  }
-  changeStatus(status: string) {
-    const meeting = this.current();
-    if (meeting) this.mutate('PATCH', `supervisor-meetings/${meeting.id}/status`, { status });
-  }
-  ask(title: string, message: string, dialog: HTMLDialogElement, work: () => void) {
-    this.confirmTitle = title;
-    this.confirmMessage = message;
-    this.confirmed = work;
-    this.conflictDraft.set('');
-    this.latestRecord.set('');
-    this.error.set('');
-    dialog.showModal();
-  }
-  confirm(dialog: HTMLDialogElement) {
-    dialog.close();
-    this.confirmed?.();
-    this.confirmed = null;
-  }
-  archiveSupervisor(profile: Supervisor, dialog: HTMLDialogElement) {
-    this.ask(
-      'Archive ' + profile.name + '?',
-      'Historical meetings keep this supervisor. Archived profiles cannot be selected for new meetings.',
-      dialog,
-      () => this.mutate('PATCH', `supervisors/${profile.id}/archive`, {}),
-    );
-  }
-  archiveMeeting(dialog: HTMLDialogElement) {
-    const meeting = this.current();
-    if (meeting)
-      this.ask(
-        'Archive ' + meeting.title + '?',
-        'Notes, decisions, supervisors and actions remain available in archived history.',
-        dialog,
-        () => this.mutate('PATCH', `supervisor-meetings/${meeting.id}/archive`, {}),
-      );
-  }
-  removeAction(action: MeetingAction, dialog: HTMLDialogElement) {
-    this.ask(
-      'Remove ' + action.title + '?',
-      'This removes only the meeting action. Linked weekly tasks and research progress stay intact.',
-      dialog,
-      () =>
-        this.mutate('DELETE', `supervisor-meetings/${action.meetingId}/actions/${action.id}`, {}),
-    );
-  }
-  inspectLatest() {
-    if (this.busy()) return;
-    this.busy.set(true);
-    const parts = this.conflictPath.split('/');
-    const record: Observable<Supervisor[] | Meeting> =
-      parts[0] === 'supervisors'
-        ? this.api.supervisors('?archived=all')
-        : this.api.meeting(parts[1]);
-    record.pipe(takeUntilDestroyed(this.destroy)).subscribe({
-      next: (r) => {
-        this.latestRecord.set(
-          JSON.stringify(Array.isArray(r) ? r.find((s) => s.id === parts[1]) : r, null, 2),
-        );
-        this.busy.set(false);
-      },
-      error: (e) => {
-        this.error.set(researchError(e));
-        this.busy.set(false);
-      },
+  load(): void {
+    this.state.load(this.route.snapshot.paramMap.get('id'), {
+      archived: this.archived,
+      status: this.status,
+      supervisorId: this.supervisorId,
     });
+    if (!this.state.profiles.loaded() || this.tab === 'supervisors') this.state.profiles.load();
+    if (this.tab === 'actions') this.loadActions();
   }
-  discardDraft() {
-    document.querySelectorAll<HTMLDialogElement>('dialog[open]').forEach((d) => d.close());
-    this.conflictDraft.set('');
-    this.latestRecord.set('');
-    this.draftVersion = undefined;
-    this.load();
+  loadActions(): void {
+    this.state.loadActions(this.actionQuery());
   }
-  private mutate(
-    method: 'POST' | 'PATCH' | 'DELETE',
-    path: string,
-    body: unknown,
-    dialog?: HTMLDialogElement,
-    navigate = false,
-  ) {
-    if (this.busy()) return;
-    this.busy.set(true);
-    this.error.set('');
-    this.success.set('');
-    const parts = path.split('/');
-    const version = dialog
-      ? parts[2] === 'actions'
-        ? this.editingAction || this.current()
-          ? this.draftVersion
-          : this.actionVersions[this.actionParentId]
-        : this.draftVersion
-      : parts[0] === 'supervisors'
-        ? this.supervisors().find((s) => s.id === parts[1])?.editVersion
-        : this.current()?.id === parts[1]
-          ? this.current()!.editVersion
-          : (this.meetings().find((m) => m.id === parts[1])?.editVersion ??
-            this.actions().find((a) => a.meetingId === parts[1])?.meetingVersion);
-    this.api
-      .change<{ id: string }>(method, path, body, version)
-      .pipe(takeUntilDestroyed(this.destroy))
-      .subscribe({
-        next: (result) => {
-          this.busy.set(false);
-          dialog?.close();
-          this.actionEditorOpen.set(false);
-          this.success.set('Changes saved.');
-          if (navigate) this.router.navigate(['/supervisor-meetings', result.id]);
-          else this.load();
-        },
-        error: (e) => {
-          this.busy.set(false);
-          if (staleRecord(e)) {
-            this.conflictDraft.set(JSON.stringify(body, null, 2));
-            this.latestRecord.set('');
-            this.conflictPath = path;
-          }
-          this.error.set(researchError(e));
-        },
-      });
+  setTab(tab: string): void {
+    this.tab = tab;
+    if (tab === 'actions') this.loadActions();
+    if (tab === 'supervisors') this.state.profiles.load();
+  }
+  showSupervisors(value: string): void {
+    this.supervisorArchive.set(value);
+  }
+  inspectLatest(): void {
+    this.feedback.inspectLatest();
+  }
+  discardDraft(): void {
+    this.feedback.discardDraft();
   }
 }

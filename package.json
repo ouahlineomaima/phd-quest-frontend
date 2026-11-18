@@ -1,1 +1,36 @@
-{"name":"phd-quest-frontend","version":"0.0.0","private":true,"scripts":{"start":"ng serve --host 0.0.0.0 --poll 1000 --proxy-config proxy.conf.json","build":"ng build"},"dependencies":{"@angular/common":"22.2.6","@angular/compiler":"22.2.6","@angular/core":"22.2.6","@angular/platform-browser":"22.2.6","@angular/router":"22.2.6","rxjs":"^7.8.2","tslib":"^2.8.1"},"devDependencies":{"@angular/build":"~22.2.0","@angular/cli":"~22.2.0","@angular/compiler-cli":"22.2.6","typescript":"~6.0.0"},"engines":{"node":"^24.15.0"}}
+{
+  "name": "phd-quest-frontend",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "ng serve --host 0.0.0.0 --poll 1000 --proxy-config proxy.conf.json",
+    "build": "ng build",
+    "lint": "node scripts/quality.mjs lint",
+    "format:check": "node scripts/quality.mjs format:check",
+    "format": "node scripts/quality.mjs format",
+    "test:stage3": "node --test test/stage3/*.test.cjs"
+  },
+  "dependencies": {
+    "@angular/common": "22.2.6",
+    "@angular/compiler": "22.2.6",
+    "@angular/core": "22.2.6",
+    "@angular/platform-browser": "22.2.6",
+    "@angular/router": "22.2.6",
+    "rxjs": "^7.8.2",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@angular/build": "~22.2.0",
+    "@angular/cli": "~22.2.0",
+    "@angular/compiler-cli": "22.2.6",
+    "@eslint/js": "10.0.1",
+    "angular-eslint": "22.8.0",
+    "eslint": "10.15.0",
+    "prettier": "3.10.1",
+    "typescript": "~6.0.0",
+    "typescript-eslint": "8.73.0"
+  },
+  "engines": {
+    "node": "^24.15.0"
+  }
+}

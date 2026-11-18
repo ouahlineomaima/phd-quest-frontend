@@ -303,3 +303,13 @@ li {
     gap: 8px;
   }
 }
+
+// Use the same high-contrast ring in both supported themes.
+:host :focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 4px;
+}
+#skill-details:focus {
+  outline: 3px solid var(--text);
+  outline-offset: 4px;
+}

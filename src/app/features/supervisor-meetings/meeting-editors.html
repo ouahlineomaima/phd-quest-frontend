@@ -1,0 +1,375 @@
+<dialog
+  #supervisorEditor
+  aria-labelledby="supervisor-editor-title"
+  (cancel)="busy() && $event.preventDefault()"
+>
+  <form class="stack" (submit)="saveSupervisor($event, supervisorEditor)">
+    <h2 id="supervisor-editor-title">
+      {{ editingSupervisor ? 'Edit supervisor' : 'Add supervisor' }}
+    </h2>
+    @if (error()) {
+      <p role="alert" class="notice">{{ error() }}</p>
+    }
+    @if (conflictDraft()) {
+      <pq-stale-conflict
+        [draft]="conflictDraft()"
+        [latest]="latestRecord()"
+        [busy]="busy()"
+        (inspect)="inspectLatest()"
+        (discard)="discardDraft()"
+      />
+    }
+    <fieldset class="stack" [disabled]="busy()">
+      <label
+        >Name<input
+          required
+          maxlength="160"
+          [value]="supervisorForm.name"
+          (input)="supervisorForm.name = $any($event.target).value" /></label
+      ><label
+        >Role<select
+          [value]="supervisorForm.role"
+          (change)="supervisorForm.role = $any($event.target).value"
+        >
+          <option value="primary">Primary</option>
+          <option value="co_supervisor">Co-supervisor</option>
+          <option value="other">Other</option>
+        </select></label
+      ><label
+        >Institution (optional)<input
+          maxlength="300"
+          [value]="supervisorForm.institution"
+          (input)="supervisorForm.institution = $any($event.target).value" /></label
+      ><label
+        >Email (optional)<input
+          type="email"
+          maxlength="254"
+          [value]="supervisorForm.email"
+          (input)="supervisorForm.email = $any($event.target).value" /></label
+      ><label
+        >Supervisor notes<textarea
+          maxlength="5000"
+          rows="3"
+          [value]="supervisorForm.notes"
+          (input)="supervisorForm.notes = $any($event.target).value"
+        ></textarea>
+      </label>
+    </fieldset>
+    <div class="actions">
+      <button class="button" type="button" [disabled]="busy()" (click)="supervisorEditor.close()">
+        Cancel</button
+      ><button class="button primary" [disabled]="busy() || !supervisorForm.name.trim()">
+        Save supervisor
+      </button>
+    </div>
+  </form>
+</dialog>
+<dialog
+  #meetingEditor
+  class="wide"
+  aria-labelledby="meeting-editor-title"
+  (cancel)="busy() && $event.preventDefault()"
+>
+  <form class="stack" (submit)="saveMeeting($event, meetingEditor)">
+    <h2 id="meeting-editor-title">
+      {{ editingMeeting ? 'Edit / reschedule meeting' : 'Schedule meeting' }}
+    </h2>
+    @if (error()) {
+      <p role="alert" class="notice">{{ error() }}</p>
+    }
+    @if (conflictDraft()) {
+      <pq-stale-conflict
+        [draft]="conflictDraft()"
+        [latest]="latestRecord()"
+        [busy]="busy()"
+        (inspect)="inspectLatest()"
+        (discard)="discardDraft()"
+      />
+    }
+    <fieldset class="stack" [disabled]="busy()">
+      <label
+        >Meeting title<input
+          required
+          maxlength="160"
+          [value]="meetingForm.title"
+          (input)="meetingForm.title = $any($event.target).value"
+      /></label>
+      <div class="grid-two">
+        <label
+          >Date and time ({{ timezone() }})<input
+            type="datetime-local"
+            required
+            [value]="meetingForm.scheduledLocal"
+            (input)="meetingForm.scheduledLocal = $any($event.target).value" /></label
+        ><label
+          >Planned duration (minutes, optional)<input
+            type="number"
+            min="1"
+            max="1440"
+            step="1"
+            [value]="meetingForm.plannedDurationMinutes"
+            (input)="meetingForm.plannedDurationMinutes = $any($event.target).value"
+        /></label>
+      </div>
+      <label
+        >Meeting type<select
+          [value]="meetingForm.type"
+          (change)="meetingForm.type = $any($event.target).value"
+        >
+          <option value="in_person">In person</option>
+          <option value="online">Online</option>
+          <option value="hybrid">Hybrid</option>
+        </select></label
+      ><label
+        >Location or meeting URL (optional)<input
+          maxlength="1000"
+          [value]="meetingForm.location"
+          (input)="meetingForm.location = $any($event.target).value"
+      /></label>
+      <fieldset>
+        <legend>Supervisors (at least one)</legend>
+        <pq-reference-status label="Supervisor" [status]="state.profiles" />
+        @for (s of supervisors(); track s.id) {
+          @if (!s.archivedAt || meetingForm.supervisorIds.includes(s.id)) {
+            <label class="check-option"
+              ><input
+                type="checkbox"
+                [disabled]="!state.profiles.ready()"
+                [checked]="meetingForm.supervisorIds.includes(s.id)"
+                (change)="toggle(meetingForm.supervisorIds, s.id, $any($event.target).checked)"
+              />{{ s.name }}{{ s.archivedAt ? ' (archived, historical link)' : '' }}</label
+            >
+          }
+        }
+        @if (state.profiles.ready() && !activeSupervisors().length) {
+          <p class="muted small">
+            Create an active supervisor in the Supervisors view before scheduling a new meeting.
+          </p>
+        }
+      </fieldset>
+      @for (section of noteSections; track section[0]) {
+        <label
+          >{{ section[1] }} (optional)<textarea
+            rows="3"
+            maxlength="10000"
+            [value]="meetingForm.notes[section[0]]"
+            (input)="meetingForm.notes[section[0]] = $any($event.target).value"
+          ></textarea>
+        </label>
+      }
+      <details>
+        <summary>Research goals (optional)</summary>
+        <pq-reference-status label="Research goal" [status]="references.goals" />
+        @for (goal of goals(); track goal.id) {
+          <label class="check-option"
+            ><input
+              type="checkbox"
+              [disabled]="!references.goals.ready()"
+              [checked]="meetingForm.goalIds.includes(goal.id)"
+              (change)="toggle(meetingForm.goalIds, goal.id, $any($event.target).checked)"
+            />{{ goal.title }} / {{ goal.status }}</label
+          >
+        }
+        @for (id of missingGoals(); track id) {
+          <label class="check-option"
+            ><input
+              type="checkbox"
+              checked
+              (change)="toggle(meetingForm.goalIds, id, $any($event.target).checked)"
+            />Unavailable goal / {{ id }}</label
+          >
+        }
+      </details>
+      <details>
+        <summary>Roadmap checkpoints (optional)</summary>
+        <pq-reference-status label="Roadmap" [status]="references.roadmap" />
+        @for (level of levels(); track level.levelNumber) {
+          <h3>Level {{ level.levelNumber }} / {{ level.title }}</h3>
+          @for (checkpoint of level.checkpoints; track checkpoint.id) {
+            <label class="check-option"
+              ><input
+                type="checkbox"
+                [disabled]="
+                  !references.roadmap.ready() ||
+                  historicalCheckpoint(level.levelNumber, checkpoint.id)
+                "
+                [checked]="hasCheckpoint(level.levelNumber, checkpoint.id)"
+                (change)="
+                  toggleCheckpoint(level.levelNumber, checkpoint.id, $any($event.target).checked)
+                "
+              />{{ checkpoint.title }} /
+              {{ checkpoint.completed ? 'validated' : 'not validated' }}</label
+            >
+          }
+        }
+        @for (ref of missingCheckpoints(); track ref.levelNumber + ':' + ref.checkpointId) {
+          <label class="check-option"
+            ><input
+              type="checkbox"
+              checked
+              (change)="
+                toggleCheckpoint(ref.levelNumber, ref.checkpointId, $any($event.target).checked)
+              "
+            />{{ historicalLabel(ref) }} / {{ ref.levelNumber }}:{{ ref.checkpointId }}. Remove and
+            save before explicitly linking the current checkpoint.</label
+          >
+        }
+      </details>
+      <fieldset>
+        <legend>Supporting document links (optional)</legend>
+        @for (document of meetingForm.documents; track $index) {
+          <div class="document">
+            <label
+              >Document label<input
+                required
+                maxlength="160"
+                [value]="document.label"
+                (input)="document.label = $any($event.target).value" /></label
+            ><label
+              >Document URL<input
+                required
+                type="url"
+                pattern="https?://.*"
+                maxlength="2048"
+                [value]="document.url"
+                (input)="document.url = $any($event.target).value" /></label
+            ><button type="button" class="button" (click)="meetingForm.documents.splice($index, 1)">
+              Remove link
+            </button>
+          </div>
+        }
+        <button
+          type="button"
+          class="button"
+          [disabled]="meetingForm.documents.length >= 50"
+          (click)="meetingForm.documents.push({ label: '', url: '' })"
+        >
+          Add document link
+        </button>
+      </fieldset>
+    </fieldset>
+    <div class="actions">
+      <button type="button" class="button" [disabled]="busy()" (click)="meetingEditor.close()">
+        Cancel</button
+      ><button
+        class="button primary"
+        [disabled]="busy() || !meetingForm.title.trim() || !meetingForm.supervisorIds.length"
+      >
+        Save meeting
+      </button>
+    </div>
+  </form>
+</dialog>
+<dialog
+  #actionEditor
+  class="wide"
+  aria-labelledby="action-editor-title"
+  (cancel)="busy() ? $event.preventDefault() : actionEditorOpen.set(false)"
+>
+  <form class="stack" (submit)="saveAction($event, actionEditor)">
+    <h2 id="action-editor-title">{{ editingAction ? 'Edit action' : 'Add meeting action' }}</h2>
+    @if (error()) {
+      <p role="alert" class="notice">{{ error() }}</p>
+    }
+    @if (conflictDraft()) {
+      <pq-stale-conflict
+        [draft]="conflictDraft()"
+        [latest]="latestRecord()"
+        [busy]="busy()"
+        (inspect)="inspectLatest()"
+        (discard)="discardDraft()"
+      />
+    }
+    <fieldset class="stack" [disabled]="busy()">
+      @if (!editingAction && !current()) {
+        <label
+          >Parent meeting<select
+            required
+            [value]="actionParentId"
+            (change)="actionParentId = $any($event.target).value"
+          >
+            <option value="">Choose a meeting</option>
+            @for (meeting of meetings(); track meeting.id) {
+              @if (!meeting.archivedAt) {
+                <option [value]="meeting.id">{{ meeting.title }}</option>
+              }
+            }
+          </select></label
+        >
+      }
+      <label
+        >Action title<input
+          required
+          maxlength="160"
+          [value]="actionForm.title"
+          (input)="actionForm.title = $any($event.target).value" /></label
+      ><label
+        >Action description (optional)<textarea
+          maxlength="5000"
+          rows="3"
+          [value]="actionForm.description"
+          (input)="actionForm.description = $any($event.target).value"
+        ></textarea>
+      </label>
+      <div class="grid-two">
+        <label
+          >Phase<select
+            [value]="actionForm.phase"
+            (change)="actionForm.phase = $any($event.target).value"
+          >
+            <option value="pre_meeting">Preparation</option>
+            <option value="post_meeting">Follow-up</option>
+          </select></label
+        ><label
+          >Manual action status<select
+            [value]="actionForm.status"
+            (change)="actionForm.status = $any($event.target).value"
+          >
+            <option value="pending">Pending</option>
+            <option value="in_progress">In progress</option>
+            <option value="completed">Completed</option>
+          </select></label
+        >
+      </div>
+      <label
+        >Action due date (optional)<input
+          type="date"
+          [value]="actionForm.dueDate"
+          (input)="actionForm.dueDate = $any($event.target).value" /></label
+      ><pq-task-links-picker
+        context="action"
+        [active]="actionEditorOpen()"
+        [disabled]="busy()"
+        [selected]="taskIds()"
+        [existing]="existingTasks()"
+        (changed)="taskIds.set($event)"
+      />
+      <p class="muted small">
+        Linked-task progress is read-only. Completing this action does not complete weekly tasks or
+        award XP.
+      </p>
+    </fieldset>
+    <div class="actions">
+      <button
+        type="button"
+        class="button"
+        [disabled]="busy()"
+        (click)="actionEditorOpen.set(false); actionEditor.close()"
+      >
+        Cancel</button
+      ><button class="button primary" [disabled]="busy() || !actionForm.title.trim()">
+        Save action
+      </button>
+    </div>
+  </form>
+</dialog>
+<dialog #confirmDialog aria-labelledby="meeting-confirm-title">
+  <div class="stack">
+    <h2 id="meeting-confirm-title">{{ confirmTitle }}</h2>
+    <p>{{ confirmMessage }}</p>
+    <div class="actions">
+      <button class="button" (click)="confirmDialog.close()">Cancel</button
+      ><button class="button primary" (click)="confirm(confirmDialog)">Confirm</button>
+    </div>
+  </div>
+</dialog>

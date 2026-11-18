@@ -1,0 +1,205 @@
+<section
+  id="skill-details"
+  class="details stack"
+  tabindex="-1"
+  [attr.aria-labelledby]="'skill-title-' + skill().id"
+>
+  <pq-card
+    ><div class="row spread wrap">
+      <div>
+        <p class="eyebrow">{{ categoryName() }}</p>
+        <h2 [id]="'skill-title-' + skill().id">{{ skill().name }}</h2>
+      </div>
+      <pq-badge [tone]="skill().proficiency === SkillLevel.Advanced ? 'gold' : 'primary'"
+        >Confirmed Level {{ skill().proficiency }} /
+        {{ proficiencyNames[skill().proficiency] }}</pq-badge
+      >
+    </div>
+    <p class="description">{{ skill().description || 'No description added.' }}</p>
+    @if (editable()) {
+      <div class="actions">
+        <button class="button" [disabled]="busy()" (click)="edit.emit()">Edit skill</button
+        ><button class="button primary" [disabled]="busy()" (click)="proficiency.emit()">
+          Confirm proficiency</button
+        ><button class="button" [disabled]="busy()" (click)="archive.emit()">Archive skill</button>
+      </div>
+    } @else {
+      <p class="muted">Archived category or skill / read-only history</p>
+    }
+    <p class="muted small">
+      Activity completion suggests a review. It never confirms competence, awards XP, or changes
+      roadmap chapters.
+    </p></pq-card
+  >
+  <div class="grid-two">
+    <pq-card
+      ><h2>Recommended prerequisites</h2>
+      <p class="muted small">
+        Level 2 or above indicates developed foundations. These recommendations never lock
+        proficiency.
+      </p>
+      <ul>
+        @for (p of skill().prerequisites; track p.id) {
+          <li>
+            <button class="text-link" [disabled]="p.missing" (click)="selected.emit(p.id)">
+              {{ p.name }}
+            </button>
+            / {{ p.missing ? 'unavailable' : p.developed ? 'developed' : 'not yet developed'
+            }}{{
+              p.archivedAt
+                ? '
+          / archived'
+                : ''
+            }}
+          </li>
+        } @empty {
+          <li class="muted">No prerequisites recommended</li>
+        }
+      </ul></pq-card
+    ><pq-card
+      ><h2>Proficiency history</h2>
+      <ol class="history">
+        @for (entry of skill().proficiencyHistory; track entry.id) {
+          <li>
+            <strong>{{ entry.fromLevel }} → {{ entry.toLevel }}</strong
+            ><span>{{ entry.changedAt }}</span>
+            <p>{{ entry.justification || 'No justification added.' }}</p>
+          </li>
+        } @empty {
+          <li class="muted">No confirmed changes yet</li>
+        }
+      </ol></pq-card
+    >
+  </div>
+  <pq-card
+    ><div class="row spread wrap">
+      <div>
+        <h2>Targeted proficiency readiness</h2>
+        <p class="muted small">
+          All activities assigned to a level must be available and complete. General development
+          never blocks a target.
+        </p>
+      </div>
+      @if (editable()) {
+        <button class="button primary" [disabled]="busy()" (click)="link.emit()">
+          Link activity
+        </button>
+      }
+    </div>
+    <div class="progress-groups">
+      @for (group of targetedGroups(); track group.targetLevel) {
+        <pq-skill-progress
+          [group]="group"
+          [title]="'Level ' + group.targetLevel + ' / ' + proficiencyNames[group.targetLevel!]"
+          [suggestion]="suggested(group.targetLevel)"
+        />
+      } @empty {
+        <p class="muted">No activities target a proficiency level yet.</p>
+      }
+    </div>
+    <h3>General development / separate source indicators</h3>
+    <div class="progress-groups">
+      @for (group of skill().untargeted; track group.sourceType) {
+        <pq-skill-progress
+          [group]="group"
+          [title]="sourceLabels[group.sourceType!]"
+          [suggestion]="
+            group.sourceType === 'weekly_task'
+              ? 'Weekly practice completed'
+              : group.sourceType === 'research_goal'
+                ? 'Research goals completed'
+                : 'Roadmap milestones completed'
+          "
+        />
+      }
+    </div>
+    <h3>Activity associations</h3>
+    <div class="association-list">
+      @for (link of skill().associations; track link.sourceType + ':' + link.sourceId) {
+        <div class="association">
+          <div>
+            <strong>{{ link.title || link.sourceId }}</strong>
+            <p class="muted small">
+              {{ sourceLabels[link.sourceType] }} / {{ link.sourceId }} /
+              {{
+                link.resolution === 'unverified'
+                  ? 'unverified (relink to
+            confirm)'
+                  : link.missing
+                    ? 'unavailable'
+                    : link.completed
+                      ? 'completed'
+                      : 'in progress'
+              }}
+            </p>
+          </div>
+          <label
+            >Target proficiency<select
+              [value]="link.targetLevel ?? ''"
+              [disabled]="busy() || !editable()"
+              (change)="target.emit({ index: $index, value: $any($event.target).value })"
+            >
+              <option
+                value=""
+                [selected]="link.targetLevel === null || link.targetLevel === undefined"
+              >
+                General development — no target
+              </option>
+              @for (level of targetLevels; track level) {
+                <option [value]="level" [selected]="link.targetLevel === level">
+                  Level {{ level }} / {{ proficiencyNames[level] }}
+                </option>
+              }
+            </select></label
+          >
+          @if (editable()) {
+            <button class="button" [disabled]="busy()" (click)="unlink.emit($index)">
+              Unlink activity
+            </button>
+          }
+        </div>
+      } @empty {
+        <p class="muted">No linked activities. Skills and manual proficiency work independently.</p>
+      }
+    </div></pq-card
+  >
+  <pq-card
+    ><div class="row spread wrap">
+      <h2>Evidence</h2>
+      @if (editable()) {
+        <button class="button" [disabled]="busy()" (click)="evidence.emit(null)">
+          Add evidence
+        </button>
+      }
+    </div>
+    <div class="evidence-list">
+      @for (entry of skill().evidence; track entry.id) {
+        <article class="evidence">
+          <div class="row spread wrap">
+            <h3>{{ entry.title }}</h3>
+            <pq-badge tone="muted">{{ entry.type === 'note' ? 'Note' : 'External link' }}</pq-badge>
+          </div>
+          <p class="description">{{ entry.description }}</p>
+          @if (entry.type === 'external_link' && entry.url) {
+            <a class="text-link" [href]="entry.url" target="_blank" rel="noopener noreferrer"
+              >Open evidence link</a
+            >
+          }
+          <p class="muted small">Created {{ entry.createdAt }} / Updated {{ entry.updatedAt }}</p>
+          @if (editable()) {
+            <div class="actions">
+              <button class="button" [disabled]="busy()" (click)="evidence.emit(entry)">
+                Edit evidence</button
+              ><button class="button" [disabled]="busy()" (click)="removeEvidence.emit(entry)">
+                Remove evidence
+              </button>
+            </div>
+          }
+        </article>
+      } @empty {
+        <p class="muted">Evidence is optional. Add a note or supporting link when useful.</p>
+      }
+    </div></pq-card
+  >
+  <button type="button" class="button" (click)="returnToList.emit()">Back to selected skill</button>
+</section>
