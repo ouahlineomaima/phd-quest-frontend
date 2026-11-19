@@ -8,7 +8,10 @@
     "lint": "node scripts/quality.mjs lint",
     "format:check": "node scripts/quality.mjs format:check",
     "format": "node scripts/quality.mjs format",
-    "test:stage3": "node --test test/stage3/*.test.cjs"
+    "test:stage3": "node scripts/verify.mjs unit --suite=stage3",
+    "test": "node scripts/verify.mjs unit",
+    "verify": "node scripts/verify.mjs",
+    "test:browser": "node ../phd-quest-backend/scripts/verify.mjs browser"
   },
   "dependencies": {
     "@angular/common": "22.2.6",

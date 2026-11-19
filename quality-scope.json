@@ -10,7 +10,13 @@
     "src/app/features/skills/{skills,skill-detail,skill-editors}.html",
     "src/app/features/supervisor-meetings/{supervisor-meetings,meeting-detail,meeting-editors}.html"
   ],
-  "javascript": ["scripts/quality.mjs", "test/stage3/*.test.cjs", "eslint.config.mjs"],
+  "javascript": [
+    "scripts/quality.mjs",
+    "test/stage3/*.test.cjs",
+    "eslint.config.mjs",
+    "scripts/verify.mjs",
+    "scripts/runtime.cjs"
+  ],
   "format": [
     "src/**/*.{ts,html,css,scss,json}",
     "test/**/*.{ts,js,cjs,mjs,json}",
@@ -18,6 +24,7 @@
     "docs/**/*.{md,json,yml,yaml}",
     "public/**/*.{json,html,css}",
     "*.{ts,js,cjs,mjs,json,md,yml,yaml}",
-    ".prettierrc.json"
+    ".prettierrc.json",
+    ".github/workflows/*.{yml,yaml}"
   ]
 }

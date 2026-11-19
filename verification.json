@@ -1,0 +1,21 @@
+{
+  "build": ["node_modules/@angular/cli/bin/ng.js", "build"],
+  "buildForTests": false,
+  "full": ["build", "lint", "format", "unit"],
+  "databaseGroups": [],
+  "databaseSuites": [],
+  "groups": {
+    "unit": {
+      "tests": [
+        "test/focus-engine.test.cjs",
+        "test/domain-contract.test.cjs",
+        "test/stage3/*.test.cjs"
+      ]
+    }
+  },
+  "suites": {
+    "stage3": {
+      "tests": ["test/stage3/*.test.cjs"]
+    }
+  }
+}
