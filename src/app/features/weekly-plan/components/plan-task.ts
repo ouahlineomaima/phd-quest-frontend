@@ -1,7 +1,11 @@
 import { Component, computed, effect, input, output, signal } from '@angular/core';
 import { Badge } from '../../../shared/components/ui';
 import { Icon } from '../../../shared/components/icon/icon';
-import { PlanTaskInput, SavedTask, TaskAction } from '../models/weekly-plan.models';
+import type { PlanTaskInput, SavedTask, TaskAction } from '../models/weekly-plan.models';
+import { FocusTimer } from '../../../core/services/focus-timer.service';
+import { Router } from '@angular/router';
+import { inject } from '@angular/core';
+import { TaskStatus } from '../../../shared/models/domain.enums';
 
 @Component({
   selector: 'pq-plan-task',
@@ -13,6 +17,18 @@ import { PlanTaskInput, SavedTask, TaskAction } from '../models/weekly-plan.mode
 export class PlanTask {
   readonly task = input.required<PlanTaskInput | SavedTask>();
   readonly focusedMinutes = input(0);
+  readonly weekId = input('');
+  readonly timer = inject(FocusTimer);
+  private readonly router = inject(Router);
+  async openTimer() {
+    if (!this.timer.snapshot() && this.timer.ready())
+      await this.timer.start('stopwatch', 25, this.weekId() + ':' + this.task().id);
+    else if (this.timer.snapshot()?.taskRef !== this.weekId() + ':' + this.task().id)
+      this.timer.error.set(
+        'A running or paused session already exists. Resume it or explicitly stop it before starting another task.',
+      );
+    void this.router.navigate(['/focus']);
+  }
   readonly interactive = input(false);
   readonly busy = input(false);
   readonly saving = input(false);
@@ -24,7 +40,7 @@ export class PlanTask {
     const task = this.task();
     return 'status' in task ? task : null;
   });
-  readonly completed = computed(() => this.saved()?.status === 'completed');
+  readonly completed = computed(() => this.saved()?.status === TaskStatus.Completed);
   readonly status = computed(() =>
     this.saved() ? (this.completed() ? 'Completed' : 'Pending') : 'Pending on import',
   );

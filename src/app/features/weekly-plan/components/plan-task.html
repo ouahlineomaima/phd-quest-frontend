@@ -25,7 +25,8 @@
   }
   @if (focusedMinutes() > 0) {
     <p class="small muted">
-      {{ focusedMinutes() }} min applied focus / tracked separately from manual actual time
+      {{ focusedMinutes() }} min in Focus application history. New applications are included in task
+      actual time; legacy applications remain separate.
     </p>
   }
   <div class="deliverable">
@@ -38,6 +39,20 @@
   <div class="task-bottom">
     <code>{{ task().id }}</code>
     @if (interactive() && saved()) {
+      <button
+        class="button"
+        [disabled]="timer.busy() || !timer.ready() || !timer.supported"
+        (click)="openTimer()"
+        [attr.aria-label]="'Open timer for ' + task().title"
+      >
+        <pq-icon name="clock" />{{
+          timer.snapshot()?.taskRef === weekId() + ':' + task().id
+            ? 'Open active timer'
+            : timer.snapshot()
+              ? 'View existing timer'
+              : 'Start task timer'
+        }}
+      </button>
       @if (completed()) {
         <button class="button" [disabled]="busy()" (click)="reopen()">
           {{ saving() ? 'Updating…' : 'Reopen task' }}

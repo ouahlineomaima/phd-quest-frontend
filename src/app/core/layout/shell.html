@@ -124,10 +124,11 @@
   </header>
   @if (focus.snapshot(); as timer) {
     <a class="focus-mini" routerLink="/focus" aria-label="Return to active focus timer"
-      ><span class="focus-mini-dot" [class.paused]="timer.state !== 'running'"></span
-      ><strong>{{ timer.kind === 'break' ? 'Break' : 'Focus' }} / {{ timer.mode }}</strong
-      ><span>{{ focus.display() }}</span
-      ><span>{{ timer.state }}</span
+      ><span class="focus-mini-dot" [class.paused]="focus.state() !== 'running'"></span
+      ><strong
+        >{{ timer.taskTitle || (timer.kind === 'break' ? 'Break' : 'Standalone Focus Session') }} /
+        {{ focus.state() }}</strong
+      ><span>{{ focus.elapsedDisplay() }} elapsed</span
       ><span class="focus-mini-action">Open timer</span></a
     >
   }

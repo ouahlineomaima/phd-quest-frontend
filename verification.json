@@ -8,6 +8,7 @@
     "unit": {
       "tests": [
         "test/focus-engine.test.cjs",
+        "test/integrated-timer.test.cjs",
         "test/domain-contract.test.cjs",
         "test/stage3/*.test.cjs"
       ]

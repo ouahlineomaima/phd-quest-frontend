@@ -383,6 +383,12 @@ nav a.active {
   margin-left: auto;
   font-size: 11px;
 }
+.focus-mini strong {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  flex: 1 1 180px;
+}
 @media (max-width: 550px) {
   .focus-mini {
     padding: 12px 20px;

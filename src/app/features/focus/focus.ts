@@ -1,18 +1,20 @@
-import { Component, DestroyRef, effect, inject, signal } from '@angular/core';
+import type { ElementRef } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subscription, forkJoin } from 'rxjs';
+import type { Subscription } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { Badge, Card, EmptyState, Loading, PageHeader } from '../../shared/components/ui';
 import { FocusTimer } from '../../core/services/focus-timer.service';
-import {
+import type {
   ApplicationPreview,
-  FocusApi,
   FocusHistory,
   FocusSession,
   FocusSummary,
 } from '../../core/services/focus-api';
+import { FocusApi } from '../../core/services/focus-api';
 import { timerText } from '../../core/services/focus-timer-engine';
 import { ResearchApi, researchError } from '../../core/services/research-api';
-import { SavedWeeklyPlan, WeekSummary } from '../weekly-plan/models/weekly-plan.models';
+import type { SavedWeeklyPlan, WeekSummary } from '../weekly-plan/models/weekly-plan.models';
 @Component({
   selector: 'pq-focus',
   standalone: true,
@@ -37,6 +39,9 @@ export class Focus {
   readonly preview = signal<ApplicationPreview | null>(null);
   readonly applyError = signal('');
   readonly message = signal('');
+  readonly applicationDialog = viewChild<ElementRef<HTMLDialogElement>>('applicationDialog');
+  effectiveMinutes = '';
+  private presentedSession = '';
   mode: 'countdown' | 'stopwatch' = 'countdown';
   minutes = 25;
   week = '';
@@ -49,9 +54,15 @@ export class Focus {
     this.load();
     this.loadWeeks();
     effect(() => {
-      if (this.timer.lastSaved()) {
+      const saved = this.timer.lastSaved();
+      if (saved) {
         this.page = 1;
         this.load();
+        const dialog = this.applicationDialog()?.nativeElement;
+        if (dialog && saved.sessionId !== this.presentedSession) {
+          this.presentedSession = saved.sessionId;
+          queueMicrotask(() => this.openApplication(saved, dialog));
+        }
       }
     });
   }
@@ -128,21 +139,18 @@ export class Focus {
     this.page = page;
     this.load();
   }
-  async discard(dialog: HTMLDialogElement) {
-    await this.timer.discard();
-    dialog.close();
-  }
-  openApplication(session: FocusSession, dialog: HTMLDialogElement) {
+  openApplication(session: FocusSession, dialog: HTMLDialogElement, keepDraft = false) {
     this.preview.set(null);
     this.applyError.set('');
     this.applying.set(true);
-    dialog.showModal();
+    if (!dialog.open) dialog.showModal();
     this.api
       .preview(session.sessionId)
       .pipe(takeUntilDestroyed(this.destroy))
       .subscribe({
         next: (preview) => {
           this.preview.set(preview);
+          if (!keepDraft) this.effectiveMinutes = String(preview.proposedMinutes);
           this.applying.set(false);
         },
         error: (error) => {
@@ -153,11 +161,16 @@ export class Focus {
   }
   apply(dialog: HTMLDialogElement) {
     const preview = this.preview();
-    if (!preview || this.applying()) return;
+    if (!preview || this.applying() || !this.validCorrection()) return;
     this.applying.set(true);
     this.applyError.set('');
     this.api
-      .apply(preview.session.sessionId)
+      .apply(
+        preview.session.sessionId,
+        Number(this.effectiveMinutes),
+        preview.session.editVersion,
+        preview.task?.manualActualMinutes,
+      )
       .pipe(takeUntilDestroyed(this.destroy))
       .subscribe({
         next: () => {
@@ -165,7 +178,7 @@ export class Focus {
           this.applying.set(false);
           dialog.close();
           this.message.set(
-            'Focus minutes applied once. Manual actual time, completion, XP and streaks are unchanged.',
+            'Effective minutes added to task actual time exactly once. Completion, XP and streaks are unchanged.',
           );
           this.load();
         },
@@ -177,7 +190,40 @@ export class Focus {
         },
       });
   }
-  date(value: string) {
+  validCorrection() {
+    if (!/^\d+$/.test(this.effectiveMinutes) || Number(this.effectiveMinutes) > 1440) {
+      this.applyError.set('Use whole effective minutes from 0 to 1,440.');
+      return false;
+    }
+    return true;
+  }
+  saveWithoutApplying(dialog: HTMLDialogElement) {
+    const preview = this.preview();
+    if (!preview || this.applying() || !this.validCorrection()) return;
+    this.applying.set(true);
+    this.applyError.set('');
+    this.api
+      .correct(preview.session, Number(this.effectiveMinutes))
+      .pipe(takeUntilDestroyed(this.destroy))
+      .subscribe({
+        next: () => {
+          this.applying.set(false);
+          dialog.close();
+          this.timer.lastSaved.set(null);
+          this.message.set('Session and correction saved without applying task time.');
+          this.load();
+        },
+        error: (error) => {
+          this.applying.set(false);
+          this.applyError.set(
+            researchError(error) +
+              ' Your duration correction is retained. Inspect the latest record before retrying.',
+          );
+        },
+      });
+  }
+  date(value: string | null) {
+    if (!value) return 'No end date';
     return new Intl.DateTimeFormat('en', {
       dateStyle: 'medium',
       timeStyle: 'short',
@@ -185,6 +231,6 @@ export class Focus {
     }).format(new Date(value));
   }
   eligible(session: FocusSession) {
-    return !!session.taskRef && !session.appliedAt && session.focusedSeconds >= 60;
+    return !session.appliedAt;
   }
 }

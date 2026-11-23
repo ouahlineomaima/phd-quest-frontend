@@ -8,7 +8,7 @@ Angular 22 standalone/signals frontend for a local PhD research workspace. Suppo
 | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
 | `/dashboard`                                       | Current week, research and achievement summaries                                                          |
 | `/weekly-plan`                                     | Sunday-start weekly JSON import, tasks, completion/reopening and time                                     |
-| `/focus`                                           | Countdown/stopwatch, recovered local timer, saved sessions and explicit time application                  |
+| `/focus`                                           | Shared server timer, heartbeat recovery, saved sessions, corrections and explicit task-time application   |
 | `/supervisor-meetings`, `/supervisor-meetings/:id` | Profiles, meeting notes, actions, history and linked activity                                             |
 | `/skills`                                          | Categories, prerequisites, evidence, manual proficiency/history and readiness                             |
 | `/roadmap`                                         | Independent Level 0 Preparation Camp plus twelve chapters, imports, editable titles and manual validation |
@@ -18,6 +18,8 @@ Angular 22 standalone/signals frontend for a local PhD research workspace. Suppo
 | `/help`                                            | Onboarding, workflow guide, planning prompts and JSON examples                                            |
 
 The root redirects to Dashboard; unknown routes show a styled 404. Shell/pages are lazy-loaded. Task/goal/checkpoint progress does not automatically confirm goals, checkpoints, skill proficiency or meeting-action status, and Focus does not automatically complete tasks or award XP.
+
+Weekly tasks and Focus share one backend-persisted timer. The shell mini timer follows navigation and tabs; close/connection recovery excludes unconfirmed time. Stopped sessions retain measured duration and allow a corrected whole-minute duration before explicit task application. Start/Resume grants a five-minute work window, renewed by app interaction. Historical Focus applications remain separate; new confirmed applications add to task actual minutes. See the backend [Focus guide](https://github.com/ouahlineomaima/phd-quest-backend/blob/main/docs/FOCUS.md) for the recovery policy and compatibility details.
 
 ## Start
 

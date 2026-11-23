@@ -187,6 +187,7 @@
             @for (task of tasks(); track task.id) {
               <pq-plan-task
                 [task]="task"
+                [weekId]="plan()!.weekId"
                 [focusedMinutes]="focusTimes()?.[plan()!.weekId + ':' + task.id] ?? 0"
                 [interactive]="true"
                 [busy]="busyTask() !== null || detailLoading()"

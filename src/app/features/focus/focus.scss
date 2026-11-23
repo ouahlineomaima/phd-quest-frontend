@@ -166,6 +166,11 @@ select {
 .timer-digits.long-time {
   font-size: clamp(40px, 6vw, 62px);
 }
+.timer-card h2,
+.session-row h3,
+dialog p {
+  overflow-wrap: anywhere;
+}
 @media (max-width: 550px) {
   .timer-digits.long-time {
     font-size: 44px;

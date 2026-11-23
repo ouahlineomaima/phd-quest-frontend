@@ -286,19 +286,19 @@
       <pq-card
         ><h2 id="focus-guide-title">Research Focus Timer</h2>
         <p>
-          Open <a class="text-link" routerLink="/focus">Focus</a> for a countdown (25, 50 or 1-180
-          custom minutes) or a stopwatch. Choose an existing weekly task, or leave the session
-          independent. Start, pause, resume, then finish and explicitly save the focused time or
-          discard it. Stopping early can save a partial session; zero-duration sessions cannot be
-          saved.
+          Start a stopwatch directly from a Weekly Plan task, or open
+          <a class="text-link" routerLink="/focus">Focus</a> for a countdown (25, 50 or 1-180 custom
+          minutes) or stopwatch. Choose a task or work independently. Pause and resume as needed;
+          stopping saves measured history and lets you review it before applying any task time.
         </p>
         <p>
-          The shell's mini timer follows you between pages. One timer is shared across this
-          browser's tabs. A local recovery snapshot survives refreshes and browser reopening: an
-          expired countdown finishes at its scheduled endpoint, while a running stopwatch keeps
-          counting until you pause/finish or it reaches seven days. Paused time is excluded. Elapsed
-          time cannot prove that you were working while the browser was closed. Clearing browser
-          storage removes unsaved recovery data, so save sessions you want to keep.
+          The shell's mini timer follows you between pages and tabs using one server-persisted
+          session. Start/Resume confirms a five-minute work window; app interaction renews it.
+          Activity is confirmed every 15 seconds. After 45 seconds without confirmation, recovery
+          pauses at the last confirmed heartbeat with no unattended time added. Closing the last tab
+          attempts to pause; browser delivery is best-effort. Hiding a tab does not itself pause it.
+          Countdown time is capped at its target, stopwatch time at seven days; paused time is
+          excluded.
         </p>
         <p>
           Short (5-minute) and long (15-minute) breaks use the same engine, without saved history or
@@ -311,19 +311,20 @@
           the summed seconds down to minutes.
         </p>
         <p>
-          <strong>Apply time to task</strong> requires confirmation. Each session contributes its
-          own seconds rounded down to full minutes, at most once; sessions under a minute stay
-          separate. Applied focus is a separate additive task total shown on Weekly Plan. Manual
-          actual minutes are never overwritten, including on pending tasks. The two measurements may
-          describe the same work; avoid counting them twice. Choose
-          <strong>Keep separate</strong> if you do not want to apply it. You can apply an eligible
-          saved session later from history.
+          <strong>Apply time to task</strong> requires confirmation. Review the original measured
+          duration and optionally correct the effective whole minutes (0–1440). Each session adds
+          the accepted duration to the task's existing actual time at most once, including on
+          pending tasks. The preview shows the resulting total. Manual edits remain available.
+          Earlier legacy applications remain separate and are never added retroactively. Choose
+          <strong>Save without applying</strong> to preserve history/correction without changing
+          task time; review it later from history. Measured seconds are never rewritten.
         </p>
         <p>
           Focus sessions and breaks never complete tasks, goals or checkpoints, award XP, or update
           streaks. Focus history and applied markers are preserved in full backups; old backups
-          without focus history remain supported. Unsaved local timers are not part of a backup.
-          Importing a roadmap does not remove saved focus sessions.
+          without focus history remain supported. Restored active timers are paused with only their
+          confirmed duration. Older browser-local recovery data remains available for explicit save
+          or discard. Importing a roadmap does not remove saved focus sessions.
         </p></pq-card
       >
     </section>

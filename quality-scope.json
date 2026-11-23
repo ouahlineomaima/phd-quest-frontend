@@ -1,5 +1,8 @@
 {
   "typescript": [
+    "src/app/core/services/focus-{api,timer.service,timer-state}.ts",
+    "src/app/features/focus/focus.ts",
+    "src/app/features/weekly-plan/components/plan-task.ts",
     "src/app/features/skills/{skills,skill-detail,skill-editors,skills-facade}.ts",
     "src/app/features/supervisor-meetings/{supervisor-meetings,meeting-detail,meeting-editors,meetings-facade,meeting-clock,meeting-time-state,meeting.models}.ts",
     "src/app/shared/state/{editor-feedback,reference-options,research-references}.ts",
@@ -7,10 +10,13 @@
     "src/app/core/services/research-api.ts"
   ],
   "templates": [
+    "src/app/features/focus/focus.html",
+    "src/app/features/weekly-plan/components/plan-task.html",
     "src/app/features/skills/{skills,skill-detail,skill-editors}.html",
     "src/app/features/supervisor-meetings/{supervisor-meetings,meeting-detail,meeting-editors}.html"
   ],
   "javascript": [
+    "test/integrated-timer.test.cjs",
     "scripts/quality.mjs",
     "test/stage3/*.test.cjs",
     "eslint.config.mjs",

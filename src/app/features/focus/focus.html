@@ -1,20 +1,34 @@
 <pq-page-header
   eyebrow="One thing at a time"
   title="Research Focus"
-  subtitle="Make space for thoughtful work. Save your focus; decide separately how it contributes to a task."
+  subtitle="One timer across your tasks, pages and tabs. Apply time only when you confirm it."
 />
 @if (timer.error()) {
   <p class="notice" role="alert">{{ timer.error() }}</p>
-  @if (!timer.snapshot()) {
-    <button class="button" (click)="timer.clearInvalid()">
-      Clear invalid local timer recovery
-    </button>
-  }
+  <button class="button" (click)="timer.refresh()">Reload current timer</button>
+  <button class="button" (click)="timer.clearInvalid()">Clear old local recovery</button>
 }
 @if (!timer.supported) {
-  <p role="alert">
-    This browser cannot coordinate timers across tabs. Open the app on localhost in Chrome or Edge.
-  </p>
+  <p role="alert">Use localhost in Chrome or Edge for shared timer tab coordination.</p>
+}
+@if (timer.legacy(); as old) {
+  <pq-card
+    ><h2>Previous local timer recovered</h2>
+    <p>
+      {{ time(old.accumulatedSeconds) }} of previously saved timing is preserved. Unconfirmed time
+      while the browser was closed is excluded.
+    </p>
+    <div class="actions">
+      <button
+        class="button"
+        [disabled]="timer.busy() || old.kind === 'break' || old.accumulatedSeconds < 1"
+        (click)="timer.saveLegacy()"
+      >
+        Save recovered focus to history
+      </button>
+      <button class="button" (click)="timer.clearInvalid()">Discard old local recovery</button>
+    </div>
+  </pq-card>
 }
 <div class="focus-layout">
   <pq-card class="timer-card">
@@ -22,8 +36,13 @@
       <div class="timer-label">
         <pq-badge [tone]="active.kind === 'break' ? 'accent' : 'primary'"
           >{{ active.kind === 'break' ? 'Break' : 'Focus' }} / {{ active.mode }}</pq-badge
-        ><span class="muted small">{{ active.state }}</span>
+        ><strong>{{ timer.state() }}</strong>
       </div>
+      <h2>
+        {{
+          active.taskTitle || (active.kind === 'break' ? 'Rest break' : 'Standalone Focus Session')
+        }}
+      </h2>
       <div
         class="timer-digits"
         [class.long-time]="timer.display().length > 5"
@@ -36,81 +55,37 @@
         {{ timer.display() }}
       </div>
       <p class="muted small">
-        {{
-          active.taskRef
-            ? 'Linked task: ' + active.taskRef
-            : active.kind === 'break'
-              ? 'Rest time never counts as research focus.'
-              : 'Independent focus session / no task selected'
-        }}
+        {{ active.taskRef || 'No linked task' }} / Elapsed {{ time(timer.seconds()) }}
       </p>
-      @if (active.state === 'running' || active.state === 'paused') {
-        <div class="actions timer-actions">
-          <button
-            class="button primary"
-            [disabled]="timer.busy()"
-            (click)="timer.change(active.state === 'running' ? 'pause' : 'resume')"
-          >
-            {{ active.state === 'running' ? 'Pause' : 'Resume' }}</button><button
-            class="button"
-            [disabled]="timer.busy()"
-            (click)="timer.change('finish')"
-          >
-            {{ active.kind === 'break' ? 'Finish break' : 'Finish session' }}</button
-          ><button class="button" [disabled]="timer.busy()" (click)="discardDialog.showModal()">
-            {{ active.kind === 'break' ? 'Skip break' : 'Discard' }}
-          </button>
-        </div>
-      } @else {
-        <div class="session-summary" role="status">
-          <h2>
-            {{
-              active.kind === 'break'
-                ? 'Break finished'
-                : active.mode === 'countdown' && active.accumulatedSeconds === active.targetSeconds
-                  ? 'Countdown complete'
-                  : 'Session finished'
-            }}
-          </h2>
-          <p>
-            {{ time(active.accumulatedSeconds) }}
-            {{ active.kind === 'break' ? 'break time' : 'focused time' }}.
-          </p>
-          <p class="muted small">
-            {{
-              active.kind === 'break'
-                ? 'Breaks are not saved to focus history.'
-                : 'Save this session or discard it. Nothing is completed and no XP is awarded.'
-            }}
-          </p>
-        </div>
-        <div class="actions timer-actions">
-          @if (active.kind === 'focus') {
-            <button
-              class="button primary"
-              [disabled]="timer.busy() || active.accumulatedSeconds < 1"
-              (click)="timer.save()"
-            >
-              {{ timer.busy() ? 'Saving...' : 'Save focus session' }}</button><button
-              class="button"
-              [disabled]="timer.busy()"
-              (click)="discardDialog.showModal()"
-            >
-              Discard
-            </button>
-          } @else {
-            <button class="button primary" [disabled]="timer.busy()" (click)="timer.discard()">
-              Return to focus
-            </button>
-          }
-        </div>
-        @if (active.accumulatedSeconds === 0 && active.kind === 'focus') {
-          <p class="muted small">Zero-duration sessions cannot be saved.</p>
-        }
+      @if (active.recovered || timer.recoveryRequired()) {
+        <p class="notice" role="status">
+          Automatically paused after connection loss or recovery. Only time through the last
+          confirmed heartbeat is retained. Resume when ready.
+        </p>
+      }
+      <div class="actions timer-actions">
+        <button
+          class="button primary"
+          [disabled]="timer.busy()"
+          (click)="timer.change(timer.state() === 'running' ? 'pause' : 'resume')"
+        >
+          {{ timer.state() === 'running' ? 'Pause' : 'Resume' }}
+        </button>
+        <button class="button" [disabled]="timer.busy()" (click)="timer.change('finish')">
+          {{ active.kind === 'break' ? 'Stop break' : 'Stop session' }}
+        </button>
+      </div>
+      @if (active.mode === 'countdown' && timer.seconds() >= active.targetSeconds!) {
+        <p role="status">
+          Target reached. Stop to review your session; measured time is capped at the target.
+        </p>
       }
     } @else {
       <h2>Choose your rhythm</h2>
-      <fieldset class="stack timer-setup" [disabled]="timer.busy() || !timer.supported">
+      <fieldset
+        class="stack timer-setup"
+        [disabled]="timer.busy() || !timer.ready() || !timer.supported"
+      >
         <label
           >Timer mode<select
             aria-label="Timer mode"
@@ -123,11 +98,8 @@
         >
         @if (mode === 'countdown') {
           <div class="actions">
-            <button class="button" [class.primary]="minutes === 25" (click)="minutes = 25">
-              25 minutes</button
-            ><button class="button" [class.primary]="minutes === 50" (click)="minutes = 50">
-              50 minutes
-            </button>
+            <button class="button" (click)="minutes = 25">25 minutes</button
+            ><button class="button" (click)="minutes = 50">50 minutes</button>
           </div>
           <label
             >Custom duration (minutes)<input
@@ -189,57 +161,57 @@
       </fieldset>
     }
     <p class="recovery-note muted small">
-      Timers recover after navigation, refresh or reopening this browser. A running stopwatch keeps
-      counting while closed, up to seven days. Countdown time stops at its target. This records
-      elapsed time; it cannot detect whether you were working.
-    </p></pq-card
-  >
+      Start or Resume confirms a five-minute work window. Interacting with PhD Quest renews it.
+      Activity is confirmed every 15 seconds; losing the connection for 45 seconds pauses at the
+      last confirmed heartbeat. Hidden tabs do not pause just because they are hidden. Closing the
+      last tab attempts to pause, with heartbeat recovery as a fallback.
+    </p>
+  </pq-card>
   <div class="stack">
     <pq-card
       ><h2>A moment to reset</h2>
       <p class="muted small">
-        Breaks use the same timer, without focus history or task time. Start or skip them when
-        useful.
+        Breaks share the same timer and do not enter Focus history or task time.
       </p>
       @if (!timer.snapshot() && summary()?.completedCountdowns) {
-        <p class="break-suggestion">
+        <p>
           {{
             summary()!.completedCountdowns % 4 === 0
               ? 'Four-countdown milestone: consider a 15-minute break.'
-              : 'After a countdown, consider a short break.'
+              : 'Consider a short break.'
           }}
         </p>
       }
       <div class="actions">
-        <button class="button" [disabled]="!!timer.snapshot() || timer.busy()" (click)="break(5)">
+        <button
+          class="button"
+          [disabled]="!!timer.snapshot() || timer.busy() || !timer.ready()"
+          (click)="break(5)"
+        >
           Short break / 5 min</button
-        ><button class="button" [disabled]="!!timer.snapshot() || timer.busy()" (click)="break(15)">
+        ><button
+          class="button"
+          [disabled]="!!timer.snapshot() || timer.busy() || !timer.ready()"
+          (click)="break(15)"
+        >
           Long break / 15 min
         </button>
-      </div></pq-card
-    >
+      </div>
+    </pq-card>
     @if (timer.lastSaved(); as saved) {
       <pq-card
-        ><h2>Session saved</h2>
-        <p>{{ time(saved.focusedSeconds) }} / {{ saved.taskTitle || 'Independent research' }}</p>
-        <p class="muted small">
-          {{
-            saved.completionType === 'target-reached'
-              ? 'Target reached.'
-              : 'Partial or stopwatch session saved.'
-          }}
-          No XP or completion changes.
+        ><h2>Session stopped and saved</h2>
+        <p>
+          Measured {{ time(saved.focusedSeconds) }} /
+          {{ saved.taskTitle || 'Independent research' }}
         </p>
-        @if (eligible(saved)) {
-          <div class="actions">
-            <button class="button primary" (click)="openApplication(saved, applicationDialog)">
-              Apply time to task</button
-            ><button class="button" (click)="timer.lastSaved.set(null)">Keep separate</button>
-          </div>
-        } @else if (saved.taskRef && !saved.appliedAt) {
-          <p class="muted small">Sessions under one full minute stay separate.</p>
-        }
-      </pq-card>
+        <p>No task time, completion or XP changes until you confirm application.</p>
+        <div class="actions">
+          <button class="button primary" (click)="openApplication(saved, applicationDialog)">
+            Review duration</button
+          ><button class="button" (click)="timer.lastSaved.set(null)">Save without applying</button>
+        </div></pq-card
+      >
     }
     <pq-card
       ><div class="row spread">
@@ -257,7 +229,7 @@
             <dd>{{ totals.weekMinutes }} <small>min</small></dd>
           </div>
           <div>
-            <dt>Overall</dt>
+            <dt>Overall measured</dt>
             <dd>{{ totals.overallMinutes }} <small>min</small></dd>
           </div>
           <div>
@@ -266,8 +238,8 @@
           </div>
         </dl>
         <p class="muted small">
-          By end date in {{ totals.timezone }}. Sunday-Saturday weeks. Minutes are rounded down from
-          summed seconds; breaks are excluded.
+          Measured seconds by end date in {{ totals.timezone }}. Sunday–Saturday weeks. Corrections
+          do not rewrite measured totals; breaks are excluded.
         </p>
       }
     </pq-card>
@@ -300,10 +272,17 @@
             }
           </div>
           <div class="session-duration">
-            <strong>{{ time(session.focusedSeconds) }}</strong><span class="muted small">{{
+            <strong>Measured {{ time(session.focusedSeconds) }}</strong>
+            @if (session.effectiveSeconds !== undefined) {
+              <span>Effective {{ time(session.effectiveSeconds) }}</span>
+            }
+            <span class="muted small">{{
               session.appliedAt
-                ? session.appliedMinutes + ' focus min applied'
-                : 'Kept separate / not applied'
+                ? session.appliedMinutes +
+                  (session.applicationMode === 'task-actual'
+                    ? ' min added to task actual'
+                    : ' legacy focus min tracked separately')
+                : 'Saved / not applied'
             }}</span>
           </div>
           @if (eligible(session)) {
@@ -312,7 +291,7 @@
               [disabled]="applying()"
               (click)="openApplication(session, applicationDialog)"
             >
-              Apply time
+              {{ session.taskRef ? 'Review / apply time' : 'Correct duration' }}
             </button>
           }
         </article>
@@ -320,7 +299,7 @@
         <pq-empty-state
           icon="clock"
           title="Your first focused moment"
-          message="Saved focus sessions will appear here. Starting a timer does not create a history record."
+          message="Stopped focus sessions appear here. Applying task time is always your choice."
         />
       }
     </div>
@@ -342,71 +321,84 @@
     </div>
   }
 </pq-card>
-<dialog
-  #discardDialog
-  aria-labelledby="discard-title"
-  (cancel)="timer.busy() && $event.preventDefault()"
->
+<dialog #applicationDialog aria-labelledby="application-title" (cancel)="$event.preventDefault()">
   <div class="stack">
-    <h2 id="discard-title">Discard this timer?</h2>
-    <p>
-      Its unsaved focus or break time will be removed from this browser. Saved history is
-      unaffected.
-    </p>
-    <div class="actions">
-      <button class="button" [disabled]="timer.busy()" (click)="discardDialog.close()">
-        Keep timer</button
-      ><button class="button primary" [disabled]="timer.busy()" (click)="discard(discardDialog)">
-        Discard timer
-      </button>
-    </div>
-  </div>
-</dialog>
-<dialog
-  #applicationDialog
-  aria-labelledby="application-title"
-  (cancel)="applying() && $event.preventDefault()"
->
-  <div class="stack">
-    <div class="row spread">
-      <h2 id="application-title">Apply focus time to task</h2>
-      <button class="button" [disabled]="applying()" (click)="applicationDialog.close()">
-        Keep separate
-      </button>
-    </div>
+    <h2 id="application-title">Review stopped session</h2>
     @if (applying()) {
-      <pq-loading label="Checking or applying session time" />
+      <pq-loading label="Checking or saving session time" />
     }
     @if (applyError()) {
       <p role="alert">{{ applyError() }}</p>
     }
     @if (preview(); as p) {
-      <p>{{ p.session.taskTitle || p.session.taskRef }}</p>
+      <p>
+        {{
+          p.session.taskTitle ||
+            (p.session.taskRef ? 'Unavailable linked task' : 'Standalone Focus Session')
+        }}
+      </p>
+      <p>
+        Original measured duration: <strong>{{ time(p.session.focusedSeconds) }}</strong>
+      </p>
+      <label
+        >Effective duration (whole minutes)<input
+          type="number"
+          aria-label="Effective duration (whole minutes)"
+          min="0"
+          max="1440"
+          step="1"
+          [value]="effectiveMinutes"
+          [disabled]="applying()"
+          (input)="effectiveMinutes = $any($event.target).value"
+      /></label>
+      <p class="muted small">
+        Each session is rounded down to whole minutes before application. You may correct that
+        value, including to zero. The original measured duration is retained.
+      </p>
       @if (p.task) {
         <p>
-          Manually recorded actual time: <strong>{{ p.task.manualActualMinutes }} min</strong>.
+          Existing task actual time: <strong>{{ p.task.manualActualMinutes }} min</strong>.
         </p>
         <p>
-          Applied focus total: <strong>{{ p.task.appliedFocusMinutes }} min</strong>. This session
-          adds <strong>{{ p.proposedMinutes }} min</strong> once.
+          Resulting task actual time:
+          <strong>{{ p.task.manualActualMinutes + (+effectiveMinutes || 0) }} min</strong>.
         </p>
         <p class="muted small">
-          The session is rounded down to full minutes. Focus is tracked separately so it never
-          overwrites manual time. These measurements may describe the same work; do not add them
-          together blindly. The task stays {{ p.task.status }}; XP and streaks are unchanged.
+          Adds the accepted duration once. Manual edits remain available; completion, XP and streaks
+          stay unchanged. Earlier legacy applications remain separate.
         </p>
         <button
           class="button primary"
-          [disabled]="applying() || !!p.session.appliedAt || p.proposedMinutes < 1"
+          [disabled]="applying() || !!p.session.appliedAt"
           (click)="apply(applicationDialog)"
         >
-          Confirm apply {{ p.proposedMinutes }} focus minutes
+          Confirm apply time to task
         </button>
-      } @else {
+      } @else if (p.session.taskRef) {
         <p role="status">
-          The historical task is no longer available. This session remains saved separately.
+          The linked task is unavailable. History and your correction remain saved; time cannot be
+          applied to another task.
         </p>
       }
+      <div class="actions">
+        <button
+          class="button"
+          [disabled]="applying()"
+          (click)="saveWithoutApplying(applicationDialog)"
+        >
+          Save without applying</button
+        ><button
+          class="button"
+          [disabled]="applying()"
+          (click)="openApplication(p.session, applicationDialog, true)"
+        >
+          Inspect latest record</button
+        ><button class="button" [disabled]="applying()" (click)="applicationDialog.close()">
+          Discard correction and close
+        </button>
+      </div>
+    } @else if (!applying()) {
+      <button class="button" (click)="applicationDialog.close()">Close</button>
     }
   </div>
 </dialog>
