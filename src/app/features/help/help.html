@@ -293,12 +293,11 @@
         </p>
         <p>
           The shell's mini timer follows you between pages and tabs using one server-persisted
-          session. Start/Resume confirms a five-minute work window; app interaction renews it.
-          Activity is confirmed every 15 seconds. After 45 seconds without confirmation, recovery
-          pauses at the last confirmed heartbeat with no unattended time added. Closing the last tab
-          attempts to pause; browser delivery is best-effort. Hiding a tab does not itself pause it.
-          Countdown time is capped at its target, stopwatch time at seven days; paused time is
-          excluded.
+          session. Once started, it continues while you work in another tab or application, close
+          PhD Quest, disconnect or put the computer to sleep. Reopening includes the time away from
+          the persisted running timestamp. Only explicit Pause or Stop changes the running state.
+          Countdown targets do not stop the timer; measured time continues until your command.
+          Paused time is excluded, and previously paused sessions stay paused until resumed.
         </p>
         <p>
           Short (5-minute) and long (15-minute) breaks use the same engine, without saved history or
@@ -322,9 +321,10 @@
         <p>
           Focus sessions and breaks never complete tasks, goals or checkpoints, award XP, or update
           streaks. Focus history and applied markers are preserved in full backups; old backups
-          without focus history remain supported. Restored active timers are paused with only their
-          confirmed duration. Older browser-local recovery data remains available for explicit save
-          or discard. Importing a roadmap does not remove saved focus sessions.
+          without focus history remain supported. Manual-timer backups preserve lifecycle state and
+          timing anchors with fresh editor tokens. Older heartbeat-era active backups keep their
+          paused-restore policy. Older local recovery data remains available for explicit save or
+          discard. Importing a roadmap does not remove saved focus sessions.
         </p></pq-card
       >
     </section>

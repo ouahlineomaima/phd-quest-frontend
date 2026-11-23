@@ -26,7 +26,7 @@ Module._extensions['.ts'] = (mod, file) => {
 };
 const {
   displayedSeconds,
-  otherTabsPresent,
+  elapsedSinceResponse,
 } = require('../src/app/core/services/focus-timer-state.ts');
 const { FocusTimer } = require('../src/app/core/services/focus-timer.service.ts');
 const { FocusApi } = require('../src/app/core/services/focus-api.ts');
@@ -50,16 +50,19 @@ const row = (fields = {}) => ({
   taskTitle: 'Research task',
   ...fields,
 });
-test('an offline expired lease presents paused recovery while keeping the server snapshot unchanged', async () => {
-  const f = await fixture();
+test('three hours offline with expired legacy leases keeps the same timer running', async () => {
+  let offline = false;
+  const f = await fixture({
+    current: () => (offline ? throwError(() => new Error('Offline')) : of(row())),
+  });
   try {
-    f.update(row());
+    offline = true;
     await f.timer.refresh();
-    f.timer.now.set(performance.now() + 46000);
-    assert.equal(f.timer.state(), 'paused');
-    assert.equal(f.timer.recoveryRequired(), true);
-    assert.equal(f.timer.seconds(), 15);
+    f.timer.now.set(performance.now() + 10800000);
+    assert.equal(f.timer.state(), 'running');
+    assert.ok(f.timer.seconds() >= 10818);
     assert.equal(f.timer.snapshot().state, 'running');
+    assert.match(f.timer.error(), /Running time continues/);
   } finally {
     f.destroy();
   }
@@ -87,16 +90,15 @@ test('running display interpolates server time without counting interval callbac
   assert.equal(displayedSeconds(row(), 1100), 19));
 test('paused display is frozen', () =>
   assert.equal(displayedSeconds(row({ state: 'paused' }), 10000), 15));
-test('expired display excludes every unconfirmed second', () =>
-  assert.equal(displayedSeconds(row(), 45000), 15));
-test('activity cutoff is independent of connection lease', () =>
-  assert.equal(displayedSeconds(row({ activityUntil: stamp }), 1), 15));
-test('countdown display never exceeds target duration', () =>
-  assert.equal(displayedSeconds(row({ targetSeconds: 20 }), 20000), 20));
-test('another recent tab prevents close pause; stale or future entries do not', () => {
-  assert.equal(otherTabsPresent([9999], 10000), true);
-  assert.equal(otherTabsPresent([0, 10001, NaN], 20000), true);
-  assert.equal(otherTabsPresent([0, 20001, NaN], 20000), false);
+test('old heartbeat lease expiry does not truncate displayed time', () =>
+  assert.equal(displayedSeconds(row(), 45000), 63));
+test('interaction window expiry has no lifecycle or timing effect', () =>
+  assert.equal(displayedSeconds(row({ activityUntil: stamp }), 1800000), 1818));
+test('elapsed time continues beyond a countdown target', () =>
+  assert.equal(displayedSeconds(row({ targetSeconds: 20 }), 20000), 38));
+test('wake accounting includes sleep when the monotonic browser clock was suspended', () => {
+  assert.equal(elapsedSinceResponse(50, 10800000), 10800000);
+  assert.equal(elapsedSinceResponse(600000, -20000), 600000);
 });
 async function fixture(overrides = {}) {
   const entries = new Map();
@@ -237,22 +239,19 @@ test('a user command waits for an in-flight current read instead of dropping the
     f.destroy();
   }
 });
-test('a hidden leader yields to a visible peer but hiding all tabs does not itself pause or release the timer', async () => {
+test('hiding, blurring, closing and destroying tabs never emit a timer mutation', async () => {
   const f = await fixture();
   try {
-    let released = 0;
-    f.timer.leader = true;
-    f.timer.releaseLeader = () => {
-      released++;
-    };
+    f.update(row());
+    await f.timer.refresh();
     global.document.visibilityState = 'hidden';
-    global.localStorage.setItem('phd-quest.focus.visible.peer', String(Date.now()));
-    f.timer.yieldToVisiblePeer();
-    assert.equal(released, 1);
-    global.localStorage.setItem('phd-quest.focus.visible.peer', '0');
-    f.timer.yieldToVisiblePeer();
-    assert.equal(released, 1);
+    global.document.dispatchEvent(new globalThis.Event('visibilitychange'));
+    for (const name of ['blur', 'pagehide', 'beforeunload'])
+      global.window.dispatchEvent(new globalThis.Event(name));
+    assert.equal(f.timer.state(), 'running');
+    assert.deepEqual(f.calls, []);
   } finally {
     f.destroy();
   }
+  assert.deepEqual(f.calls, []);
 });

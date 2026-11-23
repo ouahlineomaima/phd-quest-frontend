@@ -16,6 +16,7 @@ export interface FocusSession {
   appliedMinutes: number;
   editVersion?: string;
   state?: 'running' | 'paused' | 'stopped';
+  timerPolicy?: 'manual';
   kind?: 'focus' | 'break';
   effectiveSeconds?: number;
   applicationMode?: 'task-actual';

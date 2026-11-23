@@ -8,9 +8,6 @@
   <button class="button" (click)="timer.refresh()">Reload current timer</button>
   <button class="button" (click)="timer.clearInvalid()">Clear old local recovery</button>
 }
-@if (!timer.supported) {
-  <p role="alert">Use localhost in Chrome or Edge for shared timer tab coordination.</p>
-}
 @if (timer.legacy(); as old) {
   <pq-card
     ><h2>Previous local timer recovered</h2>
@@ -57,10 +54,9 @@
       <p class="muted small">
         {{ active.taskRef || 'No linked task' }} / Elapsed {{ time(timer.seconds()) }}
       </p>
-      @if (active.recovered || timer.recoveryRequired()) {
+      @if (active.recovered && active.state === 'paused') {
         <p class="notice" role="status">
-          Automatically paused after connection loss or recovery. Only time through the last
-          confirmed heartbeat is retained. Resume when ready.
+          This session was previously paused. It stays paused until you explicitly resume it.
         </p>
       }
       <div class="actions timer-actions">
@@ -77,7 +73,7 @@
       </div>
       @if (active.mode === 'countdown' && timer.seconds() >= active.targetSeconds!) {
         <p role="status">
-          Target reached. Stop to review your session; measured time is capped at the target.
+          Target reached. Elapsed time continues until you explicitly pause or stop.
         </p>
       }
     } @else {
@@ -161,10 +157,9 @@
       </fieldset>
     }
     <p class="recovery-note muted small">
-      Start or Resume confirms a five-minute work window. Interacting with PhD Quest renews it.
-      Activity is confirmed every 15 seconds; losing the connection for 45 seconds pauses at the
-      last confirmed heartbeat. Hidden tabs do not pause just because they are hidden. Closing the
-      last tab attempts to pause, with heartbeat recovery as a fallback.
+      You control this timer. It keeps running while you work in other tabs or applications, close
+      PhD Quest, disconnect or put the computer to sleep. Reopening restores the same session and
+      includes the time away. Only Pause or Stop changes its running state.
     </p>
   </pq-card>
   <div class="stack">
