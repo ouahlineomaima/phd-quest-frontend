@@ -3,6 +3,33 @@
   title="Research Focus"
   subtitle="One timer across your tasks, pages and tabs. Apply time only when you confirm it."
 />
+@if (completionSuggestion(); as task) {
+  <section aria-labelledby="focus-completion-title">
+    <pq-card>
+      <h2 id="focus-completion-title">Time applied. Finish this task?</h2>
+      <p>{{ task.title }}</p>
+      <p class="muted small">
+        Mark it completed here when the work is done. Your recorded time is preserved.
+      </p>
+      @if (completionError()) {
+        <p role="alert">{{ completionError() }}</p>
+      }
+      <div class="actions">
+        <button
+          #completeTaskButton
+          class="button primary"
+          [disabled]="completing()"
+          (click)="completeAppliedTask()"
+        >
+          {{ completing() ? 'Completing task…' : 'Complete task' }}
+        </button>
+        <button class="button" [disabled]="completing()" (click)="keepTaskOpen()">
+          Keep task open
+        </button>
+      </div>
+    </pq-card>
+  </section>
+}
 @if (timer.error()) {
   <p class="notice" role="alert">{{ timer.error() }}</p>
   <button class="button" (click)="timer.refresh()">Reload current timer</button>

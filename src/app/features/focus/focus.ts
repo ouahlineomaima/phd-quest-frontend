@@ -2,7 +2,7 @@ import type { ElementRef } from '@angular/core';
 import { Component, DestroyRef, effect, inject, signal, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { Subscription } from 'rxjs';
-import { forkJoin } from 'rxjs';
+import { forkJoin, switchMap, throwError } from 'rxjs';
 import { Badge, Card, EmptyState, Loading, PageHeader } from '../../shared/components/ui';
 import { FocusTimer } from '../../core/services/focus-timer.service';
 import type {
@@ -15,6 +15,9 @@ import { FocusApi } from '../../core/services/focus-api';
 import { timerText } from '../../core/services/focus-timer-engine';
 import { ResearchApi, researchError } from '../../core/services/research-api';
 import type { SavedWeeklyPlan, WeekSummary } from '../weekly-plan/models/weekly-plan.models';
+import { WeeklyPlansApi } from '../weekly-plan/services/weekly-plans.service';
+import { GamificationState } from '../../core/services/gamification.service';
+import { TaskStatus } from '../../shared/models/domain.enums';
 @Component({
   selector: 'pq-focus',
   standalone: true,
@@ -27,6 +30,8 @@ export class Focus {
   private readonly api = inject(FocusApi);
   private readonly research = inject(ResearchApi);
   private readonly destroy = inject(DestroyRef);
+  private readonly weeklyPlans = inject(WeeklyPlansApi);
+  private readonly gamification = inject(GamificationState);
   readonly history = signal<FocusHistory | null>(null);
   readonly summary = signal<FocusSummary | null>(null);
   readonly loading = signal(false);
@@ -39,6 +44,10 @@ export class Focus {
   readonly preview = signal<ApplicationPreview | null>(null);
   readonly applyError = signal('');
   readonly message = signal('');
+  readonly completionSuggestion = signal<{ taskRef: string; title: string } | null>(null);
+  readonly completing = signal(false);
+  readonly completionError = signal('');
+  readonly completeTaskButton = viewChild<ElementRef<HTMLButtonElement>>('completeTaskButton');
   readonly applicationDialog = viewChild<ElementRef<HTMLDialogElement>>('applicationDialog');
   effectiveMinutes = '';
   private presentedSession = '';
@@ -53,6 +62,9 @@ export class Focus {
   constructor() {
     this.load();
     this.loadWeeks();
+    effect(() => {
+      if (this.completionSuggestion()) this.completeTaskButton()?.nativeElement.focus();
+    });
     effect(() => {
       const saved = this.timer.lastSaved();
       if (saved) {
@@ -173,12 +185,21 @@ export class Focus {
       )
       .pipe(takeUntilDestroyed(this.destroy))
       .subscribe({
-        next: () => {
+        next: (saved) => {
           this.timer.lastSaved.set(null);
           this.applying.set(false);
           dialog.close();
           this.message.set(
             'Effective minutes added to task actual time exactly once. Completion, XP and streaks are unchanged.',
+          );
+          this.completionError.set('');
+          this.completionSuggestion.set(
+            saved.taskRef && preview.task?.status !== TaskStatus.Completed
+              ? {
+                  taskRef: saved.taskRef,
+                  title: saved.taskTitle ?? preview.task?.title ?? 'Linked task',
+                }
+              : null,
           );
           this.load();
         },
@@ -189,6 +210,60 @@ export class Focus {
           );
         },
       });
+  }
+  completeAppliedTask() {
+    const target = this.completionSuggestion();
+    if (!target || this.completing()) return;
+    this.completing.set(true);
+    this.completionError.set('');
+    const [weekId, taskId] = target.taskRef.split(':');
+    this.weeklyPlans
+      .list()
+      .pipe(
+        switchMap((weeks) => {
+          const week = weeks.find((item) => item.weekId === weekId);
+          if (!week || !taskId)
+            return throwError(
+              () =>
+                new Error(
+                  'The linked task’s week is no longer available. Its Focus time remains saved.',
+                ),
+            );
+          // Omitting actualMinutes preserves the time already applied, including any later edits.
+          return this.weeklyPlans.change(week.id, { taskId, action: 'complete' });
+        }),
+        takeUntilDestroyed(this.destroy),
+      )
+      .subscribe({
+        next: (result) => {
+          this.gamification.accept(result.gamification);
+          if (this.plan()?.weekId === result.plan.weekId) this.plan.set(result.plan);
+          if (this.completionSuggestion()?.taskRef === target.taskRef)
+            this.completionSuggestion.set(null);
+          this.completing.set(false);
+          this.message.set(
+            !result.changed
+              ? 'Task was already completed. No additional XP was awarded.'
+              : result.xpAwarded > 0
+                ? `Task completed. +${result.xpAwarded} XP.`
+                : 'Task completed. No additional XP awarded.',
+          );
+        },
+        error: (error: unknown) => {
+          this.completing.set(false);
+          this.completionError.set(
+            (error instanceof Error && !('status' in error)
+              ? error.message
+              : researchError(error)) +
+              ' Time is already saved; retrying completion does not apply it again.',
+          );
+        },
+      });
+  }
+  keepTaskOpen() {
+    if (this.completing()) return;
+    this.completionSuggestion.set(null);
+    this.completionError.set('');
   }
   validCorrection() {
     if (!/^\d+$/.test(this.effectiveMinutes) || Number(this.effectiveMinutes) > 1440) {

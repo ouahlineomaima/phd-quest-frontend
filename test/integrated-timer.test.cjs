@@ -30,7 +30,96 @@ const {
 } = require('../src/app/core/services/focus-timer-state.ts');
 const { FocusTimer } = require('../src/app/core/services/focus-timer.service.ts');
 const { FocusApi } = require('../src/app/core/services/focus-api.ts');
+const { Focus } = require('../src/app/features/focus/focus.ts');
+const { signal } = require('@angular/core');
 const stamp = '2026-11-23T12:00:00.000Z';
+function completionFixture(api = {}) {
+  const focus = Object.create(Focus.prototype),
+    calls = [];
+  focus.completionSuggestion = signal({
+    taskRef: '2026-11-22:shared-task',
+    title: 'Research task',
+  });
+  focus.completing = signal(false);
+  focus.completionError = signal('');
+  focus.message = signal('');
+  focus.plan = signal(null);
+  focus.destroy = { onDestroy: () => () => {} };
+  focus.gamification = { accept: (summary) => calls.push(['summary', summary]) };
+  focus.weeklyPlans = {
+    list: () =>
+      of([
+        { id: 'other-week', weekId: '2026-11-15' },
+        { id: 'right-week', weekId: '2026-11-22' },
+      ]),
+    change: (id, action) => {
+      calls.push([id, action]);
+      return of({
+        changed: true,
+        xpAwarded: 10,
+        gamification: { totalXp: 10 },
+        plan: { weekId: '2026-11-22' },
+      });
+    },
+    ...api,
+  };
+  return { focus, calls };
+}
+test('completion from Focus uses the linked week and task while preserving recorded minutes', () => {
+  const { focus, calls } = completionFixture();
+  focus.completeAppliedTask();
+  assert.deepEqual(calls[0], ['right-week', { taskId: 'shared-task', action: 'complete' }]);
+  assert.equal(focus.completionSuggestion(), null);
+  assert.match(focus.message(), /\+10 XP/);
+  assert.deepEqual(calls[1], ['summary', { totalXp: 10 }]);
+});
+test('a failed task completion retains the suggestion and retries completion without applying time again', () => {
+  let attempts = 0;
+  const { focus } = completionFixture({
+    change: () => {
+      attempts++;
+      return throwError(() => new Error('Unavailable'));
+    },
+  });
+  focus.completeAppliedTask();
+  assert.ok(focus.completionSuggestion());
+  assert.equal(focus.completing(), false);
+  assert.match(focus.completionError(), /Time is already saved/);
+  focus.completeAppliedTask();
+  assert.equal(attempts, 2);
+});
+test('completion double clicks are blocked while the existing request is pending', () => {
+  const pending = new Subject();
+  let attempts = 0;
+  const { focus } = completionFixture({
+    change: () => {
+      attempts++;
+      return pending;
+    },
+  });
+  focus.completeAppliedTask();
+  focus.completeAppliedTask();
+  assert.equal(attempts, 1);
+  pending.next({ changed: false, xpAwarded: 0, gamification: {}, plan: { weekId: '2026-11-22' } });
+  pending.complete();
+  assert.match(focus.message(), /already completed/);
+  assert.equal(focus.completing(), false);
+});
+test('a removed linked week cannot complete a task in another week', () => {
+  const { focus, calls } = completionFixture({
+    list: () => of([{ id: 'wrong', weekId: '2026-11-15' }]),
+  });
+  focus.completeAppliedTask();
+  assert.deepEqual(calls, []);
+  assert.ok(focus.completionSuggestion());
+  assert.match(focus.completionError(), /no longer available/);
+});
+test('keeping the task open dismisses the optional offer without any mutation', () => {
+  const { focus, calls } = completionFixture();
+  focus.keepTaskOpen();
+  assert.equal(focus.completionSuggestion(), null);
+  assert.deepEqual(calls, []);
+});
 const row = (fields = {}) => ({
   sessionId: 'timer-one',
   mode: 'stopwatch',
