@@ -23,6 +23,23 @@ h3 {
   line-height: 1.8;
   overflow-wrap: anywhere;
 }
+.description-editor {
+  display: grid;
+  margin-top: 12px;
+  gap: 8px;
+}
+textarea {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  resize: vertical;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 9px;
+  font: inherit;
+}
 .task-meta {
   display: flex;
   flex-wrap: wrap;

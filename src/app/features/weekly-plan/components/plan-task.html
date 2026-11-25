@@ -10,8 +10,41 @@
     >
   </div>
   <h3>{{ task().title }}</h3>
-  @if (task().description) {
+  @if (editingDescription()) {
+    <form class="description-editor" (submit)="saveDescription($event)">
+      <label [for]="'description-' + task().id">Description (optional)</label>
+      <textarea
+        [id]="'description-' + task().id"
+        rows="4"
+        maxlength="2000"
+        [value]="descriptionDraft()"
+        (input)="updateDescriptionDraft($event)"
+        [disabled]="busy()"
+        [attr.aria-describedby]="'description-help-' + task().id"
+        [attr.aria-invalid]="descriptionError() ? 'true' : null"
+      ></textarea>
+      <p class="muted small" [id]="'description-help-' + task().id">
+        Up to 2,000 characters. Leave blank to remove the description.
+      </p>
+      @if (descriptionError()) {
+        <p class="field-error" role="alert">{{ descriptionError() }}</p>
+      }
+      <div class="row wrap">
+        <button type="submit" class="button primary" [disabled]="busy()">
+          {{ savingDescription() ? 'Saving…' : 'Save description' }}
+        </button>
+        <button type="button" class="button" [disabled]="busy()" (click)="cancelDescription()">
+          Cancel
+        </button>
+      </div>
+    </form>
+  } @else if (task().description) {
     <p class="description">{{ task().description }}</p>
+  }
+  @if (interactive() && saved() && !editingDescription()) {
+    <button class="text-link" [disabled]="busy()" (click)="editDescription()">
+      {{ task().description ? 'Edit description' : 'Add description' }}
+    </button>
   }
   <div class="task-meta">
     <span><pq-icon name="clock" />{{ task().estimatedMinutes }} min estimated</span

@@ -37,6 +37,14 @@ export class WeeklyPlansApi {
       .get<ProgressSnapshot>(`${this.base}/${encodeURIComponent(id)}/progress`)
       .pipe(timeout(15000));
   }
+  updateDescription(id: string, taskId: string, description: string) {
+    return this.http
+      .patch<SavedWeeklyPlan>(
+        `${this.base}/${encodeURIComponent(id)}/tasks/${encodeURIComponent(taskId)}/description`,
+        { description },
+      )
+      .pipe(timeout(30000));
+  }
   change(id: string, event: TaskAction) {
     return this.http
       .patch<TaskMutation>(

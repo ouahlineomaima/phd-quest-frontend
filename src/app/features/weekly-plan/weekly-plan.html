@@ -188,6 +188,9 @@
               <pq-plan-task
                 [task]="task"
                 [weekId]="plan()!.weekId"
+                [planId]="week.id"
+                (descriptionSaved)="onDescriptionSaved($event)"
+                (descriptionBusy)="busyTask.set($event ? task.id : null)"
                 [focusedMinutes]="focusTimes()?.[plan()!.weekId + ':' + task.id] ?? 0"
                 [interactive]="true"
                 [busy]="busyTask() !== null || detailLoading()"

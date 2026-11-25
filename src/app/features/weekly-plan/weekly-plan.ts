@@ -252,4 +252,9 @@ export class WeeklyPlan {
         },
       });
   }
+  onDescriptionSaved(plan: SavedWeeklyPlan) {
+    this.plan.set(plan);
+    this.xpAwarded.set(0);
+    this.message.set('Task description saved.');
+  }
 }
