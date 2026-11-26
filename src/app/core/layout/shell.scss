@@ -27,12 +27,30 @@
   grid-template-areas: 'brand breadcrumb progress actions';
 }
 .header-brand {
+  position: relative;
   grid-area: brand;
   display: flex;
   align-items: center;
   gap: 8px;
   min-width: 0;
   padding-inline: 20px 12px;
+}
+.header-brand::after,
+.header-actions::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 1px;
+  height: 30px;
+  background: var(--border);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+.header-brand::after {
+  inset-inline-end: 0;
+}
+.header-actions::before {
+  inset-inline-start: 0;
 }
 .brand-link {
   display: block;
@@ -66,10 +84,12 @@
   min-width: 0;
 }
 .header-actions {
+  position: relative;
   grid-area: actions;
   display: flex;
   align-items: center;
   gap: 12px;
+  padding-inline-start: 16px;
 }
 .workspace-status {
   display: flex;
@@ -366,6 +386,9 @@ main {
   .header-brand {
     padding-left: 12px;
   }
+  .header-brand::after {
+    display: none;
+  }
   .topbar,
   .topbar:not(:has(.focus-mini)),
   .topbar:has(.focus-mini) {
@@ -386,6 +409,7 @@ main {
   }
   .header-actions {
     gap: 8px;
+    padding-inline-start: 12px;
   }
   .content {
     padding: 20px;
