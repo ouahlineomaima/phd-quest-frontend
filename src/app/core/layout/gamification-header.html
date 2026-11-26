@@ -1,0 +1,182 @@
+<div class="indicators" aria-label="Player progress" [attr.aria-busy]="state.loading()">
+  @let player = state.summary();
+  <button
+    class="indicator streak"
+    [attr.aria-label]="
+      player
+        ? 'Streak: ' + player.currentStreak + ' days. Show details'
+        : 'Streak unavailable. Show details'
+    "
+    aria-controls="player-details"
+    [attr.aria-expanded]="open() === 'streak'"
+    (click)="toggle('streak', $event)"
+  >
+    <pq-icon name="flame" /><span
+      >{{ player ? player.currentStreak : '—' }}<small> days</small></span
+    >
+  </button>
+  <button
+    class="indicator xp"
+    [attr.aria-label]="
+      player ? 'Total XP: ' + player.totalXp + '. Show details' : 'XP unavailable. Show details'
+    "
+    aria-controls="player-details"
+    [attr.aria-expanded]="open() === 'xp'"
+    (click)="toggle('xp', $event)"
+  >
+    <pq-icon name="sparkles" /><span>{{ player ? player.totalXp : '—' }}<small> XP</small></span>
+  </button>
+  <button
+    class="indicator level"
+    [attr.aria-label]="
+      player
+        ? 'Player level ' + player.playerLevel + '. Show details'
+        : 'Level unavailable. Show details'
+    "
+    aria-controls="player-details"
+    [attr.aria-expanded]="open() === 'level'"
+    (click)="toggle('level', $event)"
+  >
+    <pq-icon name="trophy" /><span class="level-content"
+      ><span>Level {{ player ? player.playerLevel : '—' }}</span>
+      @if (player) {
+        <span
+          class="mini-track"
+          role="progressbar"
+          aria-label="Player XP toward next level"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          [attr.aria-valuenow]="player.levelProgressPercent"
+          [attr.aria-valuetext]="player.xpIntoLevel + ' of ' + player.xpForNextLevel + ' XP'"
+          ><span [style.width.%]="player.levelProgressPercent"></span
+        ></span>
+      }
+    </span>
+  </button>
+  @if (state.error()) {
+    <span
+      class="sync-status"
+      title="Progress refresh failed. Values shown are last confirmed."
+      role="status"
+      ><pq-icon name="info" /><span class="sr-only">Progress refresh failed</span></span
+    >
+  }
+</div>
+<section
+  #panel
+  id="player-details"
+  class="player-details"
+  popover="auto"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="player-details-title"
+  [style.left.px]="left()"
+  [style.top.px]="top()"
+  (toggle)="onToggle($event)"
+>
+  <div class="detail-heading">
+    <h2 id="player-details-title">
+      {{
+        open() === 'streak'
+          ? 'Research streak'
+          : open() === 'xp'
+            ? 'Experience points'
+            : 'Player level'
+      }}
+    </h2>
+    <button class="icon-button" aria-label="Close player details" (click)="close(true)">
+      <pq-icon name="close" />
+    </button>
+  </div>
+  @if (state.error()) {
+    <p class="notice" role="status">
+      Unable to refresh progress. Any values shown are last confirmed.
+    </p>
+    <button class="button" [disabled]="state.loading()" (click)="state.refresh()">
+      Retry progress
+    </button>
+  }
+  @if (player) {
+    @switch (open()) {
+      @case ('streak') {
+        <dl>
+          <div>
+            <dt>Current streak</dt>
+            <dd>{{ player.currentStreak }} days</dd>
+          </div>
+          <div>
+            <dt>Longest streak</dt>
+            <dd>{{ player.longestStreak }} days</dd>
+          </div>
+          <div>
+            <dt>Today · {{ player.todayActivity.date }}</dt>
+            <dd>
+              {{
+                player.todayActivity.taskCompletionCount > 0
+                  ? 'Qualifying activity completed'
+                  : 'No qualifying activity yet'
+              }}
+            </dd>
+          </div>
+        </dl>
+        <p class="motivation">
+          {{
+            player.todayActivity.taskCompletionCount > 0
+              ? 'You showed up today. Keep making room for research.'
+              : player.currentStreak > 0
+                ? 'Complete a task today to continue your streak.'
+                : 'One completed task can start your next streak.'
+          }}
+        </p>
+        <p class="muted">Activity dates use {{ player.timezone }}.</p>
+      }
+      @case ('xp') {
+        <dl>
+          <div>
+            <dt>Total accumulated XP</dt>
+            <dd>{{ player.totalXp }}</dd>
+          </div>
+          <div>
+            <dt>XP to next level</dt>
+            <dd>{{ player.xpRemainingToNextLevel }}</dd>
+          </div>
+        </dl>
+        <p class="muted">Confirmed rewards from your XP ledger. Completing work earns progress.</p>
+      }
+      @case ('level') {
+        <p class="level-title">Level {{ player.playerLevel }}</p>
+        <dl>
+          <div>
+            <dt>Progress toward next level</dt>
+            <dd>{{ player.levelProgressPercent }}%</dd>
+          </div>
+          <div>
+            <dt>XP in this level</dt>
+            <dd>{{ player.xpIntoLevel }} / {{ player.xpForNextLevel }}</dd>
+          </div>
+          <div>
+            <dt>Total XP</dt>
+            <dd>{{ player.totalXp }}</dd>
+          </div>
+          @if (player.xpForNextLevel > 0) {
+            <div>
+              <dt>Level {{ player.playerLevel + 1 }} at</dt>
+              <dd>{{ player.totalXp + player.xpRemainingToNextLevel }} total XP</dd>
+            </div>
+            <div>
+              <dt>Remaining</dt>
+              <dd>{{ player.xpRemainingToNextLevel }} XP</dd>
+            </div>
+          }
+        </dl>
+      }
+    }
+    @if (state.loading()) {
+      <p class="muted" role="status">Refreshing progress…</p>
+    }
+  } @else {
+    <p class="muted" role="status">
+      {{ state.loading() ? 'Loading player progress…' : 'Player progress is unavailable.' }}
+    </p>
+  }
+</section>

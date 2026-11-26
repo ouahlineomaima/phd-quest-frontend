@@ -1,138 +1,150 @@
 <a class="skip-link" href="#main-content">Skip to content</a>
-@if (drawer() && mobile()) {
-  <button class="backdrop" aria-label="Close navigation" (click)="closeDrawer()"></button>
-}
-<aside
-  #sidebar
-  class="sidebar"
-  id="app-navigation"
-  [class.is-open]="drawer()"
-  [attr.inert]="mobile() && !drawer() ? '' : null"
-  [attr.aria-label]="'Main navigation'"
-  (keydown)="trapFocus($event)"
->
-  <a routerLink="/dashboard" class="brand-link" aria-label="PhD Quest home" (click)="closeDrawer()"
-    ><pq-brand [compact]="collapsed() && !mobile()"
-  /></a>
-  <p class="nav-label eyebrow">Workspace</p>
-  <nav aria-label="Main">
-    @for (link of links; track link.path) {
-      <a
-        [routerLink]="link.path"
-        routerLinkActive="active"
-        ariaCurrentWhenActive="page"
-        [title]="link.title"
-        (click)="closeDrawer()"
-      >
-        <pq-icon [name]="link.icon" /><span class="nav-text">{{ link.title }}</span
-        ><span class="active-dot"></span>
-      </a>
+<header class="topbar">
+  <div class="header-brand">
+    <button
+      #menu
+      class="icon-button mobile-menu"
+      aria-label="Open navigation"
+      aria-controls="app-navigation"
+      [attr.aria-expanded]="drawer()"
+      (click)="openDrawer()"
+    >
+      <pq-icon name="menu" />
+    </button>
+    <a
+      routerLink="/dashboard"
+      class="brand-link"
+      aria-label="PhD Quest home"
+      (click)="closeDrawer()"
+      ><pq-brand [compact]="collapsed() && !mobile()"
+    /></a>
+  </div>
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a routerLink="/dashboard">Workspace</a><span aria-hidden="true">/</span>
+    @if (meetingDetail()) {
+      <a routerLink="/supervisor-meetings">Supervisor meetings</a><span aria-hidden="true">/</span
+      ><strong aria-current="page" title="Meeting details">Meeting details</strong>
+    } @else {
+      <strong aria-current="page" [title]="page()">{{ page() }}</strong>
     }
   </nav>
-  <div class="sidebar-bottom">
-    <div class="journey-preview">
-      <div class="row spread">
-        <span class="eyebrow">Player progress / live</span><pq-icon name="sparkles" />
-      </div>
-      @if (gamification.summary(); as player) {
-        <div class="row spread level-line">
-          <strong>Level {{ player.playerLevel }}</strong
-          ><span class="small gold">{{ player.totalXp }} XP earned</span>
-        </div>
-        <div
-          class="mini-track"
-          role="progressbar"
-          aria-label="Player XP toward next level"
-          aria-valuemin="0"
-          aria-valuemax="100"
-          [attr.aria-valuenow]="player.levelProgressPercent"
-        >
-          <span [style.width.%]="player.levelProgressPercent"></span>
-        </div>
-        <p>{{ player.xpIntoLevel }} / {{ player.xpForNextLevel }} XP toward next level</p>
-        <p>{{ player.xpRemainingToNextLevel }} XP to next player level</p>
-        <p>{{ player.currentStreak }}-day streak / best {{ player.longestStreak }}</p>
-        <p
-          class="streak-status"
-          [class.active-today]="player.todayActivity.taskCompletionCount > 0"
-        >
-          {{ gamification.streakStatus() }}
-        </p>
-      } @else {
-        <p>
-          {{
-            gamification.loading() ? 'Loading player progress...' : 'Player progress unavailable'
-          }}
-        </p>
-      }
-      @if (gamification.error()) {
-        <p>Unable to refresh. Values shown are last confirmed.</p>
-        <button class="text-link retry-player" (click)="gamification.refresh()">
-          Retry progress
-        </button>
-      }
-    </div>
-    <div class="sidebar-footer">
-      <span class="footer-dot"></span><span class="nav-text">Local workspace</span
-      ><span class="small nav-text">v0.3</span>
-    </div>
-    <button
-      class="collapse-button"
-      (click)="mobile() ? closeDrawer() : collapsed.set(!collapsed())"
-      [attr.aria-label]="
-        mobile() ? 'Close navigation' : collapsed() ? 'Expand sidebar' : 'Collapse sidebar'
-      "
-      [attr.aria-expanded]="!collapsed()"
-    >
-      <pq-icon [name]="mobile() ? 'close' : 'collapse'" /><span class="nav-text">{{
-        mobile() ? 'Close navigation' : 'Collapse sidebar'
-      }}</span>
-    </button>
-  </div>
-</aside>
-<div class="workspace">
-  <header class="topbar">
-    <div class="row">
-      <button
-        #menu
-        class="icon-button mobile-menu"
-        aria-label="Open navigation"
-        aria-controls="app-navigation"
-        [attr.aria-expanded]="drawer()"
-        (click)="openDrawer()"
-      >
-        <pq-icon name="menu" /></button
-      ><span class="breadcrumb"
-        >Workspace <span>/</span> <strong>{{ page() }}</strong></span
-      >
-    </div>
-    <div class="row header-actions">
-      <span class="local-label"><span></span>Local workspace</span
-      ><button
-        class="icon-button"
-        (click)="theme.toggle()"
-        [attr.aria-label]="
-          theme.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
-        "
-      >
-        <pq-icon [name]="theme.theme() === 'dark' ? 'sun' : 'moon'" />
-      </button>
-      <div class="profile-mark" title="Local workspace placeholder, no account">
-        <pq-icon name="book" />
-      </div>
-    </div>
-  </header>
   @if (focus.snapshot(); as timer) {
-    <a class="focus-mini" routerLink="/focus" aria-label="Return to active focus timer"
-      ><span class="focus-mini-dot" [class.paused]="focus.state() !== 'running'"></span
-      ><strong
-        >{{ timer.taskTitle || (timer.kind === 'break' ? 'Break' : 'Standalone Focus Session') }} /
-        {{ focus.state() }}</strong
-      ><span>{{ focus.elapsedDisplay() }} elapsed</span
-      ><span class="focus-mini-action">Open timer</span></a
+    <a
+      class="focus-mini"
+      routerLink="/focus"
+      aria-label="Return to active focus timer"
+      [title]="
+        (timer.taskTitle || (timer.kind === 'break' ? 'Break' : 'Standalone Focus Session')) +
+        ' / ' +
+        focus.state() +
+        ' / ' +
+        focus.elapsedDisplay() +
+        ' elapsed'
+      "
     >
+      <pq-icon name="clock" /><span class="timer-context"
+        ><strong>{{
+          timer.taskTitle || (timer.kind === 'break' ? 'Break' : 'Standalone Focus Session')
+        }}</strong
+        ><span class="timer-state">{{ focus.state() }}</span></span
+      ><span class="timer-elapsed">{{ focus.elapsedDisplay() }} <small>elapsed</small></span>
+    </a>
   }
-  <main id="main-content" tabindex="-1">
+  <pq-gamification-header class="header-progress" (opening)="closeDrawer()" />
+  <div class="header-actions">
+    <button
+      class="icon-button"
+      (click)="closeDrawer(); theme.toggle()"
+      [attr.aria-label]="
+        theme.theme() === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
+      "
+    >
+      <pq-icon [name]="theme.theme() === 'dark' ? 'sun' : 'moon'" />
+    </button>
+    <a
+      routerLink="/settings"
+      (click)="closeDrawer()"
+      class="workspace-status"
+      [attr.aria-label]="
+        'Local workspace: ' +
+        (health.status() === 'online'
+          ? 'API and database online'
+          : health.status() === 'checking'
+            ? 'checking connection'
+            : 'API unavailable') +
+        '. Open settings'
+      "
+      [title]="
+        'Local workspace, no account. ' +
+        (health.status() === 'online'
+          ? 'API and database online'
+          : health.status() === 'checking'
+            ? 'Checking connection'
+            : 'API unavailable')
+      "
+    >
+      <span class="profile-mark"
+        ><pq-icon name="book" /><span
+          class="status-dot"
+          [class.online]="health.status() === 'online'"
+        ></span
+      ></span>
+      <span class="workspace-label"
+        >Local workspace<small>{{
+          health.status() === 'online'
+            ? 'Connected'
+            : health.status() === 'checking'
+              ? 'Checking…'
+              : 'API unavailable'
+        }}</small></span
+      >
+    </a>
+  </div>
+</header>
+<div class="shell-body">
+  @if (drawer() && mobile()) {
+    <button class="backdrop" aria-label="Close navigation" (click)="closeDrawer()"></button>
+  }
+  <aside
+    #sidebar
+    class="sidebar"
+    tabindex="-1"
+    id="app-navigation"
+    [class.is-open]="drawer()"
+    [attr.inert]="mobile() && !drawer() ? '' : null"
+    aria-label="Main navigation"
+    (keydown)="trapFocus($event)"
+  >
+    <p class="nav-label eyebrow">Workspace</p>
+    <nav aria-label="Main">
+      @for (link of links; track link.path) {
+        <a
+          [routerLink]="link.path"
+          routerLinkActive="active"
+          ariaCurrentWhenActive="page"
+          [title]="link.title"
+          (click)="closeDrawer()"
+          ><pq-icon [name]="link.icon" /><span class="nav-text">{{ link.title }}</span
+          ><span class="active-dot"></span
+        ></a>
+      }
+    </nav>
+    <div class="sidebar-bottom">
+      <button
+        class="collapse-button"
+        (click)="mobile() ? closeDrawer() : collapsed.set(!collapsed())"
+        [attr.aria-label]="
+          mobile() ? 'Close navigation' : collapsed() ? 'Expand sidebar' : 'Collapse sidebar'
+        "
+        [attr.aria-expanded]="!collapsed()"
+      >
+        <pq-icon [name]="mobile() ? 'close' : 'collapse'" /><span class="nav-text">{{
+          mobile() ? 'Close navigation' : 'Collapse sidebar'
+        }}</span>
+      </button>
+    </div>
+  </aside>
+  <main id="main-content" tabindex="-1" [attr.inert]="mobile() && drawer() ? '' : null">
     <div class="content"><router-outlet /></div>
     <footer class="main-footer">
       <span>PhD Quest <span>/</span> Research. Progress. Achieve.</span

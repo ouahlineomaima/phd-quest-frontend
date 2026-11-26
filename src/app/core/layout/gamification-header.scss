@@ -1,0 +1,156 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+.indicators {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.indicator > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.indicator small {
+  font-size: 10px;
+  font-weight: 500;
+}
+.indicator pq-icon {
+  width: 17px;
+  height: 17px;
+}
+.streak {
+  color: var(--xp-gold);
+  background: var(--gold-soft);
+}
+.xp {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+.level {
+  color: var(--primary-text);
+  background: var(--primary-soft);
+}
+.indicator[aria-expanded='true'] {
+  border-color: currentColor;
+}
+.level-content {
+  display: grid;
+  gap: 4px;
+  min-width: 62px;
+  text-align: left;
+}
+.mini-track {
+  display: block;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--border);
+  overflow: hidden;
+}
+.mini-track > span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+  border-radius: inherit;
+}
+.sync-status {
+  display: inline-flex;
+  color: var(--warning);
+}
+.sync-status pq-icon {
+  width: 14px;
+  height: 14px;
+}
+.player-details {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: min(330px, calc(100vw - 16px));
+  max-height: calc(100dvh - 16px);
+  overflow: auto;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: var(--shadow);
+  font-size: 12px;
+}
+.detail-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+h2 {
+  font-size: 17px;
+}
+dl {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+dl > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+}
+dt {
+  color: var(--muted);
+}
+dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.motivation,
+.muted,
+.notice {
+  margin-top: 14px;
+}
+.motivation {
+  color: var(--xp-gold);
+}
+.muted {
+  font-size: 11px;
+}
+.notice {
+  color: var(--warning);
+  margin-bottom: 10px;
+}
+.level-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 24px;
+  color: var(--primary-text);
+  margin-bottom: 16px;
+}
+@media (max-width: 600px) {
+  .indicators {
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .indicator {
+    flex: 1 1 auto;
+    padding-inline: 8px;
+    font-size: 11px;
+  }
+}

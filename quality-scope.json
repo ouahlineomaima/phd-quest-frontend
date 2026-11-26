@@ -1,5 +1,7 @@
 {
   "typescript": [
+    "src/app/core/layout/{shell,gamification-header,brand}.ts",
+    "src/app/core/services/gamification{.service,-calendar}.ts",
     "src/app/core/services/focus-{api,timer.service,timer-state}.ts",
     "src/app/features/focus/focus.ts",
     "src/app/features/weekly-plan/components/plan-task.ts",
@@ -10,6 +12,7 @@
     "src/app/core/services/research-api.ts"
   ],
   "templates": [
+    "src/app/core/layout/{shell,gamification-header}.html",
     "src/app/features/focus/focus.html",
     "src/app/features/weekly-plan/components/plan-task.html",
     "src/app/features/skills/{skills,skill-detail,skill-editors}.html",

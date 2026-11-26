@@ -51,6 +51,12 @@ The backend protects existing records with quoted `If-Match` versions. Missing/s
 
 ## Themes and accessibility
 
+The global header holds the original branding, route-aware breadcrumb, one active Focus mini timer, streak/XP/level indicators, theme control and workspace avatar. The status dot uses the existing API/database health check; its accessible label reports checking, connected or unavailable. Sidebar navigation and main content scroll independently below the header. At narrower widths the same timer link moves into a secondary header strip; mobile navigation keeps its drawer and keyboard handling.
+
+Streak, XP and level buttons open one anchored native popover at a time, with keyboard activation, Escape/outside dismissal, focus restoration and viewport-safe placement. All values use the shared `GamificationState`, including task mutation responses and backup-restore refresh. Local-date boundaries and returning to a stale workspace refresh this state without route polling. The current summary has no daily/weekly XP, seven-day qualifying activity history or rank titles, so these secondary details are omitted. Scheduled task dates are not substituted for activity history. Level progress uses the server's XP interval and percentage.
+
+Feature 3.7 is committed locally for manual acceptance: open or refresh http://localhost:4200, check the header and popovers across routes/themes, then try a task completion and the active timer. Successful automated checks and local commits do not authorize publication. Push only after explicit user acceptance and authorization.
+
 Semantic CSS variables support dark/light themes; preference is restored early and shared through ThemeService/localStorage. Fonts are self-hosted with their licenses. Desktop navigation collapses; mobile navigation has Escape/focus handling, an inert closed state and reduced-motion support. Skill nodes remain native buttons exposing selection and their labelled detail relationship; keyboard selection/return and both themes have visible focus rings. No incomplete ARIA tree interaction is advertised.
 
 Browser automation verifies semantics, keyboard interaction and responsive layouts. Actual screen-reader testing remains outstanding; automated checks do not substitute for assistive-technology testing.

@@ -1,5 +1,6 @@
 import { FocusTimer } from '../services/focus-timer.service';
-import { Component, DestroyRef, ElementRef, inject, signal, viewChild } from '@angular/core';
+import type { ElementRef } from '@angular/core';
+import { Component, DestroyRef, inject, signal, viewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Title } from '@angular/platform-browser';
@@ -7,12 +8,13 @@ import { Icon } from '../../shared/components/icon/icon';
 import { ThemeService } from '../services/theme.service';
 import { NAVIGATION } from '../navigation/navigation';
 import { Brand } from './brand';
-import { GamificationState } from '../services/gamification.service';
+import { HealthService } from '../services/health.service';
+import { GamificationHeader } from './gamification-header';
 
 @Component({
   selector: 'pq-shell',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon, Brand],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon, Brand, GamificationHeader],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
   host: {
@@ -24,11 +26,13 @@ export class Shell {
   readonly focus = inject(FocusTimer);
   readonly theme = inject(ThemeService);
   readonly links = NAVIGATION;
-  readonly gamification = inject(GamificationState);
+  readonly health = inject(HealthService);
   readonly collapsed = signal(false);
   readonly drawer = signal(false);
   readonly mobile = signal(window.matchMedia('(max-width: 760px)').matches);
   readonly page = signal('Dashboard');
+  readonly meetingDetail = signal(false);
+  private readonly player = viewChild(GamificationHeader);
   private readonly sidebar = viewChild<ElementRef<HTMLElement>>('sidebar');
   private readonly menu = viewChild<ElementRef<HTMLButtonElement>>('menu');
 
@@ -53,12 +57,15 @@ export class Shell {
                 /^\/supervisor-meetings\/[a-f0-9]{24}$/.test(path)),
           )?.title ?? 'Page not found';
         this.page.set(name);
+        this.meetingDetail.set(/^\/supervisor-meetings\/[a-f0-9]{24}$/.test(path));
         title.setTitle(`${name} - PhD Quest`);
         this.closeDrawer();
+        this.player()?.close(false);
       }
     });
   }
   openDrawer() {
+    this.player()?.close(false);
     this.drawer.set(true);
     requestAnimationFrame(() =>
       this.sidebar()?.nativeElement.querySelector<HTMLAnchorElement>('a')?.focus(),

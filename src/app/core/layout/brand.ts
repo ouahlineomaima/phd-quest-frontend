@@ -11,7 +11,7 @@ import { Component, input } from '@angular/core';
       >
     }`,
   styles: [
-    ':host{display:flex;align-items:center;gap:11px;white-space:nowrap}strong{font-family:"Space Grotesk",sans-serif;font-size:21px;letter-spacing:-.05em}em{font-style:normal;color:var(--primary)}small{display:block;color:var(--muted);font-size:9px;letter-spacing:.025em}',
+    ':host{display:flex;align-items:center;gap:10px;white-space:nowrap}img{width:36px;height:36px}strong{font-family:"Space Grotesk",sans-serif;font-size:20px;letter-spacing:-.05em}em{font-style:normal;color:var(--primary)}small{display:block;color:var(--muted);font-size:9px;letter-spacing:.025em}@media(max-width:1100px){small{display:none}strong{font-size:18px}img{width:32px;height:32px}}',
   ],
 })
 export class Brand {

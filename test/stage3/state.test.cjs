@@ -34,6 +34,61 @@ const { EditorFeedback } = load('app/shared/state/editor-feedback.ts');
 const { ResearchApi } = load('app/core/services/research-api.ts');
 const { SkillsFacade } = load('app/features/skills/skills-facade.ts');
 const { MeetingsFacade } = load('app/features/supervisor-meetings/meetings-facade.ts');
+const { calendarDate, nextDateBoundary } = load('app/core/services/gamification-calendar.ts');
+const { GamificationState, streakStatus } = load('app/core/services/gamification.service.ts');
+const { signal } = require('@angular/core');
+
+test('gamification refresh boundary follows local midnight through short and long DST dates', () => {
+  for (const [at, zone, expected] of [
+    ['2026-11-26T23:59:59Z', 'UTC', '2026-11-27T00:00:00Z'],
+    ['2026-03-08T05:00:00Z', 'America/New_York', '2026-03-09T04:00:00Z'],
+    ['2026-11-01T04:00:00Z', 'America/New_York', '2026-11-02T05:00:00Z'],
+    ['2026-12-31T23:59:59Z', 'UTC', '2027-01-01T00:00:00Z'],
+  ]) {
+    assert.equal(nextDateBoundary(Date.parse(at), zone), Date.parse(expected));
+    assert.notEqual(
+      calendarDate(Date.parse(expected), zone),
+      calendarDate(Date.parse(expected) - 1, zone),
+    );
+  }
+  const at = Date.parse('2026-11-26T22:59:59Z');
+  const boundary = nextDateBoundary(at, 'Africa/Casablanca');
+  assert.equal(
+    calendarDate(boundary - 1, 'Africa/Casablanca'),
+    calendarDate(at, 'Africa/Casablanca'),
+  );
+  assert.notEqual(
+    calendarDate(boundary, 'Africa/Casablanca'),
+    calendarDate(at, 'Africa/Casablanca'),
+  );
+});
+test('gamification keeps unknown and last-confirmed values distinct and accepts mutations over pending reads', () => {
+  const state = Object.create(GamificationState.prototype),
+    pending = new Subject();
+  state.summary = signal(null);
+  state.loading = signal(false);
+  state.error = signal(false);
+  state.destroyRef = { onDestroy: () => () => {} };
+  state.http = { get: () => pending };
+  state.refresh();
+  assert.equal(state.loading(), true);
+  assert.equal(state.summary(), null);
+  const confirmed = {
+    totalXp: 0,
+    playerLevel: 1,
+    currentStreak: 0,
+    todayActivity: { taskCompletionCount: 0 },
+  };
+  state.accept(confirmed);
+  pending.next({ totalXp: 999 });
+  assert.equal(state.summary(), confirmed);
+  assert.equal(state.loading(), false);
+  assert.equal(streakStatus(confirmed), 'Start a streak');
+  state.http = { get: () => throwError(() => new Error('offline')) };
+  state.refresh();
+  assert.equal(state.error(), true);
+  assert.equal(state.summary(), confirmed);
+});
 const failure = () => throwError(() => new HttpErrorResponse({ status: 503 }));
 function fixture(type, api = {}) {
   const injector = createEnvironmentInjector(

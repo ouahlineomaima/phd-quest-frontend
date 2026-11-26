@@ -1,7 +1,9 @@
-import { DestroyRef, Injectable, computed, inject, signal } from '@angular/core';
+import { DestroyRef, Injectable, computed, effect, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Subscription, timeout } from 'rxjs';
+import type { Subscription } from 'rxjs';
+import { timeout } from 'rxjs';
+import { calendarDate, nextDateBoundary } from './gamification-calendar';
 export interface GamificationSummary {
   totalXp: number;
   playerLevel: number;
@@ -34,6 +36,7 @@ export class GamificationState {
   private readonly http = inject(HttpClient);
   private readonly destroyRef = inject(DestroyRef);
   private request?: Subscription;
+  private confirmedAt = 0;
   readonly summary = signal<GamificationSummary | null>(null);
   readonly loading = signal(false);
   readonly error = signal(false);
@@ -43,10 +46,41 @@ export class GamificationState {
   });
   constructor() {
     this.refresh();
+    effect((onCleanup) => {
+      const summary = this.summary();
+      if (!summary) return;
+      const refreshIfStale = () => {
+        if (
+          !this.loading() &&
+          (calendarDate(Date.now(), summary.timezone) !== summary.todayActivity.date ||
+            Date.now() - this.confirmedAt >= 60000)
+        )
+          this.refresh();
+      };
+      const visible = () => {
+        if (document.visibilityState === 'visible') refreshIfStale();
+      };
+      const timer = window.setTimeout(
+        () => this.refresh(),
+        nextDateBoundary(Date.now(), summary.timezone) - Date.now(),
+      );
+      window.addEventListener('focus', refreshIfStale);
+      window.addEventListener('pageshow', refreshIfStale);
+      window.addEventListener('online', refreshIfStale);
+      document.addEventListener('visibilitychange', visible);
+      onCleanup(() => {
+        window.clearTimeout(timer);
+        window.removeEventListener('focus', refreshIfStale);
+        window.removeEventListener('pageshow', refreshIfStale);
+        window.removeEventListener('online', refreshIfStale);
+        document.removeEventListener('visibilitychange', visible);
+      });
+    });
   }
   accept(summary: GamificationSummary) {
     this.request?.unsubscribe();
     this.summary.set(summary);
+    this.confirmedAt = Date.now();
     this.loading.set(false);
     this.error.set(false);
   }
@@ -60,6 +94,7 @@ export class GamificationState {
       .subscribe({
         next: (summary) => {
           this.summary.set(summary);
+          this.confirmedAt = Date.now();
           this.loading.set(false);
         },
         error: () => {
