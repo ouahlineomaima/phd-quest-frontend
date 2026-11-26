@@ -36,6 +36,7 @@
   --gold-soft: rgb(251 191 36 / 0.1);
   --shadow: 0 20px 60px rgb(0 0 0 / 0.2);
   --radius: 16px;
+  --scrollbar-thumb: color-mix(in srgb, var(--muted) 75%, var(--surface));
   font-family:
     Inter,
     -apple-system,
@@ -68,6 +69,45 @@
 *::before,
 *::after {
   box-sizing: border-box;
+}
+/* Shared by pages, navigation, dialogs, popovers and form fields. */
+@media (forced-colors: none) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+  @supports selector(::-webkit-scrollbar) {
+    * {
+      /* Let the rounded thumb styles below control Chromium/Safari scrollbars. */
+      scrollbar-width: auto;
+      scrollbar-color: auto;
+    }
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    ::-webkit-scrollbar-track,
+    ::-webkit-scrollbar-corner {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      border: 2px solid transparent;
+      border-radius: 999px;
+      background-color: var(--scrollbar-thumb);
+      background-clip: padding-box;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: var(--primary-text);
+    }
+    ::-webkit-scrollbar-thumb:active {
+      background-color: var(--primary);
+    }
+    ::-webkit-scrollbar-button {
+      display: none;
+      width: 0;
+      height: 0;
+    }
+  }
 }
 html {
   min-width: 320px;
